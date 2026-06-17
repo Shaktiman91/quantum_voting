@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>SimulaQron Programming Examples &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="New SDK Overview" href="new-sdk/Overview.html" />
+    <link rel="prev" title="The NetQASM interface" href="NetQASM.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="new-sdk/Overview.html" title="New SDK Overview"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="NetQASM.html" title="The NetQASM interface"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">SimulaQron Programming Examples</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="simulaqron-programming-examples">
+<h1>SimulaQron Programming Examples<a class="headerlink" href="#simulaqron-programming-examples" title="Permalink to this heading">¶</a></h1>
+<p>SimulaQron offers three ways to write quantum network programs, from highest-level to lowest-level:</p>
+<ol class="arabic simple">
+<li><p><strong>New SDK</strong> (<code class="docutils literal notranslate"><span class="pre">examples/new-sdk/</span></code>) — The recommended approach <em>for simple quantum apps using
+the NetQASM SDK</em>. Programs use <code class="docutils literal notranslate"><span class="pre">NetQASMConnection</span></code> and <code class="docutils literal notranslate"><span class="pre">EPRSocket</span></code> for quantum operations,
+and <code class="docutils literal notranslate"><span class="pre">SimulaQronClassicalClient</span></code>/<code class="docutils literal notranslate"><span class="pre">SimulaQronClassicalServer</span></code> for classical messaging.
+Start here if you are new to SimulaQron.</p></li>
+<li><p><strong>Event-based</strong> (<code class="docutils literal notranslate"><span class="pre">examples/event-based/</span></code>) — Builds on the new SDK by adding a state-machine
+pattern for classical messaging.  Each node defines states, message handlers, and a dispatch
+table.  This is the recommended pattern <em>for protocols that interleave classical negotiation
+with quantum operations</em>.</p></li>
+<li><p><strong>Native mode</strong> (<code class="docutils literal notranslate"><span class="pre">examples/native-mode/</span></code>) — The low-level Twisted interface that talks
+directly to SimulaQron’s virtual quantum nodes.  This is Python-specific and more verbose,
+but gives full control over the simulation backend.</p></li>
+</ol>
+<section id="how-to-get-the-examples">
+<span id="get-examples"></span><h2>How to get the examples<a class="headerlink" href="#how-to-get-the-examples" title="Permalink to this heading">¶</a></h2>
+<p>The code of the examples can be found in <a class="reference external" href="https://github.com/SoftwareQuTech/SimulaQron">SimulaQron GitHub repository</a>.
+Clone this repository using <code class="docutils literal notranslate"><span class="pre">git</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">SoftwareQuTech</span><span class="o">/</span><span class="n">SimulaQron</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>All the examples can be found in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> folder.</p>
+<p>When running one of the examples mentioned below, we assume that you have already made your way through
+<a class="reference internal" href="GettingStarted.html"><span class="doc">Getting Started</span></a> and you have the virtual node servers up and running.</p>
+</section>
+<section id="new-sdk-examples">
+<span id="id1"></span><h2>New SDK examples<a class="headerlink" href="#new-sdk-examples" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="new-sdk/Overview.html"><span class="doc">Overview</span></a> — Key concepts: <code class="docutils literal notranslate"><span class="pre">NetQASMConnection</span></code>, <code class="docutils literal notranslate"><span class="pre">EPRSocket</span></code>, <code class="docutils literal notranslate"><span class="pre">flush()</span></code>, file structure</p></li>
+<li><p><a class="reference internal" href="new-sdk/Template.html"><span class="doc">Template</span></a> — Getting started: single-node and client-server templates</p></li>
+<li><p><a class="reference internal" href="new-sdk/CorrRNG.html"><span class="doc">CorrRNG</span></a> — EPR pairs between two nodes, correlated measurement</p></li>
+<li><p><a class="reference internal" href="new-sdk/Teleport.html"><span class="doc">Teleport</span></a> — Quantum teleportation with classical correction messages</p></li>
+<li><p><a class="reference internal" href="new-sdk/ExtendGHZ.html"><span class="doc">ExtendGHZ</span></a> — Three-party entanglement, multiple EPR sockets</p></li>
+<li><p><a class="reference internal" href="new-sdk/MidCircuitLogic.html"><span class="doc">MidCircuitLogic</span></a> — Multiple <code class="docutils literal notranslate"><span class="pre">flush()</span></code> calls for mid-circuit classical decisions</p></li>
+</ul>
+</section>
+<section id="event-based-examples">
+<span id="id2"></span><h2>Event-based examples<a class="headerlink" href="#event-based-examples" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="event-based/Overview.html"><span class="doc">Overview</span></a> — Event-based programming model and state machines</p></li>
+<li><p><a class="reference internal" href="event-based/PingPong.html"><span class="doc">PingPong</span></a> — Classical ping-pong between two nodes</p></li>
+<li><p><a class="reference internal" href="event-based/PolitePingPong.html"><span class="doc">PolitePingPong</span></a> — State-machine message dispatch pattern</p></li>
+<li><p><a class="reference internal" href="event-based/QuantumCorrRNG.html"><span class="doc">QuantumCorrRNG</span></a> — Quantum correlated RNG with state machine</p></li>
+<li><p><a class="reference internal" href="event-based/QuantumCorrRNGVerified.html"><span class="doc">QuantumCorrRNGVerified</span></a> — Correlated RNG with verification protocol</p></li>
+</ul>
+</section>
+<section id="native-mode-examples">
+<span id="id3"></span><h2>Native mode examples<a class="headerlink" href="#native-mode-examples" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="native-mode/Template.html"><span class="doc">Template</span></a> — Template for programming in native (Twisted) mode</p></li>
+<li><p><a class="reference internal" href="native-mode/CorrRNG.html"><span class="doc">CorrRNG</span></a> — Correlated randomness using native mode</p></li>
+<li><p><a class="reference internal" href="native-mode/Teleport.html"><span class="doc">Teleport</span></a> — Teleportation using native mode</p></li>
+<li><p><a class="reference internal" href="native-mode/GraphState.html"><span class="doc">GraphState</span></a> — Distributing a graph state across four nodes</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">SimulaQron Programming Examples</a><ul>
+<li><a class="reference internal" href="#how-to-get-the-examples">How to get the examples</a></li>
+<li><a class="reference internal" href="#new-sdk-examples">New SDK examples</a></li>
+<li><a class="reference internal" href="#event-based-examples">Event-based examples</a></li>
+<li><a class="reference internal" href="#native-mode-examples">Native mode examples</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="NetQASM.html"
+                          title="previous chapter">The NetQASM interface</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="new-sdk/Overview.html"
+                          title="next chapter">New SDK Overview</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/Examples.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="new-sdk/Overview.html" title="New SDK Overview"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="NetQASM.html" title="The NetQASM interface"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">SimulaQron Programming Examples</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

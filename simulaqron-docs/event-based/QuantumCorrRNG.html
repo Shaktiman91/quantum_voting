@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Quantum Correlated RNG: Adding Quantum to Event Handlers &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Quantum Correlated RNG with Verification" href="QuantumCorrRNGVerified.html" />
+    <link rel="prev" title="Polite Ping-Pong: The State Machine Pattern" href="PolitePingPong.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="QuantumCorrRNGVerified.html" title="Quantum Correlated RNG with Verification"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="PolitePingPong.html" title="Polite Ping-Pong: The State Machine Pattern"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" accesskey="U">SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Quantum Correlated RNG: Adding Quantum to Event Handlers</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="quantum-correlated-rng-adding-quantum-to-event-handlers">
+<h1>Quantum Correlated RNG: Adding Quantum to Event Handlers<a class="headerlink" href="#quantum-correlated-rng-adding-quantum-to-event-handlers" title="Permalink to this heading">¶</a></h1>
+<p>This example combines the state machine pattern with quantum operations.
+Alice proposes generating shared randomness; if Bob agrees, both create an EPR
+pair and measure their half.  Found in <code class="docutils literal notranslate"><span class="pre">examples/event-based/quantumCorrRNG/</span></code>.</p>
+<p>This is the first example that runs quantum operations inside an event handler.</p>
+<section id="the-protocol">
+<h2>The protocol<a class="headerlink" href="#the-protocol" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Alice sends “generate randomness?” to Bob.</p></li>
+<li><p>Bob replies “yes”.</p></li>
+<li><p>Both create an EPR pair and measure their half.</p></li>
+<li><p>Both get the same correlated random bit.</p></li>
+</ol>
+</section>
+<section id="alice-s-state-diagram">
+<h2>Alice’s state diagram<a class="headerlink" href="#alice-s-state-diagram" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(connect)
+   │ send &quot;generate randomness?&quot;
+   ▼
+WAITING_ACCEPT
+   │ recv &quot;yes&quot; → EPR create + measure
+   ▼
+  DONE
+</pre></div>
+</div>
+</section>
+<section id="quantum-inside-a-handler">
+<h2>Quantum inside a handler<a class="headerlink" href="#quantum-inside-a-handler" title="Permalink to this heading">¶</a></h2>
+<p>The key insight: quantum operations happen inside a handler function, using the
+same <code class="docutils literal notranslate"><span class="pre">sim_conn</span></code> + <code class="docutils literal notranslate"><span class="pre">flush()</span></code> pattern from the new-sdk examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_yes</span><span class="p">(</span><span class="n">writer</span><span class="p">:</span> <span class="n">StreamWriter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Open a connection to the quantum backend (not to Bob — that&#39;s the</span>
+    <span class="c1"># classical reader/writer).</span>
+    <span class="n">sim_conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+
+    <span class="c1"># Create an EPR pair with Bob and keep our half</span>
+    <span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">create_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">epr</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+
+    <span class="c1"># flush() sends all queued quantum operations to the backend and waits</span>
+    <span class="c1"># for them to complete.  After this, int(m) gives the real value.</span>
+    <span class="n">sim_conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">sim_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alice: my random bit is </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">STATE_DONE</span>
+</pre></div>
+</div>
+<p>Bob’s handler is symmetric, using <code class="docutils literal notranslate"><span class="pre">recv_keep()</span></code> instead of <code class="docutils literal notranslate"><span class="pre">create_keep()</span></code>.</p>
+</section>
+<section id="bob-s-handler">
+<h2>Bob’s handler<a class="headerlink" href="#bob-s-handler" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_generate</span><span class="p">(</span><span class="n">writer</span><span class="p">:</span> <span class="n">StreamWriter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># Classical: agree</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">await</span> <span class="n">writer</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
+
+    <span class="c1"># Quantum: receive our half of the EPR pair</span>
+    <span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+    <span class="n">sim_conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+
+    <span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">recv_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">epr</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+    <span class="n">sim_conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">sim_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bob: my random bit is </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">STATE_DONE</span>
+</pre></div>
+</div>
+</section>
+<section id="key-concepts">
+<h2>Key concepts<a class="headerlink" href="#key-concepts" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Quantum in handlers</strong>: The handler creates a <code class="docutils literal notranslate"><span class="pre">NetQASMConnection</span></code>, performs
+quantum operations, calls <code class="docutils literal notranslate"><span class="pre">flush()</span></code>, reads results, and closes — all within
+one state transition.</p></li>
+<li><p><strong>Classical before quantum</strong>: Bob first sends “yes” (classical), <em>then</em> does the
+quantum operation.  The state machine cleanly separates negotiation from execution.</p></li>
+<li><p><strong>sim_conn vs reader/writer</strong>: <code class="docutils literal notranslate"><span class="pre">sim_conn</span></code> talks to the local quantum backend.
+<code class="docutils literal notranslate"><span class="pre">reader</span></code>/<code class="docutils literal notranslate"><span class="pre">writer</span></code> talk to the other node classically.  These are independent.</p></li>
+</ul>
+</section>
+<section id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">examples</span><span class="o">/</span><span class="n">event</span><span class="o">-</span><span class="n">based</span><span class="o">/</span><span class="n">quantumCorrRNG</span>
+<span class="n">bash</span> <span class="n">run</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unlike the purely classical examples, this one requires the SimulaQron
+backend to be running.  The <code class="docutils literal notranslate"><span class="pre">run.sh</span></code> script starts it automatically.</p>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Quantum Correlated RNG: Adding Quantum to Event Handlers</a><ul>
+<li><a class="reference internal" href="#the-protocol">The protocol</a></li>
+<li><a class="reference internal" href="#alice-s-state-diagram">Alice’s state diagram</a></li>
+<li><a class="reference internal" href="#quantum-inside-a-handler">Quantum inside a handler</a></li>
+<li><a class="reference internal" href="#bob-s-handler">Bob’s handler</a></li>
+<li><a class="reference internal" href="#key-concepts">Key concepts</a></li>
+<li><a class="reference internal" href="#running">Running</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="PolitePingPong.html"
+                          title="previous chapter">Polite Ping-Pong: The State Machine Pattern</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="QuantumCorrRNGVerified.html"
+                          title="next chapter">Quantum Correlated RNG with Verification</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/event-based/QuantumCorrRNG.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="QuantumCorrRNGVerified.html" title="Quantum Correlated RNG with Verification"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="PolitePingPong.html" title="Polite Ping-Pong: The State Machine Pattern"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" >SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Quantum Correlated RNG: Adding Quantum to Event Handlers</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

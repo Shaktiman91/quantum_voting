@@ -1,0 +1,711 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>simulaqron.settings.network_config &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinxdoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.settings.network_config</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simulaqron.settings.network_config</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">closing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">resources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">strenum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses_serialization.json</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSONSerializer</span><span class="p">,</span> <span class="n">JSONSerializerMixin</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">simulaqron._default_config</span>
+
+<span class="c1"># Some helpers paths that point to the usual locations where the</span>
+<span class="c1"># configurations can reside:</span>
+<span class="n">DEFAULT_SIMULAQRON_NETWORK_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;simulaqron_network.json&quot;</span>
+<span class="n">HOME_NETWORK_SETTINGS</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;.simulaqron&quot;</span> <span class="o">/</span> <span class="n">DEFAULT_SIMULAQRON_NETWORK_FILENAME</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+<span class="n">LOCAL_NETWORK_SETTINGS</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="n">DEFAULT_SIMULAQRON_NETWORK_FILENAME</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="NodeConfigType"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NodeConfigType">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NodeConfigType</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+    <span class="n">APP</span> <span class="o">=</span> <span class="s2">&quot;app&quot;</span>
+    <span class="n">QNODEOS</span> <span class="o">=</span> <span class="s2">&quot;qnodeos&quot;</span><span class="p">,</span>
+    <span class="n">VNODE</span> <span class="o">=</span> <span class="s2">&quot;vnode&quot;</span></div>
+
+
+<div class="viewcode-block" id="NodeConfig"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NodeConfig</span><span class="p">(</span><span class="n">JSONSerializerMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used by NetworkConfig to keep track of the node config of a single node.</span>
+<span class="sd">    This object holds the hostname and port info for the application, the SimulaQron</span>
+<span class="sd">    Virtual Node and the QNodeOS server.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">app_port</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">qnodeos_port</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">vnode_port</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">app_hostname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
+    <span class="n">qnodeos_hostname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
+    <span class="n">vnode_hostname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
+
+<div class="viewcode-block" id="NodeConfig.get_config"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig.get_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">NodeConfigType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the corresponding host and port config tuple for the given type.</span>
+
+<span class="sd">        :param config_type: The type of configuration to get. Can either be expressed as</span>
+<span class="sd">                            a string or a NodeConfigType.</span>
+<span class="sd">        :type config_type:  str | NodeConfigType</span>
+<span class="sd">        :return: A tuple containing the host and port config for the given configuration type.</span>
+<span class="sd">        :rtype: Tuple[str, int]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">config_type</span> <span class="o">=</span> <span class="n">NodeConfigType</span><span class="p">(</span><span class="n">config_type</span><span class="p">)</span>
+        <span class="k">match</span> <span class="n">config_type</span><span class="p">:</span>
+            <span class="k">case</span> <span class="n">NodeConfigType</span><span class="o">.</span><span class="n">APP</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_hostname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_port</span>
+            <span class="k">case</span> <span class="n">NodeConfigType</span><span class="o">.</span><span class="n">QNODEOS</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qnodeos_hostname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qnodeos_port</span>
+            <span class="k">case</span> <span class="n">NodeConfigType</span><span class="o">.</span><span class="n">VNODE</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnode_hostname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnode_port</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NodeConfig</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">names_equal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">app_sockets_equal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_hostname</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">app_hostname</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_port</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">app_port</span>
+        <span class="n">qnos_sockets_equal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qnodeos_hostname</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">qnodeos_hostname</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">qnodeos_port</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">qnodeos_port</span>
+        <span class="n">vnode_sockets_equal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnode_hostname</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">vnode_hostname</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnode_port</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">vnode_port</span>
+
+        <span class="k">return</span> <span class="n">names_equal</span> <span class="ow">and</span> <span class="n">app_sockets_equal</span> <span class="ow">and</span> <span class="n">qnos_sockets_equal</span> <span class="ow">and</span> <span class="n">vnode_sockets_equal</span></div>
+
+
+<div class="viewcode-block" id="NetworkConfig"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NetworkConfig</span><span class="p">(</span><span class="n">JSONSerializerMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used by NetworksConfiguration to keep track of the config of a single network. This object</span>
+<span class="sd">    holds the node configuration (as :py:class:`NodeConfig` instances) of all the nodes within</span>
+<span class="sd">    a network.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">topology</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NodeConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NetworkConfig.add_node"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.add_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_node</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">app_hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">qnodeos_hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vnode_hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">app_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">qnodeos_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">vnode_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">neighbors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a node with the given name to the network</span>
+<span class="sd">        If hostnames are not given they will default to &#39;localhost&#39;.</span>
+<span class="sd">        If the port numbers None, unused ones will be chosen between 8000 and 9000.</span>
+<span class="sd">        If neighbors are specified a restricted topology can be constructed (default is fully connected).</span>
+
+<span class="sd">        :param name: str</span>
+<span class="sd">            Name of the node, e.g. Alice</span>
+<span class="sd">        :param app_hostname: str</span>
+<span class="sd">            Hostname (e.g. localhost) or IP address (e.g. 192.168.0.1)</span>
+<span class="sd">        :param qnodeos_hostname: str</span>
+<span class="sd">            Hostname (e.g. localhost) or IP address (e.g. 192.168.0.1)</span>
+<span class="sd">        :param vnode_hostname: str</span>
+<span class="sd">            Hostname (e.g. localhost) or IP address (e.g. 192.168.0.1)</span>
+<span class="sd">        :param app_port: int</span>
+<span class="sd">            Port number for the application</span>
+<span class="sd">        :param qnodeos_port: int</span>
+<span class="sd">            Port number for the qnodeos server</span>
+<span class="sd">        :param vnode_port: int</span>
+<span class="sd">            Port number for the virtual node</span>
+<span class="sd">        :param neighbors: (list of str) or None</span>
+<span class="sd">            A list of neighbors, of this node.</span>
+<span class="sd">            If None all current nodes in the network will be adjacent to the added node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">neighbors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Assume that whatever nodes were there before are fully connected</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">topology</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">node_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="n">node_names</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">topology</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">neigh</span> <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">node_names</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">neigh</span> <span class="o">==</span> <span class="n">node_name</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">topology</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">neighbors</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">NodeConfig</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">app_hostname</span><span class="o">=</span><span class="n">app_hostname</span><span class="p">,</span>
+            <span class="n">qnodeos_hostname</span><span class="o">=</span><span class="n">qnodeos_hostname</span><span class="p">,</span>
+            <span class="n">vnode_hostname</span><span class="o">=</span><span class="n">vnode_hostname</span><span class="p">,</span>
+            <span class="n">app_port</span><span class="o">=</span><span class="n">app_port</span><span class="p">,</span>
+            <span class="n">qnodeos_port</span><span class="o">=</span><span class="n">qnodeos_port</span><span class="p">,</span>
+            <span class="n">vnode_port</span><span class="o">=</span><span class="n">vnode_port</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworkConfig.remove_node"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.remove_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">remove_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NodeConfig</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes the node with the given name and returns it. Returns none if the given</span>
+<span class="sd">        node name was not found in this network.</span>
+
+<span class="sd">        :param node_name: The name of the node to remove. None if the node name does not exist.</span>
+<span class="sd">        :type node_name: str</span>
+<span class="sd">        :return: The removed node. None if the given name was not found.</span>
+<span class="sd">        :rtype: NodeConfig | None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworkConfig.add_node_config"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.add_node_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_node_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_cfg</span><span class="p">:</span> <span class="n">NodeConfig</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_cfg</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_cfg</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether this network configuration is empty or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nodes_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a list of strings with the names of nodes on this network.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NetworkConfig</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">nodes_are_equal</span> <span class="o">=</span> <span class="p">[</span><span class="n">this_node</span> <span class="o">==</span> <span class="n">other_node</span> <span class="k">for</span> <span class="n">this_node</span><span class="p">,</span> <span class="n">other_node</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">topology</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">nodes_are_equal</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NodeConfig</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node_cfg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">node_name</span> <span class="o">==</span> <span class="n">item</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">node_cfg</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="NetworksConfiguration"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NetworksConfiguration</span><span class="p">(</span><span class="n">JSONSerializerMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used to construct the config file of networks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">networks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NetworkConfig</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">used_sockets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NetworksConfiguration.using_default_network"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.using_default_network">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">using_default_network</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the embedded default network configuration.</span>
+
+<span class="sd">        Used for test isolation - always loads the embedded default</span>
+<span class="sd">        regardless of local config files.</span>
+
+<span class="sd">        :return: The path of the file containing the default network configuration.</span>
+<span class="sd">        :rtype: Path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># We use the embedded default network here</span>
+        <span class="n">default_network_path</span> <span class="o">=</span> <span class="n">get_default_network_config_file</span><span class="p">(</span><span class="n">use_embedded</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">new_builder</span> <span class="o">=</span> <span class="n">NetworksConfiguration</span><span class="p">()</span>
+        <span class="n">new_builder</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">default_network_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">networks</span> <span class="o">=</span> <span class="n">new_builder</span><span class="o">.</span><span class="n">networks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span> <span class="o">=</span> <span class="n">new_builder</span><span class="o">.</span><span class="n">used_sockets</span>
+
+        <span class="k">return</span> <span class="n">default_network_path</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_correct_network_port_if_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the given port is valid (&gt;0) and if it is free. If not, it will</span>
+<span class="sd">        allocate a new port in the range 8000-9000 which is free, and hence can be used</span>
+<span class="sd">        to listen to new connections.</span>
+
+<span class="sd">        :param hostname: The hostname to test the port on.</span>
+<span class="sd">        :type hostname: str</span>
+<span class="sd">        :param port: The port number to test if it is usable</span>
+<span class="sd">        :type port: int</span>
+<span class="sd">        :return: A port number which is guaranteed to be valid, and ready to be used</span>
+<span class="sd">                 to listen to connections on.</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">port</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_unused_port</span><span class="p">(</span><span class="n">hostname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_port_available</span><span class="p">(</span><span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Socket address combination (</span><span class="si">{</span><span class="n">hostname</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">) is already in use.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">port</span>
+
+<div class="viewcode-block" id="NetworksConfiguration.add_network_config"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.add_network_config">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_network_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_cfg</span><span class="p">:</span> <span class="n">NetworkConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds the given network config to the whole networks configuration.</span>
+<span class="sd">        :param net_cfg: The network configu object to add to the specifications.</span>
+<span class="sd">        :type net_cfg: NetworkConfig</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">net_cfg</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">net_cfg</span>
+
+        <span class="c1"># Update the used_sockets object</span>
+        <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node_config</span> <span class="ow">in</span> <span class="n">net_cfg</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node_config</span><span class="o">.</span><span class="n">app_hostname</span><span class="p">,</span> <span class="n">node_config</span><span class="o">.</span><span class="n">app_port</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node_config</span><span class="o">.</span><span class="n">qnodeos_hostname</span><span class="p">,</span> <span class="n">node_config</span><span class="o">.</span><span class="n">qnodeos_port</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node_config</span><span class="o">.</span><span class="n">vnode_hostname</span><span class="p">,</span> <span class="n">node_config</span><span class="o">.</span><span class="n">vnode_port</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.add_node"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.add_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">app_hostname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+                 <span class="n">qnodeos_hostname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="n">vnode_hostname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+                 <span class="n">app_port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">qnodeos_port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">vnode_port</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a node with the given name to a network (default: &quot;default&quot;).</span>
+<span class="sd">        If hostnames are None they will default to &#39;localhost&#39;.</span>
+<span class="sd">        If the port numbers None, unused ones will be chosen between 8000 and 9000.</span>
+<span class="sd">        If neighbors are specified a restricted topology can be constructed (default is fully connected).</span>
+
+<span class="sd">        :param node_name: Name of the node, e.g. Alice.</span>
+<span class="sd">        :type node_name: str</span>
+<span class="sd">        :param network_name: Name of the network (default: &quot;default&quot;).</span>
+<span class="sd">        :type network_name: str</span>
+<span class="sd">        :param app_hostname: Hostname, e.g. localhost (the default if not given) or 192.168.0.1</span>
+<span class="sd">        :type app_hostname: str</span>
+<span class="sd">        :param qnodeos_hostname: Hostname, e.g. localhost (the default if not given) or 192.168.0.1</span>
+<span class="sd">        :type qnodeos_hostname: str</span>
+<span class="sd">        :param vnode_hostname: Hostname, e.g. localhost (the default if not given) or 192.168.0.1</span>
+<span class="sd">        :type vnode_hostname: str</span>
+<span class="sd">        :param app_port: Port number for the application. A free port in the range 8000-9000 will</span>
+<span class="sd">                         be allocated if not given</span>
+<span class="sd">        :type app_port: int</span>
+<span class="sd">        :param qnodeos_port: Port number for the application. A free port in the range 8000-9000 will</span>
+<span class="sd">                             be allocated if not given.</span>
+<span class="sd">        :type qnodeos_port: int</span>
+<span class="sd">        :param vnode_port: Port number for the application. A free port in the range 8000-9000 will</span>
+<span class="sd">                           be allocated if not given.</span>
+<span class="sd">        :type vnode_port: int</span>
+<span class="sd">        :param neighbors: A list of neighbors, of this node. If None all current nodes in the network</span>
+<span class="sd">                         will be adjacent to the added node.</span>
+<span class="sd">        :type neighbors: List[str] | None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Process app hostname/port</span>
+            <span class="n">app_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_correct_network_port_if_needed</span><span class="p">(</span><span class="n">app_hostname</span><span class="p">,</span> <span class="n">app_port</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">app_hostname</span><span class="p">,</span> <span class="n">app_port</span><span class="p">))</span>
+
+            <span class="c1"># Process qnodeos hostname/port</span>
+            <span class="n">qnodeos_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_correct_network_port_if_needed</span><span class="p">(</span><span class="n">qnodeos_hostname</span><span class="p">,</span> <span class="n">qnodeos_port</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">qnodeos_hostname</span><span class="p">,</span> <span class="n">qnodeos_port</span><span class="p">))</span>
+
+            <span class="c1"># Process qnodeos hostname/port</span>
+            <span class="n">vnode_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_correct_network_port_if_needed</span><span class="p">(</span><span class="n">vnode_hostname</span><span class="p">,</span> <span class="n">vnode_port</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">vnode_hostname</span><span class="p">,</span> <span class="n">vnode_port</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot add node </span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">network_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">:</span>
+            <span class="c1"># network doesn&#39;t exist, create a new one</span>
+            <span class="n">network</span> <span class="o">=</span> <span class="n">NetworkConfig</span><span class="p">(</span><span class="n">network_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">network</span>
+
+        <span class="c1"># At this point, we are sure that the network exists in self.networks</span>
+        <span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">node_name</span><span class="p">,</span>
+                         <span class="n">app_hostname</span><span class="o">=</span><span class="n">app_hostname</span><span class="p">,</span>
+                         <span class="n">qnodeos_hostname</span><span class="o">=</span><span class="n">qnodeos_hostname</span><span class="p">,</span>
+                         <span class="n">vnode_hostname</span><span class="o">=</span><span class="n">vnode_hostname</span><span class="p">,</span>
+                         <span class="n">app_port</span><span class="o">=</span><span class="n">app_port</span><span class="p">,</span>
+                         <span class="n">qnodeos_port</span><span class="o">=</span><span class="n">qnodeos_port</span><span class="p">,</span>
+                         <span class="n">vnode_port</span><span class="o">=</span><span class="n">vnode_port</span><span class="p">,</span>
+                         <span class="n">neighbors</span><span class="o">=</span><span class="n">neighbors</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.remove_node"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.remove_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">remove_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes a node from the network.</span>
+
+<span class="sd">        :param node_name: Name of the node to remove, e.g. Alice.</span>
+<span class="sd">        :type node_name: str</span>
+<span class="sd">        :param network_name: Name of the network to delete the node from (default: &quot;default&quot;)</span>
+<span class="sd">        :type network_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">network_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">:</span>
+            <span class="n">old_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">old_node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># node_name did not exist; just continue</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Remove the tuples from the used sockets</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">old_node</span><span class="o">.</span><span class="n">app_hostname</span><span class="p">,</span> <span class="n">old_node</span><span class="o">.</span><span class="n">app_port</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">old_node</span><span class="o">.</span><span class="n">qnodeos_hostname</span><span class="p">,</span> <span class="n">old_node</span><span class="o">.</span><span class="n">qnodeos_port</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">old_node</span><span class="o">.</span><span class="n">vnode_hostname</span><span class="p">,</span> <span class="n">old_node</span><span class="o">.</span><span class="n">vnode_port</span><span class="p">))</span>
+
+            <span class="c1"># Remove the network if it&#39;s now empty</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">network_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown network name </span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.add_network"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.add_network">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+                    <span class="n">topology</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new network to the config, with some specified nodes.</span>
+
+<span class="sd">        :param node_names: Name of the nodes, e.g. [Alice, Bob]</span>
+<span class="sd">        :type node_names: List[str]</span>
+<span class="sd">        :param network_name: Name of the network (default: &quot;default&quot;).</span>
+<span class="sd">        :type network_name: str</span>
+<span class="sd">        :param topology: The topology of the network (optional) (default is fully connected)</span>
+<span class="sd">        :type topology: Dict[str, List[str]] | None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node_names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># The user passes a string... they probably meant to add a single node, so we make it a list</span>
+            <span class="n">node_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">node_names</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_network</span><span class="p">(</span><span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="n">node_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">topology</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">neighbors</span> <span class="o">=</span> <span class="n">topology</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">neighbors</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span> <span class="n">neighbors</span><span class="o">=</span><span class="n">neighbors</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.remove_network"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.remove_network">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">remove_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes a network from the config.</span>
+
+<span class="sd">        :param network_name: Name of the network (default: &quot;default&quot;).</span>
+<span class="sd">        :type network_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">removed_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">network_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">removed_network</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">node_cfg</span> <span class="ow">in</span> <span class="n">removed_network</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">node_cfg</span><span class="o">.</span><span class="n">app_hostname</span><span class="p">,</span> <span class="n">node_cfg</span><span class="o">.</span><span class="n">app_port</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">node_cfg</span><span class="o">.</span><span class="n">qnodeos_hostname</span><span class="p">,</span> <span class="n">node_cfg</span><span class="o">.</span><span class="n">qnodeos_port</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">node_cfg</span><span class="o">.</span><span class="n">vnode_hostname</span><span class="p">,</span> <span class="n">node_cfg</span><span class="o">.</span><span class="n">vnode_port</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.get_nodes"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.get_nodes">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeConfig</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the node-config objects (NodeConfig) in a network that belong to the given network.</span>
+
+<span class="sd">        :param network_name: Name of the network (default: &quot;default&quot;)</span>
+<span class="sd">        :type network_name: str</span>
+<span class="sd">        :return: A list of :py:class:`NodeConfig` classes with the nodes configuration.</span>
+<span class="sd">        :rtype: List[NodeConfig]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">network_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">:</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2"> is not a network in this config&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.get_node_names"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.get_node_names">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the names of the nodes in a network.</span>
+
+<span class="sd">        :param network_name: Name of the network (default: &quot;default&quot;).</span>
+<span class="sd">        :type network_name: str</span>
+<span class="sd">        :return: A lit of node names in the given network.</span>
+<span class="sd">        :rtype: List[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">network_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">:</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">nodes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2"> is not a network in this config&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.remove_all_networks"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.remove_all_networks">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">remove_all_networks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes all the in-memory networks from the configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">network_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_network</span><span class="p">(</span><span class="n">network_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.write_to_file"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.write_to_file">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">write_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the content of this config to a file.</span>
+
+<span class="sd">        :param file_path: The path of the file to write the content to.</span>
+<span class="sd">        :type file_path: PathLike | str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">file_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Since this networks config was not initialized with a file_path you need to specify one&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create the Path object</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+        <span class="c1"># Create all the parent folder if they not exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Poke the file, so it exists before opening</span>
+        <span class="n">file_path</span><span class="o">.</span><span class="n">touch</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">JSONSerializer</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.read_from_file"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.read_from_file">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">read_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads config from a file.</span>
+
+<span class="sd">        :param file_path: If a file_path was specified upon __init__ this will be</span>
+<span class="sd">                          used if file_path is None.</span>
+<span class="sd">        :type file_path: PathLike | str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">file_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No path specified to read the network configuration&quot;</span><span class="p">)</span>
+
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">new_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deserialize_from_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">cls_fields</span> <span class="o">=</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">class_field</span> <span class="ow">in</span> <span class="n">cls_fields</span><span class="p">:</span>
+            <span class="n">new_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">new_config</span><span class="p">,</span> <span class="n">class_field</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_field</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">new_val</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NetworksConfiguration.read_from_legacy_files"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.read_from_legacy_files">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">read_from_legacy_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_file_path</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+                               <span class="n">vnode_file_path</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+                               <span class="n">qnodeos_file_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PathLike</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a network configuration from a set of legacy format (.cfg) network files.</span>
+
+<span class="sd">        .. warning:: This method is not implemented yet, and simply raises ``NotImplementedException``.</span>
+
+<span class="sd">        :param app_file_path: Path of the classical network file.</span>
+<span class="sd">        :type app_file_path: PathLike | str</span>
+<span class="sd">        :param vnode_file_path: Path of the virtual network file.</span>
+<span class="sd">        :type vnode_file_path: PathLike | str</span>
+<span class="sd">        :param qnodeos_file_path: Path of the QNodeOS network file. If this path is not give,</span>
+<span class="sd">                                  the same hosts as vnodes_file_path will be used, assigning a</span>
+<span class="sd">                                  new, random port in the 8000-9000 range.</span>
+<span class="sd">        :type qnodeos_file_path: PathLike | str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Reading form legacy config files is not supported yet&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_old_json_format</span><span class="p">(</span><span class="n">config_content</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">config_content</span><span class="p">:</span>
+            <span class="k">case</span> <span class="nb">list</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">case</span> <span class="nb">dict</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;JSON network config file does not have a valid format.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_correct_old_format</span><span class="p">(</span><span class="n">config_content</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="n">reformatted_config</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">network_name</span><span class="p">,</span> <span class="n">net_spec</span> <span class="ow">in</span> <span class="n">config_content</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">new_network</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">network_name</span><span class="p">,</span>
+                <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="n">node_name</span><span class="p">:</span> <span class="n">node_spec</span><span class="p">}</span> <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node_spec</span> <span class="ow">in</span> <span class="n">net_spec</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
+                <span class="s2">&quot;topology&quot;</span><span class="p">:</span> <span class="n">net_spec</span><span class="p">[</span><span class="s2">&quot;topology&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="n">reformatted_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_network</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">reformatted_config</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_deserialize_from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">file_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">config_content</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">NetworksConfiguration</span><span class="o">.</span><span class="n">_is_old_json_format</span><span class="p">(</span><span class="n">config_content</span><span class="p">):</span>
+            <span class="n">config_content</span> <span class="o">=</span> <span class="n">NetworksConfiguration</span><span class="o">.</span><span class="n">_correct_old_format</span><span class="p">(</span><span class="n">config_content</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config_content</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">JSONSerializer</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config_content</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NetworksConfiguration.read_from_known_sources"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.read_from_known_sources">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_from_known_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load config from the default config file.</span>
+
+<span class="sd">        Uses :func:`get_default_network_config_file` to resolve the path.</span>
+
+<span class="sd">        :return: Loaded network configuration.</span>
+<span class="sd">        :rtype: NetworkConfigBuilder</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">get_default_network_config_file</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_deserialize_from_file</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span></div>
+
+    <span class="c1"># Helper properties and pythonic accessors</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeConfig</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Access the nodes of the default network held by this configuration.</span>
+
+<span class="sd">        :return: A list of NodeConfig objects.</span>
+<span class="sd">        :rtype: list[NodeConfig]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nodes</span><span class="p">(</span><span class="n">network_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">network_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the loaded network names.</span>
+
+<span class="sd">        :return: A list of strings with the network names.</span>
+<span class="sd">        :rtype: List[str]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NetworkConfig</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Item &#39;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&#39; cannot be matched to a network in this config.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Helper functions</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NetworksConfiguration</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">nodes_eq</span> <span class="o">=</span> <span class="p">[</span><span class="n">current_node</span> <span class="o">==</span> <span class="n">other_node</span> <span class="k">for</span> <span class="n">current_node</span><span class="p">,</span> <span class="n">other_node</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">nodes</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">nodes_eq</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_unused_port</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an unused port in the interval 8000 to 9000, if such exists, otherwise returns None.</span>
+
+<span class="sd">        :param hostname: Hostname, e.g. localhost or 192.168.0.1</span>
+<span class="sd">        :type hostname: str</span>
+<span class="sd">        :return: A random unused port number in the  interval 8000 to 9000.</span>
+<span class="sd">        :rtype: int | None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="mi">9001</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_port_available</span><span class="p">(</span><span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">port</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No unused port in </span><span class="si">{</span><span class="n">hostname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_port_available</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the given port is not already set in the config files or used by some other process.</span>
+
+<span class="sd">        :param hostname: Hostname, e.g. localhost or 192.168.0.1</span>
+<span class="sd">        :type hostname: str</span>
+<span class="sd">        :param port: The port number</span>
+<span class="sd">        :type port: int</span>
+<span class="sd">        :return: Whether the port is currently available or not</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">used_sockets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_socket_is_free</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_socket_is_free</span><span class="p">(</span><span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if a given socket on localhost is in use.</span>
+
+<span class="sd">        This is done by trying to open the port and check if it succeeds.</span>
+
+<span class="sd">        :param port: The port number</span>
+<span class="sd">        :type port: int</span>
+<span class="sd">        :return: Whether the given port number is available on `localhost` or not.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">closing</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">))</span> <span class="k">as</span> <span class="n">sock</span><span class="p">:</span>
+            <span class="n">address</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sock</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="get_default_network_config_file"><a class="viewcode-back" href="../../../simulaqron.settings.html#simulaqron.settings.network_config.get_default_network_config_file">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_default_network_config_file</span><span class="p">(</span><span class="n">use_embedded</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the network config file path to use.</span>
+
+<span class="sd">    :param use_embedded: If True, always use the embedded default (for tests).</span>
+<span class="sd">        If False, uses priority: LOCAL &gt; HOME &gt; embedded.</span>
+<span class="sd">    :type use_embedded: bool</span>
+<span class="sd">    :return: Path to the network config file.</span>
+<span class="sd">    :rtype: Path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># We will use an embedded default which is used in testing</span>
+    <span class="k">if</span> <span class="n">use_embedded</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">simulaqron</span><span class="o">.</span><span class="n">_default_config</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;default_network.json&quot;</span><span class="p">)))</span>
+
+    <span class="c1"># Implements using the local directory setting as a priority</span>
+    <span class="k">if</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">LOCAL_NETWORK_SETTINGS</span>
+    <span class="k">if</span> <span class="n">HOME_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">HOME_NETWORK_SETTINGS</span>
+
+    <span class="c1"># Create default in HOME (matches load_from_known_sources behavior)</span>
+    <span class="c1"># XXX I have mixed feelings we should do this, but I leave it for now</span>
+    <span class="n">default_net_cfg_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">simulaqron</span><span class="o">.</span><span class="n">_default_config</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;default_network.json&quot;</span><span class="p">)))</span>
+    <span class="n">HOME_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">default_net_cfg_path</span><span class="p">,</span> <span class="n">HOME_NETWORK_SETTINGS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">HOME_NETWORK_SETTINGS</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.settings.network_config</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

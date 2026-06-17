@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>New SDK Overview &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Template: Getting started" href="Template.html" />
+    <link rel="prev" title="SimulaQron Programming Examples" href="../Examples.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Template.html" title="Template: Getting started"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../Examples.html" title="SimulaQron Programming Examples"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" accesskey="U">SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">New SDK Overview</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="new-sdk-overview">
+<h1>New SDK Overview<a class="headerlink" href="#new-sdk-overview" title="Permalink to this heading">¶</a></h1>
+<p>The new SDK is the recommended way to write quantum network programs for SimulaQron.
+It uses the <strong>NetQASM</strong> library for quantum operations and SimulaQron’s own classical
+networking classes for message passing between nodes.</p>
+<section id="key-concepts">
+<h2>Key concepts<a class="headerlink" href="#key-concepts" title="Permalink to this heading">¶</a></h2>
+<dl>
+<dt>NetQASMConnection (<code class="docutils literal notranslate"><span class="pre">sim_conn</span></code>)</dt><dd><p>Your connection to the <strong>quantum backend</strong> (SimulaQron’s virtual quantum node).
+This is <em>not</em> a connection to another party — it is how your node talks to its
+local simulated quantum hardware.  All qubit operations are queued through this
+connection.</p>
+<p>Create it once and reuse it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sim_conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd>
+<dt>EPRSocket</dt><dd><p>Used to create or receive entangled qubit pairs with a remote node.
+<code class="docutils literal notranslate"><span class="pre">create_keep()</span></code> on one side, <code class="docutils literal notranslate"><span class="pre">recv_keep()</span></code> on the other:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Alice’s side</span>
+<span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">)</span>
+<span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">create_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># Bob’s side</span>
+<span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+<span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">recv_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd>
+<dt>flush()</dt><dd><p>Sends all queued quantum operations to the backend and waits for them to complete.
+Before <code class="docutils literal notranslate"><span class="pre">flush()</span></code>, measurement results are just futures/promises.
+After <code class="docutils literal notranslate"><span class="pre">flush()</span></code>, you can read them with <code class="docutils literal notranslate"><span class="pre">int(m)</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">qubit</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="n">sim_conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>        <span class="c1"># execute everything</span>
+<span class="n">result</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>         <span class="c1"># NOW this works</span>
+</pre></div>
+</div>
+<p>You can call <code class="docutils literal notranslate"><span class="pre">flush()</span></code> multiple times on the same connection — this is how
+mid-circuit classical logic works (see <a class="reference internal" href="MidCircuitLogic.html"><span class="doc">MidCircuitLogic</span></a>).</p>
+</dd>
+<dt>close()</dt><dd><p>Similarly to <code class="docutils literal notranslate"><span class="pre">flush</span></code>, sends all queued quantum operations to the backend, waits
+for them to complete <em>but also</em> sends a <code class="docutils literal notranslate"><span class="pre">StopSignal</span></code> to the simulaqron backend.
+This signal releases any resource used by the application and closes the connection
+with the simulaqron backend, leaving in a clean state, ready for executing another
+(or the same) application:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sim_conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>        <span class="c1"># execute everything</span>
+<span class="n">result</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>         <span class="c1"># NOW this works</span>
+<span class="n">simm_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>       <span class="c1"># Close the connection with the backend</span>
+</pre></div>
+</div>
+</dd>
+<dt>Qubit</dt><dd><p>A qubit allocated on the local quantum backend.  Pass <code class="docutils literal notranslate"><span class="pre">sim_conn</span></code> so the
+backend knows where to allocate it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">sim_conn</span><span class="p">)</span>
+<span class="n">q</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>       <span class="c1"># Hadamard</span>
+<span class="n">q</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>       <span class="c1"># Pauli X</span>
+</pre></div>
+</div>
+</dd>
+<dt>Classical networking</dt><dd><p><code class="docutils literal notranslate"><span class="pre">SimulaQronClassicalClient</span></code> and <code class="docutils literal notranslate"><span class="pre">SimulaQronClassicalServer</span></code> handle TCP
+connections between nodes.  Your quantum program function receives
+<code class="docutils literal notranslate"><span class="pre">(reader,</span> <span class="pre">writer)</span></code> for sending/receiving classical messages:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_alice</span><span class="p">(</span><span class="n">reader</span><span class="p">:</span> <span class="n">StreamReader</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">StreamWriter</span><span class="p">):</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
+    <span class="n">reply</span> <span class="o">=</span> <span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Both <code class="docutils literal notranslate"><span class="pre">SimulaQronClassicalClient</span></code> and <code class="docutils literal notranslate"><span class="pre">SimulaQronClassicalServer</span></code> classes make use
+of <em>Python Coroutines</em> as the main entry points for clients and servers. These are simple
+python functions that are declared using the <code class="docutils literal notranslate"><span class="pre">async</span></code> keyword. For more information about
+Python Coroutines, please check the <a class="reference external" href="https://docs.python.org/3/library/asyncio-task.html#coroutines">official python documentation</a>.</p>
+</dd>
+</dl>
+</section>
+<section id="file-structure">
+<h2>File structure<a class="headerlink" href="#file-structure" title="Permalink to this heading">¶</a></h2>
+<p>Every example follows the same structure:</p>
+<ul class="simple">
+<li><p>One Python file per node (e.g. <code class="docutils literal notranslate"><span class="pre">aliceTest.py</span></code>, <code class="docutils literal notranslate"><span class="pre">bobTest.py</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> — defines node names and socket ports</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> — backend settings (<code class="docutils literal notranslate"><span class="pre">qutip</span></code> by default. For more information check <a class="reference internal" href="../Overview.html#sim-backends"><span class="std std-ref">SimulaQron backends</span></a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run.sh</span></code> — starts the SimulaQron backend and launches all node scripts</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">terminate.sh</span></code> — stops background processes</p></li>
+</ul>
+<p>To run any example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">examples</span><span class="o">/</span><span class="n">new</span><span class="o">-</span><span class="n">sdk</span><span class="o">/&lt;</span><span class="n">example_name</span><span class="o">&gt;</span>
+<span class="n">bash</span> <span class="n">run</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
+<p>The examples are ordered from simplest to most complex:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Example</p></th>
+<th class="head"><p>What it teaches</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="Template.html"><span class="doc">Template</span></a></p></td>
+<td><p>Basic setup: single node with local qubits, and client-server template</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="CorrRNG.html"><span class="doc">CorrRNG</span></a></p></td>
+<td><p>EPR pairs between two nodes, correlated measurement</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="Teleport.html"><span class="doc">Teleport</span></a></p></td>
+<td><p>Quantum teleportation with classical correction messages</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="ExtendGHZ.html"><span class="doc">ExtendGHZ</span></a></p></td>
+<td><p>Three-party entanglement, multiple EPR sockets on one connection</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="MidCircuitLogic.html"><span class="doc">MidCircuitLogic</span></a></p></td>
+<td><p>Multiple <code class="docutils literal notranslate"><span class="pre">flush()</span></code> calls for mid-circuit classical decisions</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">New SDK Overview</a><ul>
+<li><a class="reference internal" href="#key-concepts">Key concepts</a></li>
+<li><a class="reference internal" href="#file-structure">File structure</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../Examples.html"
+                          title="previous chapter">SimulaQron Programming Examples</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Template.html"
+                          title="next chapter">Template: Getting started</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/new-sdk/Overview.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Template.html" title="Template: Getting started"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../Examples.html" title="SimulaQron Programming Examples"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" >SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">New SDK Overview</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

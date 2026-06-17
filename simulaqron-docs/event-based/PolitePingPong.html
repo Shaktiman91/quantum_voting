@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Polite Ping-Pong: The State Machine Pattern &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Quantum Correlated RNG: Adding Quantum to Event Handlers" href="QuantumCorrRNG.html" />
+    <link rel="prev" title="Ping-Pong: Basic Event Loop" href="PingPong.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="QuantumCorrRNG.html" title="Quantum Correlated RNG: Adding Quantum to Event Handlers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="PingPong.html" title="Ping-Pong: Basic Event Loop"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" accesskey="U">SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Polite Ping-Pong: The State Machine Pattern</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="polite-ping-pong-the-state-machine-pattern">
+<h1>Polite Ping-Pong: The State Machine Pattern<a class="headerlink" href="#polite-ping-pong-the-state-machine-pattern" title="Permalink to this heading">¶</a></h1>
+<p>Extends the basic ping-pong into a proper state machine with dispatch tables.
+Alice and Bob have a polite exchange: ping, pong, thank you, you’re welcome.
+Found in <code class="docutils literal notranslate"><span class="pre">examples/event-based/politePingPong/</span></code>.</p>
+<p>This is still purely classical, but introduces the <strong>state machine pattern</strong>
+that all subsequent quantum examples will use.</p>
+<section id="alice-s-state-diagram">
+<h2>Alice’s state diagram<a class="headerlink" href="#alice-s-state-diagram" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(connect)
+   │ send &quot;ping&quot;
+   ▼
+WAITING_PONG
+   │ recv &quot;pong&quot; → send &quot;thank you&quot;
+   ▼
+WAITING_YOURE_WELCOME
+   │ recv &quot;you&#39;re welcome&quot;
+   ▼
+  DONE
+</pre></div>
+</div>
+</section>
+<section id="alice-s-dispatch-table">
+<h2>Alice’s dispatch table<a class="headerlink" href="#alice-s-dispatch-table" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ALICE_DISPATCH</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="n">STATE_WAITING_PONG</span><span class="p">,</span>          <span class="s2">&quot;pong&quot;</span><span class="p">):</span>           <span class="n">handle_pong</span><span class="p">,</span>
+    <span class="p">(</span><span class="n">STATE_WAITING_YOURE_WELCOME</span><span class="p">,</span> <span class="s2">&quot;you&#39;re welcome&quot;</span><span class="p">):</span> <span class="n">handle_youre_welcome</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Each handler is a focused function that performs one action and returns the next state:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_pong</span><span class="p">(</span><span class="n">writer</span><span class="p">:</span> <span class="n">StreamWriter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">reply</span> <span class="o">=</span> <span class="s2">&quot;thank you&quot;</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">await</span> <span class="n">writer</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">STATE_WAITING_YOURE_WELCOME</span>
+</pre></div>
+</div>
+</section>
+<section id="the-event-loop">
+<h2>The event loop<a class="headerlink" href="#the-event-loop" title="Permalink to this heading">¶</a></h2>
+<p>The event loop is generic — it works for any protocol by just changing the dispatch
+table and initial state:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_alice</span><span class="p">(</span><span class="n">reader</span><span class="p">:</span> <span class="n">StreamReader</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">StreamWriter</span><span class="p">):</span>
+    <span class="c1"># Initial action (before the loop)</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;ping&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">writer</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
+
+    <span class="n">state</span> <span class="o">=</span> <span class="n">STATE_WAITING_PONG</span>
+
+    <span class="k">while</span> <span class="n">state</span> <span class="o">!=</span> <span class="n">STATE_DONE</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">ALICE_DISPATCH</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">state</span><span class="p">,</span> <span class="n">msg</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;no transition for &#39;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&#39; — ignoring.&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handler</span><span class="p">(</span><span class="n">writer</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="key-concepts">
+<h2>Key concepts<a class="headerlink" href="#key-concepts" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Dispatch table = state machine</strong>: the <code class="docutils literal notranslate"><span class="pre">(state,</span> <span class="pre">message)</span> <span class="pre">→</span> <span class="pre">handler</span></code> mapping
+<em>is</em> the protocol definition.  Every valid transition is listed; anything not
+listed is automatically rejected.</p></li>
+<li><p><strong>Handlers are independent</strong>: each handler only knows about its own transition,
+making the code modular and easy to extend.</p></li>
+<li><p><strong>The event loop is reusable</strong>: the same loop structure works for every example
+that follows.</p></li>
+</ul>
+</section>
+<section id="bob-s-side">
+<h2>Bob’s side<a class="headerlink" href="#bob-s-side" title="Permalink to this heading">¶</a></h2>
+<p>Bob uses the same pattern with his own states (<code class="docutils literal notranslate"><span class="pre">WAITING_PING</span></code>, <code class="docutils literal notranslate"><span class="pre">WAITING_THANKS</span></code>,
+<code class="docutils literal notranslate"><span class="pre">DONE</span></code>) and dispatch table.  See <code class="docutils literal notranslate"><span class="pre">politeBob.py</span></code> for the full code.</p>
+</section>
+<section id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">examples</span><span class="o">/</span><span class="n">event</span><span class="o">-</span><span class="n">based</span><span class="o">/</span><span class="n">politePingPong</span>
+<span class="n">bash</span> <span class="n">run</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Polite Ping-Pong: The State Machine Pattern</a><ul>
+<li><a class="reference internal" href="#alice-s-state-diagram">Alice’s state diagram</a></li>
+<li><a class="reference internal" href="#alice-s-dispatch-table">Alice’s dispatch table</a></li>
+<li><a class="reference internal" href="#the-event-loop">The event loop</a></li>
+<li><a class="reference internal" href="#key-concepts">Key concepts</a></li>
+<li><a class="reference internal" href="#bob-s-side">Bob’s side</a></li>
+<li><a class="reference internal" href="#running">Running</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="PingPong.html"
+                          title="previous chapter">Ping-Pong: Basic Event Loop</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="QuantumCorrRNG.html"
+                          title="next chapter">Quantum Correlated RNG: Adding Quantum to Event Handlers</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/event-based/PolitePingPong.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="QuantumCorrRNG.html" title="Quantum Correlated RNG: Adding Quantum to Event Handlers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="PingPong.html" title="Ping-Pong: Basic Event Loop"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" >SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Polite Ping-Pong: The State Machine Pattern</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>simulaqron.netqasm_backend.qnodeos &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinxdoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.netqasm_backend.qnodeos</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simulaqron.netqasm_backend.qnodeos</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Type</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.backend.executor</span><span class="w"> </span><span class="kn">import</span> <span class="n">Executor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.backend.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">MsgDoneMessage</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">MessageType</span><span class="p">,</span> <span class="n">StopAppMessage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.backend.qnodeos</span><span class="w"> </span><span class="kn">import</span> <span class="n">QNodeController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.lang.instr</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flavour</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.shared_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SharedMemoryManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">twisted.internet.defer</span><span class="w"> </span><span class="kn">import</span> <span class="n">inlineCallbacks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">twisted.internet.protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.netqasm_backend.executioner</span><span class="w"> </span><span class="kn">import</span> <span class="n">VanillaSimulaQronExecutioner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.sdk.connection</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">NewMessageType</span><span class="p">,</span> <span class="n">GetQubitStateMessage</span><span class="p">,</span>
+                                       <span class="n">ReturnQubitStateMessage</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SubroutineHandler"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.qnodeos.SubroutineHandler">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SubroutineHandler</span><span class="p">(</span><span class="n">QNodeController</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory</span><span class="p">:</span> <span class="s2">&quot;NetQASMFactory&quot;</span><span class="p">,</span> <span class="n">instr_log_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: F821</span>
+                 <span class="n">flavour</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Flavour</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class that handles the NetQASM messages and bridges the NetQASM with the SimulaQron world.</span>
+
+<span class="sd">        The main responsibility of this class is to &quot;transform&quot; the native python generators (used</span>
+<span class="sd">        by the NetQASM library) into twisted ``Deferred`` s.</span>
+
+<span class="sd">        Each time the QNodeOS Server (specifically, the NetQASMProtocol instance) receives and correctly</span>
+<span class="sd">        parses a NetQASM message (e.g. a subroutine), it will be delegated to this class for further</span>
+<span class="sd">        processing.</span>
+
+<span class="sd">        The main entry point that process the message is the :py:meth:`handle_netqasm_message` method.</span>
+
+<span class="sd">        :param factory: The :py:class:`NetQASMFactory` object.</span>
+<span class="sd">        :type factory: NetQASMFactory</span>
+<span class="sd">        :param instr_log_dir: Directory used to write log files to.</span>
+<span class="sd">        :type instr_log_dir: str | None</span>
+<span class="sd">        :param flavour: NetQASM flavour to use.</span>
+<span class="sd">        :type flavour: Flavour | None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">factory</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">instr_log_dir</span><span class="o">=</span><span class="n">instr_log_dir</span><span class="p">,</span> <span class="n">flavour</span><span class="o">=</span><span class="n">flavour</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="o">=</span> <span class="n">factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;QnodeController&quot;</span><span class="p">)</span>
+
+        <span class="c1"># NOTE: Commented out because basicConfig(force=True) clobbers the root logger&#39;s</span>
+        <span class="c1"># handlers on every new connection, silently destroying any logging config set up</span>
+        <span class="c1"># at startup. If log output goes missing mid-run, this was the culprit.</span>
+        <span class="c1"># If you need to configure logging, do it once at process startup (e.g. in run.py),</span>
+        <span class="c1"># not here.</span>
+        <span class="c1"># logging.basicConfig(</span>
+        <span class="c1">#     format=&quot;%(asctime)s:%(levelname)s:%(name)s:%(filename)s:%(lineno)d:%(message)s&quot;,</span>
+        <span class="c1">#     level=simulaqron_settings.log_level,</span>
+        <span class="c1">#     force=True,</span>
+        <span class="c1">#     stream=sys.stdout  # send logs to the standard output, we set this earlier to be in /tmp</span>
+        <span class="c1"># )</span>
+
+        <span class="c1"># Give a way for the executioner to return messages</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_executor</span><span class="o">.</span><span class="n">add_return_msg_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_return_msg</span><span class="p">)</span>
+
+        <span class="c1"># Give the executioner a handle to the factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_executor</span><span class="o">.</span><span class="n">add_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Protocol</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the :py:class:`NetQASMProtocol` object associated with this routine Handler.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span>
+
+    <span class="nd">@protocol</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="n">Protocol</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the :py:class:`NetQASMProtocol` object associated with this routine Handler.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">protocol</span>
+
+<div class="viewcode-block" id="SubroutineHandler.handle_netqasm_message"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.handle_netqasm_message">[docs]</a>    <span class="nd">@inlineCallbacks</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_netqasm_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle incoming NetQASM messages by bridging two async models.</span>
+<span class="sd">    </span>
+<span class="sd">        NetQASM&#39;s executor uses Python generators (yield from) while SimulaQron</span>
+<span class="sd">        uses Twisted deferred&#39;s (@inlineCallbacks). This method bridges them by:</span>
+<span class="sd">        1. Running the parent&#39;s generator manually</span>
+<span class="sd">        2. Detecting whether each yielded item is a Twisted Deferred or a nested generator</span>
+<span class="sd">        3. For Deferred&#39;s: yielding to Twisted&#39;s reactor to await completion</span>
+<span class="sd">        4. For nested generators: consuming them fully and capturing their return value</span>
+<span class="sd">    </span>
+<span class="sd">        Without this bridge, nested generator return values (like physical_address</span>
+<span class="sd">        from _instr_qalloc) would be lost, causing None to propagate through the system.</span>
+<span class="sd">        This is also what caused the tests to fail, and probably other random weird things.</span>
+
+<span class="sd">        :param msg_id: The id of the message to process.</span>
+<span class="sd">        :type msg_id: int</span>
+<span class="sd">        :param msg: The message to process.</span>
+<span class="sd">        :type msg: Message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Let the executioner know which subroutine we&#39;re processing so that any</span>
+        <span class="c1"># RichErrorMessage it sends back carries the correct msg_id for the client</span>
+        <span class="c1"># to unblock its _wait_for_done loop.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_executor</span><span class="o">.</span><span class="n">_current_msg_id</span> <span class="o">=</span> <span class="n">msg_id</span>
+
+        <span class="n">gen</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">handle_netqasm_message</span><span class="p">(</span>
+            <span class="n">msg_id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">,</span>
+            <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Bridge between two async models:</span>
+        <span class="c1"># - NetQASM&#39;s executor uses Python generators (yield from)</span>
+        <span class="c1"># - SimulaQron uses Twisted deferreds (@inlineCallbacks)</span>
+        <span class="c1">#</span>
+        <span class="c1"># We manually drive the netqasm generator, detecting whether each</span>
+        <span class="c1"># yielded item is a Twisted Deferred (wait for it) or a nested</span>
+        <span class="c1"># generator (consume it manually, propagating its return value back).</span>
+        <span class="c1">#</span>
+        <span class="c1"># The gen.throw() call below is critical: when a nested generator</span>
+        <span class="c1"># (e.g. super()._instr_qalloc) raises an exception, we must re-throw</span>
+        <span class="c1"># it into the outer generator so netqasm&#39;s try/except in</span>
+        <span class="c1"># _execute_commands can catch it and call _handle_command_exception,</span>
+        <span class="c1"># which sends RichErrorMessage back to the client.  Without this,</span>
+        <span class="c1"># the exception escapes the runner, _handle_command_exception never</span>
+        <span class="c1"># runs, and the client hangs waiting for a reply that never comes.</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">break</span>  <span class="c1"># generator finished normally</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;addCallback&#39;</span><span class="p">):</span>  <span class="c1"># Twisted Deferred</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">item</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;__next__&#39;</span><span class="p">):</span>  <span class="c1"># Nested generator — consume manually</span>
+                <span class="n">nested_result</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                        <span class="n">nested_item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">nested_result</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nested_item</span><span class="p">,</span> <span class="s1">&#39;addCallback&#39;</span><span class="p">):</span>
+                            <span class="n">nested_result</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">nested_item</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">nested_result</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">value</span>  <span class="c1"># propagate return value back to outer gen</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="c1"># Nested generator raised (e.g. &quot;virtual address outside unit module&quot;).</span>
+                    <span class="c1"># Re-throw into the outer generator so netqasm can handle it.</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">item2</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span>
+                        <span class="c1"># Outer generator caught the exception and yielded again —</span>
+                        <span class="c1"># process item2 exactly like any other yielded item.</span>
+                        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item2</span><span class="p">,</span> <span class="s1">&#39;addCallback&#39;</span><span class="p">):</span>
+                            <span class="n">result</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">item2</span>
+                        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item2</span><span class="p">,</span> <span class="s1">&#39;__next__&#39;</span><span class="p">):</span>
+                            <span class="n">nested_result2</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                                    <span class="n">ni2</span> <span class="o">=</span> <span class="n">item2</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">nested_result2</span><span class="p">)</span>
+                                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ni2</span><span class="p">,</span> <span class="s1">&#39;addCallback&#39;</span><span class="p">):</span>
+                                        <span class="n">nested_result2</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">ni2</span>
+                                    <span class="k">else</span><span class="p">:</span>
+                                        <span class="n">nested_result2</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">se2</span><span class="p">:</span>
+                                <span class="n">result</span> <span class="o">=</span> <span class="n">se2</span><span class="o">.</span><span class="n">value</span>
+                    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                        <span class="k">break</span>  <span class="c1"># outer generator finished after handling the error</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_qubit_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_qubit_state_msg</span><span class="p">:</span> <span class="n">GetQubitStateMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_executor</span><span class="p">,</span> <span class="n">VanillaSimulaQronExecutioner</span><span class="p">)</span>
+        <span class="n">casted_executor</span><span class="p">:</span> <span class="n">VanillaSimulaQronExecutioner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_executor</span>
+        <span class="c1"># The ProjectQ backend also returns an unused mapping; we need to fix that</span>
+        <span class="n">realvec</span><span class="p">,</span> <span class="n">imagvec</span> <span class="o">=</span> <span class="k">yield from</span> <span class="n">casted_executor</span><span class="o">.</span><span class="n">get_qubit_state</span><span class="p">(</span><span class="n">get_qubit_state_msg</span><span class="o">.</span><span class="n">qubit_id</span><span class="p">)</span>
+        <span class="c1"># Return a message to the connection object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_return_qubit_state</span><span class="p">(</span><span class="n">get_qubit_state_msg</span><span class="o">.</span><span class="n">qubit_id</span><span class="p">,</span> <span class="n">realvec</span><span class="p">,</span> <span class="n">imagvec</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_return_qubit_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">real_part</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">imag_part</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
+        <span class="n">qubit_state_message</span> <span class="o">=</span> <span class="n">ReturnQubitStateMessage</span><span class="p">(</span><span class="n">qubit_id</span><span class="p">,</span> <span class="n">real_part</span><span class="p">,</span> <span class="n">imag_part</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_return_msg</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="n">qubit_state_message</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_stop_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">StopAppMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">yield from</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_handle_stop_app</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="c1"># Clear the shared memory registries occupied in the QNodeOS backend</span>
+        <span class="n">SharedMemoryManager</span><span class="o">.</span><span class="n">reset_memories</span><span class="p">()</span>
+
+    <span class="c1"># We override the _get_message_handlers method so we can also handle the &quot;get qubit state&quot; message</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_message_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">NewMessageType</span> <span class="o">|</span> <span class="n">MessageType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">MessageType</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_signal</span><span class="p">,</span>
+            <span class="n">MessageType</span><span class="o">.</span><span class="n">SUBROUTINE</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_subroutine</span><span class="p">,</span>
+            <span class="n">MessageType</span><span class="o">.</span><span class="n">INIT_NEW_APP</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_init_new_app</span><span class="p">,</span>
+            <span class="n">MessageType</span><span class="o">.</span><span class="n">STOP_APP</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_stop_app</span><span class="p">,</span>
+            <span class="n">MessageType</span><span class="o">.</span><span class="n">OPEN_EPR_SOCKET</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_open_epr_socket</span><span class="p">,</span>
+            <span class="n">NewMessageType</span><span class="o">.</span><span class="n">GET_QUBIT_STATE</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_get_qubit_state</span>
+        <span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_executor_class</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">flavour</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Flavour</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Executor</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">VanillaSimulaQronExecutioner</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mark_message_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+        <span class="n">ret_msg</span> <span class="o">=</span> <span class="n">MsgDoneMessage</span><span class="p">(</span><span class="n">msg_id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_return_msg</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="n">ret_msg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SubroutineHandler.stop"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.stop">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stops this instance of the SubroutineHandler.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_return_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns (by sending it back to the application server) a message to the host</span>
+
+<span class="sd">        :param msg: The message to return.</span>
+<span class="sd">        :type msg: Message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Seems protocol of handler has not yet been set&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;sending message </span><span class="si">%s</span><span class="s2"> to host&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">_return_msg</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.netqasm_backend.qnodeos</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

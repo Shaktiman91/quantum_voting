@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>simulaqron.start.start_qnodeos &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinxdoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.start.start_qnodeos</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simulaqron.start.start_qnodeos</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">timeit</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_timer</span> <span class="k">as</span> <span class="n">timer</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">twisted.internet.error</span><span class="w"> </span><span class="kn">import</span> <span class="ne">ConnectionRefusedError</span><span class="p">,</span> <span class="n">CannotListenError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">twisted.spread</span><span class="w"> </span><span class="kn">import</span> <span class="n">pb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.reactor</span><span class="w"> </span><span class="kn">import</span> <span class="n">reactor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.netqasm_backend.factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetQASMFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.netqasm_backend.qnodeos</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubroutineHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.general.host_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">SocketsConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulaqron_settings</span><span class="p">,</span> <span class="n">network_config</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;start_qnodeos&quot;</span><span class="p">)</span>
+
+<span class="n">_RETRY_TIME</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">_TIMEOUT</span> <span class="o">=</span> <span class="mi">10</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_init_register</span><span class="p">(</span><span class="n">virt_root</span><span class="p">,</span> <span class="n">my_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">NetQASMFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieves the relevant root objects to talk to such remote connections&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;START_QNODEOS </span><span class="si">%s</span><span class="s2">: Connection to local virtual node successful&quot;</span><span class="p">,</span> <span class="n">my_name</span><span class="p">)</span>
+    <span class="c1"># Set the virtual node</span>
+    <span class="n">node</span><span class="o">.</span><span class="n">set_virtual_node</span><span class="p">(</span><span class="n">virt_root</span><span class="p">)</span>
+    <span class="c1"># Start listening to NetQASM messages</span>
+    <span class="n">_setup_netqasm_server</span><span class="p">(</span><span class="n">my_name</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_connect_to_virt_node</span><span class="p">(</span><span class="n">my_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">netqasm_factory</span><span class="p">:</span> <span class="n">NetQASMFactory</span><span class="p">,</span> <span class="n">virtual_network</span><span class="p">:</span> <span class="n">SocketsConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tries to connect to local virtual node.</span>
+
+<span class="sd">    If connection is refused, we try again after a set amount of time</span>
+<span class="sd">    (specified in handle_connection_error)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">virtual_node</span> <span class="o">=</span> <span class="n">virtual_network</span><span class="o">.</span><span class="n">hostDict</span><span class="p">[</span><span class="n">my_name</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s2">&quot;START_QNODEOS </span><span class="si">%s</span><span class="s2">: Trying to connect to local virtual node at </span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="n">my_name</span><span class="p">,</span> <span class="n">virtual_node</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="n">virtual_node</span><span class="o">.</span><span class="n">port</span>
+    <span class="p">)</span>
+    <span class="n">factory</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">PBClientFactory</span><span class="p">()</span>
+    <span class="c1"># Connect</span>
+    <span class="n">reactor</span><span class="o">.</span><span class="n">connectTCP</span><span class="p">(</span><span class="n">virtual_node</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="n">virtual_node</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">factory</span><span class="p">)</span>
+    <span class="n">defer_virtual_node</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">getRootObject</span><span class="p">()</span>
+    <span class="c1"># If connection succeeds do:</span>
+    <span class="n">defer_virtual_node</span><span class="o">.</span><span class="n">addCallback</span><span class="p">(</span><span class="n">_init_register</span><span class="p">,</span> <span class="n">my_name</span><span class="p">,</span> <span class="n">netqasm_factory</span><span class="p">)</span>
+    <span class="c1"># If connection fails do:</span>
+    <span class="n">defer_virtual_node</span><span class="o">.</span><span class="n">addErrback</span><span class="p">(</span><span class="n">_handle_connection_error</span><span class="p">,</span> <span class="n">my_name</span><span class="p">,</span> <span class="n">netqasm_factory</span><span class="p">,</span> <span class="n">virtual_network</span><span class="p">,</span>
+                                  <span class="n">virtual_node</span><span class="o">.</span><span class="n">hostname</span><span class="p">,</span> <span class="n">virtual_node</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_handle_connection_error</span><span class="p">(</span><span class="n">reason</span><span class="p">,</span> <span class="n">my_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">netqasm_factory</span><span class="p">:</span> <span class="n">NetQASMFactory</span><span class="p">,</span> <span class="n">virtual_network</span><span class="p">:</span> <span class="n">SocketsConfig</span><span class="p">,</span>
+                             <span class="n">virtual_node_hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">virtual_node_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Handles errors from trying to connect to local virtual node.</span>
+
+<span class="sd">    If a ConnectionRefusedError is raised another try will be made after</span>
+<span class="sd">    Settings.CONF_WAIT_TIME seconds. Any other error is raised again.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">reason</span><span class="o">.</span><span class="n">raiseException</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">ConnectionRefusedError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="c1"># TODO - Implement checking of max number of connections</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;START_QNODEOS </span><span class="si">%s</span><span class="s2">: Could not connect to Virtual node (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2">), trying again...&quot;</span><span class="p">,</span> <span class="n">my_name</span><span class="p">,</span>
+                     <span class="n">virtual_node_hostname</span><span class="p">,</span> <span class="n">virtual_node_port</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">err</span><span class="p">)</span>
+        <span class="n">reactor</span><span class="o">.</span><span class="n">callLater</span><span class="p">(</span>
+            <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">conn_retry_time</span><span class="p">,</span>
+            <span class="n">_connect_to_virt_node</span><span class="p">,</span>
+            <span class="n">my_name</span><span class="p">,</span>
+            <span class="n">netqasm_factory</span><span class="p">,</span>
+            <span class="n">virtual_network</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">&quot;START_QNODEOS </span><span class="si">%s</span><span class="s2">: Critical error when connection to local virtual node: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">my_name</span><span class="p">,</span>
+            <span class="n">e</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">reactor</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup_netqasm_server</span><span class="p">(</span><span class="n">my_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">netqasm_factory</span><span class="p">:</span> <span class="n">NetQASMFactory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup NetQASM server to handle remote on the classical communication network.&quot;&quot;&quot;</span>
+    <span class="n">t_start</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">timer</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_start</span> <span class="o">&lt;</span> <span class="n">_TIMEOUT</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;START_QNODEOS </span><span class="si">%s</span><span class="s2">: Starting local QNodeOS server, port </span><span class="si">%d</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="n">my_name</span><span class="p">,</span> <span class="n">netqasm_factory</span><span class="o">.</span><span class="n">host</span><span class="o">.</span><span class="n">port</span>
+            <span class="p">)</span>
+            <span class="n">my_host</span> <span class="o">=</span> <span class="n">netqasm_factory</span><span class="o">.</span><span class="n">host</span>
+            <span class="n">my_host</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">netqasm_factory</span>
+            <span class="n">my_host</span><span class="o">.</span><span class="n">factory</span> <span class="o">=</span> <span class="n">netqasm_factory</span>
+            <span class="n">reactor</span><span class="o">.</span><span class="n">listenTCP</span><span class="p">(</span><span class="n">my_host</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">my_host</span><span class="o">.</span><span class="n">factory</span><span class="p">)</span>
+            <span class="k">break</span>
+        <span class="k">except</span> <span class="n">CannotListenError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;START_QNODEOS: </span><span class="si">%s</span><span class="s2">: NetQASM server address (</span><span class="si">%d</span><span class="s2">) is already in use, trying again.&quot;</span><span class="p">,</span>
+                <span class="n">my_name</span><span class="p">,</span> <span class="n">my_host</span><span class="o">.</span><span class="n">port</span>
+            <span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">_RETRY_TIME</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;START_QNODEOS </span><span class="si">%s</span><span class="s2">: Critical error when starting NetQASM server: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">my_name</span><span class="p">,</span> <span class="n">e</span>
+            <span class="p">)</span>
+            <span class="n">reactor</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">reactor</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+<span class="n">stdout_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sigterm_handler</span><span class="p">(</span><span class="n">_signo</span><span class="p">,</span> <span class="n">_stack_frame</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">stdout_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stdout_file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">stdout_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">reactor</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="start_qnodeos"><a class="viewcode-back" href="../../../simulaqron.start.html#simulaqron.start.start_qnodeos.start_qnodeos">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">start_qnodeos</span><span class="p">(</span><span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network_config_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Start the QNPU that accepts NetQASM subroutines, and sends them as instructions to the SimulaQron virtual node</span>
+<span class="sd">    backend over twisted PB (Native Mode SimulaQron).</span>
+<span class="sd">    </span>
+<span class="sd">    :param node_name: Name of the node (e.g., &#39;Alice&#39;).</span>
+<span class="sd">    :type node_name: str</span>
+<span class="sd">    :param network_config_file: Path to network config file.</span>
+<span class="sd">    :type network_config_file: Path</span>
+<span class="sd">    :param network_name: Name of the network (e.g., &#39;default&#39;).</span>
+<span class="sd">    :type network_name: str</span>
+<span class="sd">    :param log_level: Logging level (e.g., &#39;DEBUG&#39;, &#39;INFO&#39;, &#39;WARNING&#39;).</span>
+<span class="sd">    :type log_level: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Let&#39;s ensure we read the config file</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">network_config_file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">log_level</span> <span class="o">==</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+        <span class="k">global</span> <span class="n">stdout_file</span>
+        <span class="n">stdout_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/tmp/simulaqron-stdout-stderr-qnos-</span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">.out.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout_file</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">stdout_file</span>
+
+    <span class="c1"># Force configure root logger with a handler</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">:</span><span class="si">%(levelname)s</span><span class="s2">:</span><span class="si">%(name)s</span><span class="s2">:</span><span class="si">%(filename)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">:</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">log_level</span><span class="p">,</span>
+        <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">stream</span><span class="o">=</span><span class="n">stdout_file</span>  <span class="c1"># send logs to the same file</span>
+    <span class="p">)</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Start the indicated backend NetQASM Server&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;START_QNODEOS: Starting QNodeOS at </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">node_name</span><span class="p">)</span>
+    <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">_sigterm_handler</span><span class="p">)</span>
+    <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">_sigterm_handler</span><span class="p">)</span>
+
+    <span class="c1"># Read configuration files for the virtual quantum, as well as the classical network</span>
+    <span class="n">virtual_network</span> <span class="o">=</span> <span class="n">SocketsConfig</span><span class="p">(</span><span class="n">network_config</span><span class="p">,</span> <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s2">&quot;vnode&quot;</span><span class="p">)</span>
+    <span class="n">qnodeos_network</span> <span class="o">=</span> <span class="n">SocketsConfig</span><span class="p">(</span><span class="n">network_config</span><span class="p">,</span> <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s2">&quot;qnodeos&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check if we are in the host-dictionary</span>
+    <span class="k">if</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="n">qnodeos_network</span><span class="o">.</span><span class="n">hostDict</span><span class="p">:</span>
+        <span class="n">node_host_info</span> <span class="o">=</span> <span class="n">qnodeos_network</span><span class="o">.</span><span class="n">hostDict</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;START_QNODEOS: Setting up QNodeOS protocol factory for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">node_name</span><span class="p">)</span>
+        <span class="n">netqasm_factory</span> <span class="o">=</span> <span class="n">NetQASMFactory</span><span class="p">(</span>
+            <span class="n">node_host_info</span><span class="p">,</span>
+            <span class="n">node_name</span><span class="p">,</span>
+            <span class="n">qnodeos_network</span><span class="p">,</span>
+            <span class="n">SubroutineHandler</span><span class="p">,</span>
+            <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;START_QNODEOS </span><span class="si">%s</span><span class="s2">: Cannot start classical communication servers.&quot;</span><span class="p">,</span> <span class="n">node_name</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Connect to the local virtual node simulating the &quot;local&quot; qubits</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;START_QNODEOS: Connect to virtual node </span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">_connect_to_virt_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">netqasm_factory</span><span class="p">,</span> <span class="n">virtual_network</span><span class="p">)</span>
+
+    <span class="c1"># Run reactor</span>
+    <span class="n">reactor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;START_QNODEOS: Ending QNodeOS at </span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.start.start_qnodeos</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

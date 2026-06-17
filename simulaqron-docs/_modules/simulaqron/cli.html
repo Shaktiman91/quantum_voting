@@ -1,0 +1,880 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>simulaqron.cli &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinxdoc.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.cli</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simulaqron.cli</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">metadata</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daemons.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">exit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">daemons.prefab</span><span class="w"> </span><span class="kn">import</span> <span class="n">run</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.network</span><span class="w"> </span><span class="kn">import</span> <span class="n">Network</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">,</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">,</span> <span class="n">HOME_NETWORK_SETTINGS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulaqron_settings</span><span class="p">,</span> <span class="n">network_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings.network_config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">NodeConfig</span><span class="p">,</span> <span class="n">DEFAULT_SIMULAQRON_NETWORK_FILENAME</span><span class="p">,</span>
+                                                <span class="n">get_default_network_config_file</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings.simulaqron_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimBackend</span><span class="p">,</span> <span class="n">get_default_simulaqron_config_file</span>
+
+<span class="n">CONTEXT_SETTINGS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">help_option_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">])</span>
+<span class="c1"># PID folder should be &quot;LOCAL&quot;</span>
+<span class="n">PID_FOLDER</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;.simulaqron_pids&quot;</span>
+
+<span class="c1"># If the pid folder does not exist, create it</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">PID_FOLDER</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="n">Path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">PID_FOLDER</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="RunningSimulaQronDaemon"><a class="viewcode-back" href="../../simulaqron.html#simulaqron.cli.RunningSimulaQronDaemon">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RunningSimulaQronDaemon</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">RunDaemon</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SimulaQronDaemon class used to represent SimulaQron daemons that are already running.</span>
+<span class="sd">    This class is useful to stop the already-running daemons without needed to read all</span>
+<span class="sd">    the required configurations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pidfile</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">pidfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pidfile</span><span class="o">=</span><span class="n">pidfile</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SimulaQronDaemon"><a class="viewcode-back" href="../../simulaqron.html#simulaqron.cli.SimulaQronDaemon">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SimulaQronDaemon</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">RunDaemon</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pidfile</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">network_config_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Daemon process that runs a SimulaQron network in the background.</span>
+
+<span class="sd">        This daemon spawns virtual nodes and QNodeOS servers for each node</span>
+<span class="sd">        in the network configuration. It runs until explicitly stopped.</span>
+
+<span class="sd">        :param pidfile: Path to the PID file used to track the daemon process.</span>
+<span class="sd">        :type pidfile: Path</span>
+<span class="sd">        :param name: Name of the network (e.g., &#39;default&#39;).</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param nodes: List of node names to start (e.g., [&#39;Alice&#39;, &#39;Bob&#39;]).</span>
+<span class="sd">        :type nodes: List[str]</span>
+<span class="sd">        :param network_config_file: Path to the network configuration file.</span>
+<span class="sd">        :type network_config_file: Path</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pidfile</span><span class="o">=</span><span class="n">pidfile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_config_file</span> <span class="o">=</span> <span class="n">network_config_file</span>
+
+<div class="viewcode-block" id="SimulaQronDaemon.run"><a class="viewcode-back" href="../../simulaqron.html#simulaqron.cli.SimulaQronDaemon.run">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Starts all nodes defined in netsim&#39;s config directory.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Let&#39;s make sure we can record the output where it&#39;s accessible</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/tmp/simulaqron.out&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/tmp/simulaqron.err&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Let&#39;s read the config file we should be working from</span>
+        <span class="n">network_config</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_config_file</span><span class="p">)</span>
+
+        <span class="c1"># Start the network to be simulated on this node</span>
+        <span class="n">network</span> <span class="o">=</span> <span class="n">Network</span><span class="p">(</span>
+            <span class="n">nodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span>
+            <span class="n">network_config_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">network_config_file</span><span class="p">,</span>
+            <span class="n">network_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_path_exists</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_local_settings_or_default</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration loaded from file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;Configuration from default configuration&quot;</span><span class="p">)</span>
+        <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">default_settings</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_local_settings_if_needed_and_load</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+        <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">default_settings</span><span class="p">()</span>
+        <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="c1"># At this point we are sure that the local settings exists, so we can</span>
+    <span class="c1"># load them using the function from above.</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_local_network_or_default</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">network_config</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">)</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Network configuration loaded from file: &#39;</span><span class="si">{</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;Configuration from default configuration&quot;</span><span class="p">)</span>
+        <span class="n">network_config</span><span class="o">.</span><span class="n">default_settings</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_local_networks_if_needed_and_load</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+        <span class="n">network_config</span><span class="o">.</span><span class="n">default_settings</span><span class="p">()</span>
+        <span class="n">network_config</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">)</span>
+    <span class="c1"># At this point we are sure that the local settings exists, so we can</span>
+    <span class="c1"># load them using the function from above.</span>
+    <span class="n">_load_local_network_or_default</span><span class="p">()</span>
+
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">(</span>
+    <span class="n">context_settings</span><span class="o">=</span><span class="n">CONTEXT_SETTINGS</span><span class="p">,</span>
+    <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;Run &#39;simulaqron COMMAND --help&#39; for more information on a command.&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cli_entry_point</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command line interface for interacting with SimulaQron.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="c1">###########</span>
+<span class="c1"># version #</span>
+<span class="c1">###########</span>
+
+<span class="nd">@cli_entry_point</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">version</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the version of simulqron.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s1">&#39;simulaqron&#39;</span><span class="p">))</span>
+
+
+<span class="c1">#################</span>
+<span class="c1"># start command #</span>
+<span class="c1">#################</span>
+
+<span class="nd">@cli_entry_point</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--network-config-file&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Path to network config file. If not specified, uses ./</span><span class="si">{</span><span class="n">DEFAULT_SIMULAQRON_NETWORK_FILENAME</span><span class="si">}</span><span class="s2"> &quot;</span>  <span class="c1"># noqa: E131</span>
+         <span class="sa">f</span><span class="s2">&quot;or ~/.simulaqron/</span><span class="si">{</span><span class="n">DEFAULT_SIMULAQRON_NETWORK_FILENAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E131</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dir_okay</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">resolve_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">path_type</span><span class="o">=</span><span class="n">Path</span><span class="p">),</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">get_default_network_config_file</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--simulaqron-config-file&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Use the given simulaqron config file. Defaults to the file named &quot;</span>  <span class="c1"># noqa: E131</span>
+         <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">DEFAULT_SIMULAQRON_NETWORK_FILENAME</span><span class="si">}</span><span class="s2">&#39; on the current directory.&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E131</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dir_okay</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">resolve_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">path_type</span><span class="o">=</span><span class="n">Path</span><span class="p">),</span>
+    <span class="n">default</span><span class="o">=</span><span class="n">get_default_simulaqron_config_file</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--network-name&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Give the network a name to be able to start multiple (default: &#39;default&#39;)&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;--nodes&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Comma separated list of nodes to start.&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">simulaqron_config_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">network_config_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Starts a network with the given parameters or from config files.</span>
+
+<span class="sd">    :param name: Name of the network to start.</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    :param nodes: Comma separated list of nodes to start.</span>
+<span class="sd">    :type nodes: str</span>
+<span class="sd">    :param simulaqron_config_file: Path to simulaqron&#39;s config file.</span>
+<span class="sd">    :type simulaqron_config_file: Path</span>
+<span class="sd">    :param network_config_file: Path to network config file.</span>
+<span class="sd">    :type network_config_file: Path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Checks the simulaqron config</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_path_exists</span><span class="p">(</span><span class="n">simulaqron_config_file</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">BadOptionUsage</span><span class="p">(</span>
+            <span class="n">option_name</span><span class="o">=</span><span class="s2">&quot;simulaqron-config-file&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The given simulaqron config file &#39;</span><span class="si">{</span><span class="n">simulaqron_config_file</span><span class="si">}</span><span class="s2">&#39; does not exist or it &quot;</span>
+                    <span class="s2">&quot;is a folder.</span><span class="se">\n</span><span class="s2">Please check the path given to the --simulaqron-config-file option.&quot;</span>  <span class="c1"># noqa: E131</span>
+        <span class="p">)</span>
+    <span class="c1"># Checks the network config</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_path_exists</span><span class="p">(</span><span class="n">network_config_file</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">BadOptionUsage</span><span class="p">(</span>
+            <span class="n">option_name</span><span class="o">=</span><span class="s2">&quot;network-config-file&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The given network config file &#39;</span><span class="si">{</span><span class="n">network_config_file</span><span class="si">}</span><span class="s2">&#39; does not exist or it is a &quot;</span>
+                    <span class="s2">&quot;folder.</span><span class="se">\n</span><span class="s2">Please check the path given to the --network-config-file option.&quot;</span>  <span class="c1"># noqa: E131</span>
+        <span class="p">)</span>
+    <span class="c1"># Load SimulaQron and network configs</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">simulaqron_config_file</span><span class="p">)</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">network_config_file</span><span class="p">)</span>
+    <span class="c1"># Check that the network name exists in the network configuration</span>
+    <span class="k">if</span> <span class="n">network_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">network_config</span><span class="o">.</span><span class="n">networks</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">BadOptionUsage</span><span class="p">(</span>
+            <span class="n">option_name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The network &#39;</span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2">&#39; was not found in the network configuration file &quot;</span>  <span class="c1"># noqa: E713</span>
+                    <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">network_config_file</span><span class="si">}</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">Please check the name you passed in the&quot;</span>  <span class="c1"># noqa: E131</span>
+                    <span class="s2">&quot; --name option and try again.&quot;</span>  <span class="c1"># noqa: E131</span>
+        <span class="p">)</span>
+    <span class="c1"># Check that the nodes to start exist in the given network</span>
+    <span class="n">start_all</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No nodes specified to start. Starting all nodes configured in &#39;</span><span class="si">{</span><span class="n">network_config_file</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+        <span class="n">start_all</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">start_all</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node_to_start</span> <span class="ow">in</span> <span class="n">network_config</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_to_start</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node_to_start</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node_to_start</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">network_config</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">BadOptionUsage</span><span class="p">(</span>
+                    <span class="n">option_name</span><span class="o">=</span><span class="s2">&quot;nodes&quot;</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;The node &#39;</span><span class="si">{</span><span class="n">node_to_start</span><span class="si">}</span><span class="s2">&#39; was not found in the network named &quot;</span>  <span class="c1"># noqa: E713</span>
+                            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2"> &#39;specified in the configuration file &quot;</span>  <span class="c1"># noqa: E131</span>
+                            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">network_config_file</span><span class="si">}</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># noqa: E131</span>
+                            <span class="s2">&quot;Please check the list of names you passed in the --nodes option &quot;</span>  <span class="c1"># noqa: E131</span>
+                            <span class="s2">&quot;and try again.&quot;</span>  <span class="c1"># noqa: E131</span>
+                <span class="p">)</span>
+    <span class="c1"># Check that there is no other network with the same name running</span>
+    <span class="n">pidfile</span> <span class="o">=</span> <span class="n">PID_FOLDER</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;simulaqron_network_</span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2">.pid&quot;</span>
+    <span class="k">if</span> <span class="n">pidfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">BadOptionUsage</span><span class="p">(</span>
+            <span class="n">option_name</span><span class="o">=</span><span class="s2">&quot;pidfile&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Network with name </span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2"> is already running.</span><span class="se">\n</span><span class="s2">The pidfile for &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;this network is located at </span><span class="si">{</span><span class="n">pidfile</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># noqa: E131</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Let&#39;s start the simulaqron daemon. We will pass the config file so it will be available</span>
+    <span class="c1"># in the child process and load the same config</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">SimulaQronDaemon</span><span class="p">(</span><span class="n">pidfile</span><span class="o">=</span><span class="n">pidfile</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span> <span class="n">network_config_file</span><span class="o">=</span><span class="n">network_config_file</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">SystemExit</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="n">exit</span><span class="o">.</span><span class="n">PIDFILE_INACCESSIBLE</span> <span class="ow">or</span> \
+                <span class="n">e</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="n">exit</span><span class="o">.</span><span class="n">DAEMONIZE_FAILED</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to launch Simulaqron Daemon. &quot;</span>
+                          <span class="sa">f</span><span class="s2">&quot;Exit code reported by daemons: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">BadParameter</span><span class="p">(</span><span class="s2">&quot;Failed to launch SimulaQron Daemon. Aborted!&quot;</span><span class="p">)</span>
+
+
+<span class="c1">###############</span>
+<span class="c1"># stop command #</span>
+<span class="c1">###############</span>
+
+<span class="nd">@cli_entry_point</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--name&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Stop the network with then a given name (default: default)&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">STRING</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stops a network.</span>
+
+<span class="sd">    :param name: Name of the network to stop.</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="n">pidfile</span> <span class="o">=</span> <span class="n">PID_FOLDER</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;simulaqron_network_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.pid&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Trying to open PIDfile&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pidfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Network with name </span><span class="si">%s</span><span class="s2"> is not running&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">RunningSimulaQronDaemon</span><span class="p">(</span><span class="n">pidfile</span><span class="o">=</span><span class="n">pidfile</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+<span class="c1">#################</span>
+<span class="c1"># reset command #</span>
+<span class="c1">#################</span>
+
+<span class="nd">@cli_entry_point</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;--force&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Don&#39;t ask for confirmation.&quot;</span><span class="p">,</span>
+    <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="n">force</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resets simulaqron. This command will stop any running network and reset the local SimulaQron</span>
+<span class="sd">    settings to their default.</span>
+<span class="sd">    :param force: Don&#39;t ask for confirmation, and immediately reset the simulaqron settings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Are you sure you want to reset simulaqron?</span><span class="se">\n</span><span class="s2">This will revert local settings and &quot;</span>
+                       <span class="s2">&quot;network config files to the default values.</span><span class="se">\n</span><span class="s2">Note, this action will remove &quot;</span>
+                       <span class="sa">f</span><span class="s2">&quot;the file at </span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="si">}</span><span class="s2"> if they exist.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                       <span class="s2">&quot;(yes/no)&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span>
+    <span class="k">if</span> <span class="n">answer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">PID_FOLDER</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.pid&quot;</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">RunningSimulaQronDaemon</span><span class="p">(</span><span class="n">pidfile</span><span class="o">=</span><span class="n">entry</span><span class="p">)</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                    <span class="n">entry</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">default_settings</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+
+        <span class="n">network_config</span><span class="o">.</span><span class="n">using_default_network</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">network_config</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">ClickException</span><span class="p">(</span><span class="s2">&quot;Aborting!&quot;</span><span class="p">)</span>
+
+
+<span class="c1">###############</span>
+<span class="c1"># set command #</span>
+<span class="c1">###############</span>
+
+<span class="nd">@cli_entry_point</span><span class="o">.</span><span class="n">group</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Change a simulaqron setting&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Change a SimulaQron setting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Sets all settings back to default and saves it as a local configuration file in the current folder.&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets all settings back to default and saves it as a local configuration file in the current folder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">default_settings</span><span class="p">()</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The backend to use (stabilizer, projectq, qutip).&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">SimBackend</span><span class="p">])</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">backend</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">SimBackend</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The backend to use (stabilizer, projectq, qutip).</span>
+
+<span class="sd">    :param value: Value of the backend to use. This can either be ``stabilizer``, ``projectq`` or ``qutip``.</span>
+<span class="sd">    :type value: SimBackend</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_settings_if_needed_and_load</span><span class="p">()</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">sim_backend</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Max virt-qubits per node and max sim-qubits per register.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
+    <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">max_qubits</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the max virt-qubits per node and max sim-qubits per register.</span>
+
+<span class="sd">    :param value: Value of the max virt-qubits per node and max sim-qubits per register.</span>
+<span class="sd">    :type value: int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_settings_if_needed_and_load</span><span class="p">()</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">max_qubits</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How many registers a node can hold.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
+    <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">max_registers</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets how many registers a node can hold.</span>
+
+<span class="sd">    :param value: Value of the max registers a node can hold.</span>
+<span class="sd">    :type value: int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_settings_if_needed_and_load</span><span class="p">()</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">max_registers</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If setup fails, how long to wait until a retry.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
+    <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">float</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">conn_retry_time</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the conn_retry_time; how long to wait until a retry a connection to a SimulaQron component.</span>
+
+<span class="sd">    :param value: Value of the conn_retry_time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_settings_if_needed_and_load</span><span class="p">()</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">conn_retry_time</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;When receiving a qubit or EPR pair, how long to wait until raising a timeout.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
+    <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">float</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">recv_timeout</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the recv_timeout in seconds before raising a timeout when receiving a qubit or EPR pair.</span>
+
+<span class="sd">    :param value: Value of the recv_timeout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_settings_if_needed_and_load</span><span class="p">()</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">recv_timeout</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;When receiving a qubit or EPR pair, how long to wait between attempts to receive an EPR pair half.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
+    <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">float</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">recv_retry_time</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the recv_retry_time value as the number of seconds to wait between attempts when receiving a qubit or EPR pair.</span>
+
+<span class="sd">    :param value: Value of the recv_retry_time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_settings_if_needed_and_load</span><span class="p">()</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">recv_retry_time</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Log level for both backend and frontend</span><span class="se">\n</span><span class="s2">10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
+    <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_level</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the log level for both backend and frontend. Possible values are 10=DEBUG, 20=INFO, 30=WARNING,</span>
+<span class="sd">    40=ERROR, 50=CRITICAL.</span>
+
+<span class="sd">    :param value: Value of the log_level.</span>
+<span class="sd">    :type value: int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_settings_if_needed_and_load</span><span class="p">()</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Whether qubits should be noisy (on/off)&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
+    <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;on&quot;</span><span class="p">,</span> <span class="s2">&quot;off&quot;</span><span class="p">])</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">noisy_qubits</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configures SimulaQron to simulate noisy qubits or not.</span>
+<span class="sd">    :param value: A string whether to noisy qubits or not. The string &quot;no&quot; will be interpreted as</span>
+<span class="sd">                  not using noisy qubits. Any other string will be interpreted as using noisy qubits.</span>
+<span class="sd">    :type value: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_settings_if_needed_and_load</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;on&quot;</span><span class="p">:</span>
+        <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">noisy_qubits</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">noisy_qubits</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@set</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The effective T1 to be used for noisy qubits&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
+    <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">float</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">t1</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the T1 value for noisy qubits.</span>
+<span class="sd">    :param value: The T1 value for noisy qubits.</span>
+<span class="sd">    :type value: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_settings_if_needed_and_load</span><span class="p">()</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">t1</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_SIMULAQRON_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="c1">###############</span>
+<span class="c1"># get command #</span>
+<span class="c1">###############</span>
+
+
+<span class="nd">@cli_entry_point</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a setting&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@get</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The backend to use (stabilizer, projectq, qutip).&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">backend</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the current configured simulaqron backend.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">sim_backend</span><span class="p">)</span>
+
+
+<span class="nd">@get</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Max virt-qubits per node and max sim-qubits per register.&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">max_qubits</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the current configured max virt-qubits per node and max sim-qubits per register.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">max_qubits</span><span class="p">)</span>
+
+
+<span class="nd">@get</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How many registers a node can hold.&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">max_registers</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the current configured max number of register a node can hold.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">max_registers</span><span class="p">)</span>
+
+
+<span class="nd">@get</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If setup fails, how long to wait until a retry.&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">conn_retry_time</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the current configured conn_retry value; the number of seconds to wait before retrying</span>
+<span class="sd">    to connect to another node or SimulaQron component.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">conn_retry_time</span><span class="p">)</span>
+
+
+<span class="nd">@get</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;When receiving a qubit or EPR pair, how long to wait until raising a timeout.&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">recv_timeout</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the current configured recv_timeout value; the number of seconds to wait for receiving</span>
+<span class="sd">    an EPR half before raising a timeout error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">recv_timeout</span><span class="p">)</span>
+
+
+<span class="nd">@get</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;When receiving a qubit or EPR pair, how long to wait between checks of whether a qubit is received.&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">recv_retry_time</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the current configured recv_retry_time value; the number of seconds to wait between</span>
+<span class="sd">    attempts to receive an EPR half.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">recv_retry_time</span><span class="p">)</span>
+
+
+<span class="nd">@get</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Log level for both backend and frontend.&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_level</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the current configured log level.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">log_level</span><span class="p">)</span>
+
+
+<span class="nd">@get</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Whether qubits should be noisy (on/off)&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">noisy_qubits</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints whether SimulaQron has been configured to simulate noisy qubits or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">noisy_qubits</span><span class="p">:</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;on&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@get</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The effective T1 to be used for noisy qubits&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">t1</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints the current configured t1 value when simulating noisy qubits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_load_local_settings_or_default</span><span class="p">()</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">t1</span><span class="p">)</span>
+
+
+<span class="c1">###############</span>
+<span class="c1"># node command #</span>
+<span class="c1">###############</span>
+
+<span class="nd">@cli_entry_point</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">nodes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manage the nodes in the simulated network. This command *will alter* the</span>
+<span class="sd">    ``simulaqron_network.json`` file in the current directory.</span>
+
+<span class="sd">    .. note:: This needs to be done before starting the network.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@nodes</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--network-name&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+              <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the network&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--hostname&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+              <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The host name of the node, e.g. localhost (default) or 192.168.0.1</span><span class="se">\n</span><span class="s2">&quot;</span>
+                   <span class="s2">&quot;If you wish to have different components on different hostname,&quot;</span>
+                   <span class="s2">&quot;for example the qnodeos nodes on one computer and the virtual nodes on another,&quot;</span>
+                   <span class="s2">&quot;you have to manually construct you config file.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--app-port&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Port number for the application.</span><span class="se">\n</span><span class="s2"> </span><span class="se">\</span>
+<span class="s2">                    If not specified a random unused port between 8000 and 9000 will be used.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--qnodeos-port&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Port number for the qnodeos server.</span><span class="se">\n</span><span class="s2"> </span><span class="se">\</span>
+<span class="s2">                    If not specified a random unused port between 8000 and 9000 will be used.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--vnode-port&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Port number for the virtual node.</span><span class="se">\n</span><span class="s2"> </span><span class="se">\</span>
+<span class="s2">                    If not specified a random unused port between 8000 and 9000 will be used.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--neighbors&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+              <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The neighbors of the node in the network separated by &#39;,&#39; (no space).</span><span class="se">\n</span><span class="s2"> </span><span class="se">\</span>
+<span class="s2">                    For example &#39;--neighbors Bob,Charlie,David&#39;.</span><span class="se">\n</span><span class="s2"> </span><span class="se">\</span>
+<span class="s2">                    If not specified all current nodes in the network will be neighbors.&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hostname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">app_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">qnodeos_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">vnode_port</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a node to the network. This command *will modify* the ``simulaqron_network.json``</span>
+<span class="sd">    file in the current directory.</span>
+
+<span class="sd">    :param name: The name of the node to add.</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    :param network_name: The name of the network to add the node to.</span>
+<span class="sd">    :type network_name: str</span>
+<span class="sd">    :param hostname: The hostname of the machine that will run  the node, e.g. localhost.</span>
+<span class="sd">    :type hostname: str</span>
+<span class="sd">    :param app_port: The port number for the application, e.g. 8000</span>
+<span class="sd">    :type app_port: int</span>
+<span class="sd">    :param qnodeos_port: The port number for the qnodeos server, e.g. 8000</span>
+<span class="sd">    :type qnodeos_port: int</span>
+<span class="sd">    :param vnode_port: The port number for the virtual node, e.g. 8000</span>
+<span class="sd">    :type vnode_port: int</span>
+<span class="sd">    :param neighbors: A comma-separated list of neighbors of the given node. The given names</span>
+<span class="sd">                      *will not be checked* if they exist in the given network.</span>
+<span class="sd">    :type neighbors: Optional[str]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_create_local_networks_if_needed_and_load</span><span class="p">()</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">neighbors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">neighbors</span> <span class="o">=</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[</span><span class="n">neighbor</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">]</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span>
+                            <span class="n">app_hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span> <span class="n">qnodeos_hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span> <span class="n">vnode_hostname</span><span class="o">=</span><span class="n">hostname</span><span class="p">,</span>
+                            <span class="n">app_port</span><span class="o">=</span><span class="n">app_port</span><span class="p">,</span> <span class="n">qnodeos_port</span><span class="o">=</span><span class="n">qnodeos_port</span><span class="p">,</span> <span class="n">vnode_port</span><span class="o">=</span><span class="n">vnode_port</span><span class="p">,</span>
+                            <span class="n">neighbors</span><span class="o">=</span><span class="n">neighbors</span><span class="p">)</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">)</span>
+    <span class="n">added_node</span><span class="p">:</span> <span class="n">NodeConfig</span> <span class="o">=</span> <span class="n">network_config</span><span class="p">[</span><span class="n">network_name</span><span class="p">][</span><span class="n">name</span><span class="p">]</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Node with name &#39;</span><span class="si">{</span><span class="n">added_node</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; was added to the network with name &#39;</span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>
+               <span class="s2">&quot;Socket addresses are: </span><span class="se">\n</span><span class="s2">&quot;</span>
+               <span class="sa">f</span><span class="s2">&quot;* App/Classical: &#39;(</span><span class="si">{</span><span class="n">added_node</span><span class="o">.</span><span class="n">app_hostname</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">added_node</span><span class="o">.</span><span class="n">app_port</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span>
+               <span class="sa">f</span><span class="s2">&quot;* QNodeOS: &#39;(</span><span class="si">{</span><span class="n">added_node</span><span class="o">.</span><span class="n">qnodeos_hostname</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">added_node</span><span class="o">.</span><span class="n">qnodeos_port</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span>
+               <span class="sa">f</span><span class="s2">&quot;* Virtual Node: &#39;(</span><span class="si">{</span><span class="n">added_node</span><span class="o">.</span><span class="n">vnode_hostname</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">added_node</span><span class="o">.</span><span class="n">vnode_port</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@nodes</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--network-name&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+              <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the network&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove a node to the network. This command *will modify* the ``simulaqron_network.json``</span>
+<span class="sd">    file in the current directory.</span>
+
+<span class="sd">    :param name: The name of the node to remove.</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    :param network_name: The name of the network to remove the node from.</span>
+<span class="sd">    :type network_name: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING - the file &#39;</span><span class="si">{</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="si">}</span><span class="s2">&#39; was not found. The loaded &quot;</span>
+                   <span class="sa">f</span><span class="s2">&quot;configuration corresponds to the one on &#39;</span><span class="si">{</span><span class="n">HOME_NETWORK_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">network_config</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">)</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="n">node_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">)</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Node with name &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; was removed from the network with name &#39;</span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@nodes</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the default nodes of the network. This command *will modify* the ``simulaqron_network.json``</span>
+<span class="sd">    file in the current directory.</span>
+
+<span class="sd">    The default network consists of the five nodes:</span>
+<span class="sd">    Alice, Bob, Charlie, David, Eve</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">using_default_network</span><span class="p">()</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">write_to_file</span><span class="p">(</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">)</span>
+    <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Default network saved to file: &#39;</span><span class="si">{</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@nodes</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--network-name&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+              <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The name of the network&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print the nodes present in the given network.</span>
+
+<span class="sd">    :param network_name: The name of the network to get the nodes from.</span>
+<span class="sd">    :type network_name: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">LOCAL_NETWORK_SETTINGS</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WARNING - the file &#39;</span><span class="si">{</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="si">}</span><span class="s2">&#39; was not found. The loaded &quot;</span>
+                   <span class="sa">f</span><span class="s2">&quot;configuration corresponds to the one on &#39;</span><span class="si">{</span><span class="n">HOME_NETWORK_SETTINGS</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">network_config</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">LOCAL_NETWORK_SETTINGS</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">network_config</span><span class="o">.</span><span class="n">get_node_names</span><span class="p">(</span><span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">BadParameter</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No network </span><span class="si">{</span><span class="n">network_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">((</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> &quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">))[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">nodes</span><span class="p">))</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">:</span><span class="si">%(levelname)s</span><span class="s2">:</span><span class="si">%(filename)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">:</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">log_level</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">cli_entry_point</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.cli</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

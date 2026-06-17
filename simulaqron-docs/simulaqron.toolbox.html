@@ -1,0 +1,475 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>simulaqron.toolbox package &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="simulaqron.virt_node package" href="simulaqron.virtual_node.html" />
+    <link rel="prev" title="simulaqron.start package" href="simulaqron.start.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.virtual_node.html" title="simulaqron.virt_node package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.start.html" title="simulaqron.start package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" accesskey="U">simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.toolbox package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="simulaqron-toolbox-package">
+<h1>simulaqron.toolbox package<a class="headerlink" href="#simulaqron-toolbox-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-simulaqron.toolbox.stabilizer_states">
+<span id="simulaqron-toolbox-stabilizer-states-module"></span><h2>simulaqron.toolbox.stabilizer_states module<a class="headerlink" href="#module-simulaqron.toolbox.stabilizer_states" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.toolbox.stabilizer_states.</span></span><span class="sig-name descname"><span class="pre">StabilizerState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_symplectic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class represent a stabilizer state and allows to be manipulated using
+Clifford operations and Pauli-measurements.</p>
+<p>If check_symplectic=True then a check will be made that all stabilizers commute, by checking
+That the matrix is symplectic. Otherwise, no check is made.</p>
+<p>Examples:
+A qubit in the state <span class="math notranslate nohighlight">\(|0&gt;\)</span> can be created as <code class="docutils literal notranslate"><span class="pre">StabilizerState([[0,</span> <span class="pre">1]])</span></code>.</p>
+<p>A qubit in the state <span class="math notranslate nohighlight">\(|1&gt;\)</span> can be created as <code class="docutils literal notranslate"><span class="pre">StabilizerState([[0,</span> <span class="pre">1,</span> <span class="pre">1]])</span></code>.</p>
+<p>The entangled state <span class="math notranslate nohighlight">\((|00&gt; + |11&gt;)/\sqrt(2)\)</span> can be created as
+<code class="docutils literal notranslate"><span class="pre">StabilizerState([[1,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">1]])</span></code>.</p>
+<p>The entangled state <span class="math notranslate nohighlight">\((|01&gt; + |10&gt;)/\sqrt(2)\)</span> can be created as
+<code class="docutils literal notranslate"><span class="pre">StabilizerState([[1,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">1]])</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – <p>Can be one of the following:</p>
+<ul>
+<li><p>A binary array of rank 2 representing the generators of the stabilizer group.
+If the array is n-by-2n a stabilizer state on n qubits will be represented.
+The n first columns are the X-stabilizers and the n last the Z-stabilizer.
+If the array is n-by-(2n+1), the last column is seen as the phase for each generator
+as follows:
+0 -&gt; 1
+1 -&gt; -1</p></li>
+<li><p>An array of rank 1 containing <code class="docutils literal notranslate"><span class="pre">str</span></code>:
+Then each string is assumed to be a generator as for example <code class="docutils literal notranslate"><span class="pre">XXZIY</span></code>
+Note that each string in the array should have the same length.
+If the number of strings is <code class="docutils literal notranslate"><span class="pre">n</span></code> then a stabilizer state on <code class="docutils literal notranslate"><span class="pre">n</span></code> qubits is created.
+If the strings have length <code class="docutils literal notranslate"><span class="pre">n</span></code> then it is assumed that the phase is <code class="docutils literal notranslate"><span class="pre">+1</span></code>.
+An explicit phase can be added to the start of the string as for example: <code class="docutils literal notranslate"><span class="pre">-1XXXY</span></code>.
+Creating a Bell-pair:
+<code class="docutils literal notranslate"><span class="pre">StabilizerState([&quot;XX&quot;,</span> <span class="pre">&quot;ZZ&quot;])</span>&#160; <span class="pre">#</span> <span class="pre">The</span> <span class="pre">state</span> <span class="pre">(|00&gt;</span> <span class="pre">+</span> <span class="pre">|11&gt;)</span> <span class="pre">/</span> <span class="pre">sqrt(2)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code> (default):
+Then this is seen as a stabilizer state on no qubits, i.e. a complex number.
+To add a qubit to such a state one can do:
+<code class="docutils literal notranslate"><span class="pre">s</span> <span class="pre">=</span> <span class="pre">StabilizerState()</span></code>
+<code class="docutils literal notranslate"><span class="pre">s.add_qubit()</span>&#160; <span class="pre">#</span> <span class="pre">This</span> <span class="pre">is</span> <span class="pre">now</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">state</span> <span class="pre">|0&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">int</span></code>:
+Then a stabilizer state on this many qubits are created, all in the state <span class="math notranslate nohighlight">\(|0&gt;\)</span> as:
+<code class="docutils literal notranslate"><span class="pre">StabilizerState(5)</span>&#160; <span class="pre">#</span> <span class="pre">This</span> <span class="pre">is</span> <span class="pre">the</span> <span class="pre">then</span> <span class="pre">the</span> <span class="pre">state</span> <span class="pre">|00000&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">networkx.Graph</span></code>:
+Then the graph state corresponding to this graph will be created.
+This assumes that the nodes are numbered from 0 to n - 1, where n is the number of nodes.
+For example:
+<code class="docutils literal notranslate"><span class="pre">StabilizerState(networkx.complete_graph(5))</span>&#160; <span class="pre">#</span> <span class="pre">Single</span> <span class="pre">qubit</span> <span class="pre">Clifford</span> <span class="pre">equiv.</span> <span class="pre">to</span> <span class="pre">a</span> <span class="pre">GHZ</span> <span class="pre">state</span></code></p></li>
+</ul>
+</p></li>
+<li><p><strong>check_symplectic</strong> (<em>bool</em>) – Whether to check if all stabilizers commute or not.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.Pauli2bool">
+<span class="sig-name descname"><span class="pre">Pauli2bool</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'I':</span> <span class="pre">(False,</span> <span class="pre">False),</span> <span class="pre">'X':</span> <span class="pre">(True,</span> <span class="pre">False),</span> <span class="pre">'Y':</span> <span class="pre">(True,</span> <span class="pre">True),</span> <span class="pre">'Z':</span> <span class="pre">(False,</span> <span class="pre">True)}</span></em><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.Pauli2bool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.Pauli_phase_tracking">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Pauli_phase_tracking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_pauli</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">applied_pauli</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.Pauli_phase_tracking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.Pauli_phase_tracking" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.add_qubit">
+<span class="sig-name descname"><span class="pre">add_qubit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.add_qubit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.add_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends a qubit in the state |0&gt; to the current state
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_CNOT">
+<span class="sig-name descname"><span class="pre">apply_CNOT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">control</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_CNOT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_CNOT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies CNOT using qubit ‘control’ as control and ‘target’ as target.
+:param control: The control qubit
+:type control: int
+:param target: The target qubit
+:type control: int
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_CZ">
+<span class="sig-name descname"><span class="pre">apply_CZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">control</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_CZ"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_CZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies CZ using qubit ‘control’ as control and ‘target’ as target.
+:param control: The control qubit
+:type control: int
+:param target: The target qubit
+:type control: int
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_H">
+<span class="sig-name descname"><span class="pre">apply_H</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_H"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_H" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the H operator to qubit ‘position’ of the stabilizer state and updates the generators.
+:param position: The position of the qubit.
+:type position: int
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_K">
+<span class="sig-name descname"><span class="pre">apply_K</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_K"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_K" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the K operator to qubit ‘position’ of the stabilizer state and updates the generators.
+:param position: The position of the qubit.
+:type position: int
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_S">
+<span class="sig-name descname"><span class="pre">apply_S</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_S"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_S" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the S operator to qubit ‘position’ of the stabilizer state and updates the generators.
+:param position: The position of the qubit.
+:type position: int
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_X">
+<span class="sig-name descname"><span class="pre">apply_X</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_X"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_X" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the Pauli X operator to qubit ‘position’ of the stabilizer state and updates the generators.
+:param position: The position of the qubit.
+:type position: int
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_Y">
+<span class="sig-name descname"><span class="pre">apply_Y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_Y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_Y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the Pauli Y operator to qubit ‘position’ of the stabilizer state and updates the generators.
+:param position: The position of the qubit.
+:type position: int
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_Z">
+<span class="sig-name descname"><span class="pre">apply_Z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_Z"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_Z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the Pauli Z operator to qubit ‘position’ of the stabilizer state and updates the generators.
+:param position: The position of the qubit.
+:type position: int
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_sqrt_IZ">
+<span class="sig-name descname"><span class="pre">apply_sqrt_IZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_sqrt_IZ"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_sqrt_IZ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.apply_sqrt_minIX">
+<span class="sig-name descname"><span class="pre">apply_sqrt_minIX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.apply_sqrt_minIX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_sqrt_minIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.bool2Pauli">
+<span class="sig-name descname"><span class="pre">bool2Pauli</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{(False,</span> <span class="pre">False):</span> <span class="pre">'I',</span> <span class="pre">(False,</span> <span class="pre">True):</span> <span class="pre">'Z',</span> <span class="pre">(True,</span> <span class="pre">False):</span> <span class="pre">'X',</span> <span class="pre">(True,</span> <span class="pre">True):</span> <span class="pre">'Y'}</span></em><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.bool2Pauli" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.bool2phase">
+<span class="sig-name descname"><span class="pre">bool2phase</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{False:</span> <span class="pre">'+1',</span> <span class="pre">True:</span> <span class="pre">'-1'}</span></em><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.bool2phase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.boolean_gaussian_elimination">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">boolean_gaussian_elimination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_pivot_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.boolean_gaussian_elimination"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.boolean_gaussian_elimination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a boolean matrix returns the matrix in row reduced echelon form
+where entries are seen as elements of GF(2), i.e. intergers modulus 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.array</span></code>) – The boolean matrix</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.check_symplectic">
+<span class="sig-name descname"><span class="pre">check_symplectic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.check_symplectic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.check_symplectic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.contains">
+<span class="sig-name descname"><span class="pre">contains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stabilizer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.contains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a given stabilizer is in the stabilizer group.</p>
+<dl>
+<dt>Args:</dt><dd><p>stabilizer (str or list): The stabilizer to check if it’s in the group.</p>
+<p>Should either be a str of the form “XXX” or “+1XXX” or a boolean list
+of length <code class="docutils literal notranslate"><span class="pre">2*n</span></code> or <code class="docutils literal notranslate"><span class="pre">2*n</span> <span class="pre">+</span> <span class="pre">1</span></code> in the same way as the input to the <code class="docutils literal notranslate"><span class="pre">__init__</span></code>
+of the class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.find_SQC_equiv_graph_state">
+<span class="sig-name descname"><span class="pre">find_SQC_equiv_graph_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_operations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.find_SQC_equiv_graph_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.find_SQC_equiv_graph_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a graph state single qubit Clifford equivalent to self. Method is described
+in quant-ph/0308151.</p>
+<dl class="simple">
+<dt>For example:</dt><dd><p>EPR_pair = [[1,1,0,0],[0,0,1,1]]
+S = StabilizerState(EPR_pair)
+G = find_SQC_equiv_graph_state(S)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self</strong> (<a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState" title="simulaqron.toolbox.stabilizer_states.StabilizerState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StabilizerState</span></code></a>) – The StabilizerState for which we want to find the corresponding graph state</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A networkx graph SQC equivalent to S</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">networkx.classes.graph.Graph</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.measure">
+<span class="sig-name descname"><span class="pre">measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.measure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Measures qubit ‘position’ of the stabilizer state in the standard basis.
+If ‘inplace=False’ the qubit is removed from the state, i.e. the number of qubits in the state is reduced by one
+If ‘inplace=True’ the qubit is not removed and the number of qubits remain the same.
+:param position: The position of the qubit.
+:type position: int
+:param inplace: Whether to measure the qubit in place or not. (I.e. to keep it or not)
+:type inplace: bool
+:return: The measurement outcome (0 or 1, where 0 is the +1 eigenvalue and 1 is the -1)
+:rtype: int</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.num_qubits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_qubits</span></span><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.num_qubits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.phase2bool">
+<span class="sig-name descname"><span class="pre">phase2bool</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'+1':</span> <span class="pre">False,</span> <span class="pre">'-1':</span> <span class="pre">True}</span></em><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.phase2bool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.put_in_standard_form">
+<span class="sig-name descname"><span class="pre">put_in_standard_form</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.put_in_standard_form"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.put_in_standard_form" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts the generators of the stabilizer group in standard form by performing Gaussiand elemination
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.tensor_product">
+<span class="sig-name descname"><span class="pre">tensor_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.tensor_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.tensor_product" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the tensor product with another StabilizerState and returns a new
+StabilizerState.</p>
+<p>This can also be done using ‘*’ as for example:</p>
+<blockquote>
+<div><p>s1 = StabilizerState([[0, 1]])  # The state |0&gt;
+s2 = StabilizerState([[0, 1]])  # The state |0&gt;</p>
+<p>s3 = s1 * s2  # This is then the state |00&gt;</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState" title="simulaqron.toolbox.stabilizer_states.StabilizerState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StabilizerState</span></code></a>) – The other StabilizerState to perform the tensor product with</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The tensor product of self and other</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState" title="simulaqron.toolbox.stabilizer_states.StabilizerState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StabilizerState</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.to_array">
+<span class="sig-name descname"><span class="pre">to_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">standard_form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_pivot_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.to_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.to_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the numpy array representing the stabilizer group of this state.
+See doc-string for __init__ how the elements of this numpy array are treated.
+Since, the __init__ takes an array as input, given a StabilizerState ‘s1’ on can do:</p>
+<blockquote>
+<div><p>s2 = StabilizerState(to_array(s1))</p>
+</div></blockquote>
+<p>and ‘s1’ and ‘s2’ will represent the same state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The generators of this stabilizer group as a numpy array</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.array</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.toolbox.stabilizer_states.StabilizerState.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/toolbox/stabilizer_states.html#StabilizerState.to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.to_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.toolbox">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-simulaqron.toolbox" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">simulaqron.toolbox package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-simulaqron.toolbox.stabilizer_states">simulaqron.toolbox.stabilizer_states module</a><ul>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState"><code class="docutils literal notranslate"><span class="pre">StabilizerState</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.Pauli2bool"><code class="docutils literal notranslate"><span class="pre">StabilizerState.Pauli2bool</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.Pauli_phase_tracking"><code class="docutils literal notranslate"><span class="pre">StabilizerState.Pauli_phase_tracking()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.add_qubit"><code class="docutils literal notranslate"><span class="pre">StabilizerState.add_qubit()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_CNOT"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_CNOT()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_CZ"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_CZ()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_H"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_H()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_K"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_K()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_S"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_S()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_X"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_X()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_Y"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_Y()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_Z"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_Z()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_sqrt_IZ"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_sqrt_IZ()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_sqrt_minIX"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_sqrt_minIX()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.bool2Pauli"><code class="docutils literal notranslate"><span class="pre">StabilizerState.bool2Pauli</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.bool2phase"><code class="docutils literal notranslate"><span class="pre">StabilizerState.bool2phase</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.boolean_gaussian_elimination"><code class="docutils literal notranslate"><span class="pre">StabilizerState.boolean_gaussian_elimination()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.check_symplectic"><code class="docutils literal notranslate"><span class="pre">StabilizerState.check_symplectic()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.contains"><code class="docutils literal notranslate"><span class="pre">StabilizerState.contains()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.find_SQC_equiv_graph_state"><code class="docutils literal notranslate"><span class="pre">StabilizerState.find_SQC_equiv_graph_state()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.measure"><code class="docutils literal notranslate"><span class="pre">StabilizerState.measure()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.num_qubits"><code class="docutils literal notranslate"><span class="pre">StabilizerState.num_qubits</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.phase2bool"><code class="docutils literal notranslate"><span class="pre">StabilizerState.phase2bool</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.put_in_standard_form"><code class="docutils literal notranslate"><span class="pre">StabilizerState.put_in_standard_form()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.tensor_product"><code class="docutils literal notranslate"><span class="pre">StabilizerState.tensor_product()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.to_array"><code class="docutils literal notranslate"><span class="pre">StabilizerState.to_array()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.toolbox.stabilizer_states.StabilizerState.to_string"><code class="docutils literal notranslate"><span class="pre">StabilizerState.to_string()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.toolbox">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="simulaqron.start.html"
+                          title="previous chapter">simulaqron.start package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="simulaqron.virtual_node.html"
+                          title="next chapter">simulaqron.virt_node package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/simulaqron.toolbox.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.virtual_node.html" title="simulaqron.virt_node package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.start.html" title="simulaqron.start package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" >simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.toolbox package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

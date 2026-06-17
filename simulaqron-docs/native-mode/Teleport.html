@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Teleporting a Qubit &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Distributing a graph state" href="GraphState.html" />
+    <link rel="prev" title="Template for programming in native mode" href="Template.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="GraphState.html" title="Distributing a graph state"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Template.html" title="Template for programming in native mode"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" accesskey="U">SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Teleporting a Qubit</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="teleporting-a-qubit">
+<h1>Teleporting a Qubit<a class="headerlink" href="#teleporting-a-qubit" title="Permalink to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Native mode is the low-level Twisted interface. For new projects, the NetQASM SDK is recommended.
+See <a class="reference internal" href="../new-sdk/Overview.html"><span class="doc">New SDK Overview</span></a> and the <a class="reference internal" href="../new-sdk/Teleport.html"><span class="doc">new SDK version of this example</span></a>.</p>
+</div>
+<p>Let’s now consider a very simple protocol, in which Alice first generates an EPR pair with Bob, and then teleports
+a qubit to Bob. To program it in SimulaQron’s native mode, we will use the template described in
+<a class="reference internal" href="Template.html"><span class="doc">Template</span></a>.</p>
+<section id="the-protocol">
+<h2>The protocol<a class="headerlink" href="#the-protocol" title="Permalink to this heading">¶</a></h2>
+<p>For completeness, let’s briefly recap the protocol:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>For generating an EPR pair with Bob, Alice proceeds as follows:</dt><dd><ol class="arabic simple">
+<li><p>Alice prepares two qubits in the state <span class="math notranslate nohighlight">\(|0\rangle_A |0\rangle_B\)</span></p></li>
+<li><p>Alice applies a Hadamard transform to qubit A, giving <span class="math notranslate nohighlight">\(|+\rangle_A |0\rangle_B\)</span></p></li>
+<li><p>Alice applies a CNOT on qubits A and B, where qubit A is the control and B is the target, giving the state
+<span class="math notranslate nohighlight">\(\frac{1}{\sqrt{2}}(|0\rangle_A |0\rangle_B + |1\rangle_A |1\rangle_B)\)</span></p></li>
+<li><p>Alice sends qubit B to Bob</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Alice then teleports qubit q1 to Bob using the EPR pair:</dt><dd><ol class="arabic simple">
+<li><p>Alice applies a CNOT between q1 and qubit A, where q1 is the control and A is the target.</p></li>
+<li><p>Alice applies a Hadamard to qubit q1.</p></li>
+<li><p>Alice measures qubits q1 and A to obtain outcomes a and b.</p></li>
+<li><p>She sends a and b to Bob, who applies the correction unitary <span class="math notranslate nohighlight">\(Z^a X^b\)</span></p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="setting-up">
+<h2>Setting up<a class="headerlink" href="#setting-up" title="Permalink to this heading">¶</a></h2>
+<p>We will run everything locally (localhost) using the standard <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> file that defines the
+nodes that run the virtual quantum node in the background to simulate the quantum hardware:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;Alice&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;app_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8821</span><span class="p">],</span>
+                <span class="s2">&quot;qnodeos_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8822</span><span class="p">],</span>
+                <span class="s2">&quot;vnode_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8823</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Bob&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;app_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8831</span><span class="p">],</span>
+                <span class="s2">&quot;qnodeos_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8832</span><span class="p">],</span>
+                <span class="s2">&quot;vnode_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8833</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;topology&quot;</span><span class="p">:</span> <span class="n">null</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We use this same file to specify the communication channels (sockets) for passing classical messages between the
+declared nodes. The loaded network configuration can be used to construct <code class="docutils literal notranslate"><span class="pre">SocketsConfig</span></code> objects that contain the
+sets of sockets used by a specific component of SimulaQron (either <code class="docutils literal notranslate"><span class="pre">app</span></code>, <code class="docutils literal notranslate"><span class="pre">vnode</span></code> or <code class="docutils literal notranslate"><span class="pre">qnodeos</span></code>).</p>
+<p>Let us now provide the actual program code for both Alice and Bob.</p>
+</section>
+<section id="programming-alice">
+<h2>Programming Alice<a class="headerlink" href="#programming-alice" title="Permalink to this heading">¶</a></h2>
+<p>Since Alice acts as a client, we will only need to fill in runClientNode. This gives:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#####################################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># runClientNode</span>
+<span class="c1">#</span>
+<span class="c1"># This will be run on the local node if all communication links are set up (to the virtual node</span>
+<span class="c1"># quantum backend, as well as the nodes in the classical communication network), and the local classical</span>
+<span class="c1"># communication server is running (if applicable).</span>
+<span class="c1">#</span>
+<span class="nd">@inlineCallbacks</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">runClientNode</span><span class="p">(</span><span class="n">qReg</span><span class="p">,</span> <span class="n">virtRoot</span><span class="p">,</span> <span class="n">myName</span><span class="p">,</span> <span class="n">classicalNet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Code to execute for the local client node. Called if all connections are established.</span>
+
+<span class="sd">    Arguments</span>
+<span class="sd">    qReg            quantum register (twisted object supporting remote method calls)</span>
+<span class="sd">    virtRoot        virtual quantum ndoe (twisted object supporting remote method calls)</span>
+<span class="sd">    myName          name of this node (string)</span>
+<span class="sd">    classicalNet    servers in the classical communication network (dictionary of hosts)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;LOCAL </span><span class="si">%s</span><span class="s2">: Runing client side program.&quot;</span><span class="p">,</span><span class="n">myName</span><span class="p">)</span>
+
+    <span class="c1"># Create 3 qubits</span>
+    <span class="n">q1</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">virtRoot</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;new_qubit_inreg&quot;</span><span class="p">,</span><span class="n">qReg</span><span class="p">)</span>
+    <span class="n">qA</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">virtRoot</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;new_qubit_inreg&quot;</span><span class="p">,</span><span class="n">qReg</span><span class="p">)</span>
+    <span class="n">qB</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">virtRoot</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;new_qubit_inreg&quot;</span><span class="p">,</span><span class="n">qReg</span><span class="p">)</span>
+
+    <span class="c1"># Prepare the first one in the |-&gt; state</span>
+    <span class="k">yield</span> <span class="n">q1</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;apply_H&quot;</span><span class="p">)</span>
+
+    <span class="c1"># For information purposes, let&#39;s print the state of that qubit.</span>
+    <span class="c1"># The method to retrieve the state depends on the simulation backend.</span>
+    <span class="k">if</span> <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">sim_backend</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;qutip&quot;</span><span class="p">:</span>
+        <span class="n">realRho</span><span class="p">,</span> <span class="n">imagRho</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">q1</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;get_qubit&quot;</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">assemble_qubit</span><span class="p">(</span><span class="n">realRho</span><span class="p">,</span> <span class="n">imagRho</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">sim_backend</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;projectq&quot;</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">realvec</span><span class="p">,</span> <span class="n">imagvec</span><span class="p">)</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">virtRoot</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;get_register_RI&quot;</span><span class="p">,</span> <span class="n">q1</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">realvec</span><span class="p">,</span> <span class="n">imagvec</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">sim_backend</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;stabilizer&quot;</span><span class="p">:</span>
+        <span class="n">array</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">virtRoot</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;get_register_RI&quot;</span><span class="p">,</span> <span class="n">q1</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">StabilizerState</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Qubit to be teleported is:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+
+    <span class="c1"># Put qubits A and B in an EPR state</span>
+    <span class="k">yield</span> <span class="n">qA</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;apply_H&quot;</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">qA</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;cnot_onto&quot;</span><span class="p">,</span><span class="n">qB</span><span class="p">)</span>
+
+    <span class="c1"># Send qubit B to Bob</span>
+    <span class="c1"># Instruct the virtual node to transfer the qubit</span>
+    <span class="n">remoteNum</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">virtRoot</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;send_qubit&quot;</span><span class="p">,</span><span class="n">qB</span><span class="p">,</span> <span class="s2">&quot;Bob&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;LOCAL </span><span class="si">%s</span><span class="s2">: Remote qubit is </span><span class="si">%d</span><span class="s2">.&quot;</span><span class="p">,</span><span class="n">myName</span><span class="p">,</span> <span class="n">remoteNum</span><span class="p">)</span>
+
+    <span class="c1"># Apply the local teleportation operations</span>
+    <span class="k">yield</span> <span class="n">q1</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;cnot_onto&quot;</span><span class="p">,</span><span class="n">qA</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">q1</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;apply_H&quot;</span><span class="p">)</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">q1</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;measure&quot;</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">qA</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;measure&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;LOCAL </span><span class="si">%s</span><span class="s2">: Correction info is a=</span><span class="si">%d</span><span class="s2">, b=</span><span class="si">%d</span><span class="s2">.&quot;</span><span class="p">,</span><span class="n">myName</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+    <span class="c1"># Tell Bob the number of the virtual qubit so the can use it locally</span>
+    <span class="n">bob</span> <span class="o">=</span> <span class="n">classicalNet</span><span class="o">.</span><span class="n">hostDict</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">]</span>
+    <span class="k">yield</span> <span class="n">bob</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;recover_teleport&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">remoteNum</span><span class="p">)</span>
+
+    <span class="n">reactor</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="programming-bob">
+<h2>Programming Bob<a class="headerlink" href="#programming-bob" title="Permalink to this heading">¶</a></h2>
+<p>Let us now program the code for Bob. Since he only acts as a server on the classical network, it is enough to edit the
+localNode portion of the template. Alice calls recover_teleport to convey the classical measurement outcomes, as well
+as the identifier of the virtual qubit. Bob first asks his local virtual quantum node for a reference for the qubit
+with that identifier and then processes the relevant quantum instructions to recover the qubit. We print the density
+matrix of the qubit at the end for illustration.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#####################################################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># localNode</span>
+<span class="c1">#</span>
+<span class="c1"># This will be run if the local node acts as a server on the classical communication network,</span>
+<span class="c1"># accepting remote method calls from the other nodes.</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">localNode</span><span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">Root</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">classicalNet</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classicalNet</span> <span class="o">=</span> <span class="n">classicalNet</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">virtRoot</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qReg</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_virtual_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">virtRoot</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virtRoot</span> <span class="o">=</span> <span class="n">virtRoot</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_virtual_reg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qReg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qReg</span> <span class="o">=</span> <span class="n">qReg</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">remote_test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Tested!&quot;</span>
+
+    <span class="c1"># This can be called by Alice to tell Bob where to get the qubit and what corrections to apply</span>
+    <span class="nd">@inlineCallbacks</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remote_recover_teleport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">virtualNum</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recover the qubit from teleportation.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        a,b         received measurement outcomes from Alice</span>
+<span class="sd">        virtualNum  number of the virtual qubit corresponding to the EPR pair received</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;LOCAL </span><span class="si">%s</span><span class="s2">: Getting reference to qubit number </span><span class="si">%d</span><span class="s2">.&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">virtualNum</span><span class="p">)</span>
+
+        <span class="c1"># Get the reference to Alice&#39;s qubit from the local virtual node</span>
+        <span class="n">eprB</span> <span class="o">=</span> <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">virtRoot</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;get_virtual_ref&quot;</span><span class="p">,</span><span class="n">virtualNum</span><span class="p">)</span>
+
+        <span class="c1"># Apply the desired correction info</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;LOCAL </span><span class="si">%s</span><span class="s2">: Correction info is a=</span><span class="si">%d</span><span class="s2">, b=</span><span class="si">%d</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">eprB</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;apply_X&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">eprB</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;apply_Z&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Just print the qubit we received.</span>
+        <span class="c1"># The method to retrieve the state depends on the simulation backend.</span>
+        <span class="k">if</span> <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">sim_backend</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;qutip&quot;</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">realRho</span><span class="p">,</span> <span class="n">imagRho</span><span class="p">)</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">eprB</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;get_qubit&quot;</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">assemble_qubit</span><span class="p">(</span><span class="n">realRho</span><span class="p">,</span> <span class="n">imagRho</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">sim_backend</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;projectq&quot;</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">realvec</span><span class="p">,</span> <span class="n">imagvec</span><span class="p">)</span> <span class="o">=</span> <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">virtRoot</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;get_register_RI&quot;</span><span class="p">,</span> <span class="n">eprB</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">realvec</span><span class="p">,</span> <span class="n">imagvec</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">sim_backend</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;stabilizer&quot;</span><span class="p">:</span>
+            <span class="n">array</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="o">=</span> <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">virtRoot</span><span class="o">.</span><span class="n">callRemote</span><span class="p">(</span><span class="s2">&quot;get_register_RI&quot;</span><span class="p">,</span> <span class="n">eprB</span><span class="p">)</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">StabilizerState</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Qubit is: </span><span class="se">\n</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="starting">
+<h2>Starting<a class="headerlink" href="#starting" title="Permalink to this heading">¶</a></h2>
+<p>We first start the virtual quantum node backend, by executing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">start</span> <span class="o">--</span><span class="n">nodes</span><span class="o">=</span><span class="n">Alice</span><span class="p">,</span><span class="n">Bob</span> <span class="o">--</span><span class="n">network</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">file</span> <span class="n">simulaqron_network</span><span class="o">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>We then start up the programs for Alice and Bob themselves. These will connect to the virtual quantum nodes, and
+execute the quantum commands and classical communication outlined above, in the same directory as we placed
+simulaqron_network.json:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">bobTest</span><span class="o">.</span><span class="n">py</span> <span class="o">&amp;</span>
+<span class="n">python3</span> <span class="n">aliceTest</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>You can easily start everything by using the a single helper script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="n">doNew</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</section>
+<section id="stoping">
+<h2>Stoping<a class="headerlink" href="#stoping" title="Permalink to this heading">¶</a></h2>
+<p>You can stop all the running processes by using the helper script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="n">terminate</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Teleporting a Qubit</a><ul>
+<li><a class="reference internal" href="#the-protocol">The protocol</a></li>
+<li><a class="reference internal" href="#setting-up">Setting up</a></li>
+<li><a class="reference internal" href="#programming-alice">Programming Alice</a></li>
+<li><a class="reference internal" href="#programming-bob">Programming Bob</a></li>
+<li><a class="reference internal" href="#starting">Starting</a></li>
+<li><a class="reference internal" href="#stoping">Stoping</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Template.html"
+                          title="previous chapter">Template for programming in native mode</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="GraphState.html"
+                          title="next chapter">Distributing a graph state</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/native-mode/Teleport.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="GraphState.html" title="Distributing a graph state"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Template.html" title="Template for programming in native mode"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" >SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Teleporting a Qubit</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

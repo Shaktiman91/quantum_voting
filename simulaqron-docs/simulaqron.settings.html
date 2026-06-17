@@ -1,0 +1,797 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>simulaqron.settings package &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="simulaqron.start package" href="simulaqron.start.html" />
+    <link rel="prev" title="simulaqron.sdk package" href="simulaqron.sdk.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.start.html" title="simulaqron.start package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.sdk.html" title="simulaqron.sdk package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" accesskey="U">simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.settings package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="simulaqron-settings-package">
+<h1>simulaqron.settings package<a class="headerlink" href="#simulaqron-settings-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-simulaqron.settings.network_config">
+<span id="simulaqron-settings-network-config-module"></span><h2>simulaqron.settings.network_config module<a class="headerlink" href="#module-simulaqron.settings.network_config" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworkConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.settings.network_config.</span></span><span class="sig-name descname"><span class="pre">NetworkConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topology:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.List[str]]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~simulaqron.settings.network_config.NodeConfig]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworkConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworkConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">JSONSerializerMixin</span></code></p>
+<p>Used by NetworksConfiguration to keep track of the config of a single network. This object
+holds the node configuration (as <a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeConfig</span></code></a> instances) of all the nodes within
+a network.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworkConfig.add_node">
+<span class="sig-name descname"><span class="pre">add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qnodeos_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vnode_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qnodeos_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vnode_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworkConfig.add_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworkConfig.add_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a node with the given name to the network
+If hostnames are not given they will default to ‘localhost’.
+If the port numbers None, unused ones will be chosen between 8000 and 9000.
+If neighbors are specified a restricted topology can be constructed (default is fully connected).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – str
+Name of the node, e.g. Alice</p></li>
+<li><p><strong>app_hostname</strong> – str
+Hostname (e.g. localhost) or IP address (e.g. 192.168.0.1)</p></li>
+<li><p><strong>qnodeos_hostname</strong> – str
+Hostname (e.g. localhost) or IP address (e.g. 192.168.0.1)</p></li>
+<li><p><strong>vnode_hostname</strong> – str
+Hostname (e.g. localhost) or IP address (e.g. 192.168.0.1)</p></li>
+<li><p><strong>app_port</strong> – int
+Port number for the application</p></li>
+<li><p><strong>qnodeos_port</strong> – int
+Port number for the qnodeos server</p></li>
+<li><p><strong>vnode_port</strong> – int
+Port number for the virtual node</p></li>
+<li><p><strong>neighbors</strong> – (list of str) or None
+A list of neighbors, of this node.
+If None all current nodes in the network will be adjacent to the added node.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworkConfig.add_node_config">
+<span class="sig-name descname"><span class="pre">add_node_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig"><span class="pre">NodeConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworkConfig.add_node_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworkConfig.add_node_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworkConfig.is_empty">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_empty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NetworkConfig.is_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this network configuration is empty or not.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworkConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NetworkConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworkConfig.nodes">
+<span class="sig-name descname"><span class="pre">nodes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig"><span class="pre">NodeConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#simulaqron.settings.network_config.NetworkConfig.nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworkConfig.nodes_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nodes_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#simulaqron.settings.network_config.NetworkConfig.nodes_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a list of strings with the names of nodes on this network.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworkConfig.remove_node">
+<span class="sig-name descname"><span class="pre">remove_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig"><span class="pre">NodeConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworkConfig.remove_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworkConfig.remove_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the node with the given name and returns it. Returns none if the given
+node name was not found in this network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node_name</strong> (<em>str</em>) – The name of the node to remove. None if the node name does not exist.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The removed node. None if the given name was not found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig">NodeConfig</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworkConfig.topology">
+<span class="sig-name descname"><span class="pre">topology</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NetworkConfig.topology" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.settings.network_config.</span></span><span class="sig-name descname"><span class="pre">NetworksConfiguration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">networks:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~simulaqron.settings.network_config.NetworkConfig]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">used_sockets:</span> <span class="pre">~typing.List[~typing.Tuple[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int]]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">JSONSerializerMixin</span></code></p>
+<p>Used to construct the config file of networks.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.add_network">
+<span class="sig-name descname"><span class="pre">add_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topology</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.add_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.add_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new network to the config, with some specified nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Name of the nodes, e.g. [Alice, Bob]</p></li>
+<li><p><strong>network_name</strong> (<em>str</em>) – Name of the network (default: “default”).</p></li>
+<li><p><strong>topology</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>] </em><em>| </em><em>None</em>) – The topology of the network (optional) (default is fully connected)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.add_network_config">
+<span class="sig-name descname"><span class="pre">add_network_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig" title="simulaqron.settings.network_config.NetworkConfig"><span class="pre">NetworkConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.add_network_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.add_network_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the given network config to the whole networks configuration.
+:param net_cfg: The network configu object to add to the specifications.
+:type net_cfg: NetworkConfig</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.add_node">
+<span class="sig-name descname"><span class="pre">add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qnodeos_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vnode_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qnodeos_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vnode_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.add_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.add_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a node with the given name to a network (default: “default”).
+If hostnames are None they will default to ‘localhost’.
+If the port numbers None, unused ones will be chosen between 8000 and 9000.
+If neighbors are specified a restricted topology can be constructed (default is fully connected).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_name</strong> (<em>str</em>) – Name of the node, e.g. Alice.</p></li>
+<li><p><strong>network_name</strong> (<em>str</em>) – Name of the network (default: “default”).</p></li>
+<li><p><strong>app_hostname</strong> (<em>str</em>) – Hostname, e.g. localhost (the default if not given) or 192.168.0.1</p></li>
+<li><p><strong>qnodeos_hostname</strong> (<em>str</em>) – Hostname, e.g. localhost (the default if not given) or 192.168.0.1</p></li>
+<li><p><strong>vnode_hostname</strong> (<em>str</em>) – Hostname, e.g. localhost (the default if not given) or 192.168.0.1</p></li>
+<li><p><strong>app_port</strong> (<em>int</em>) – Port number for the application. A free port in the range 8000-9000 will
+be allocated if not given</p></li>
+<li><p><strong>qnodeos_port</strong> (<em>int</em>) – Port number for the application. A free port in the range 8000-9000 will
+be allocated if not given.</p></li>
+<li><p><strong>vnode_port</strong> (<em>int</em>) – Port number for the application. A free port in the range 8000-9000 will
+be allocated if not given.</p></li>
+<li><p><strong>neighbors</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – A list of neighbors, of this node. If None all current nodes in the network
+will be adjacent to the added node.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.get_node_names">
+<span class="sig-name descname"><span class="pre">get_node_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.get_node_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.get_node_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the names of the nodes in a network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>network_name</strong> (<em>str</em>) – Name of the network (default: “default”).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A lit of node names in the given network.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.get_nodes">
+<span class="sig-name descname"><span class="pre">get_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig"><span class="pre">NodeConfig</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.get_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.get_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the node-config objects (NodeConfig) in a network that belong to the given network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>network_name</strong> (<em>str</em>) – Name of the network (default: “default”)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of <a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeConfig</span></code></a> classes with the nodes configuration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig">NodeConfig</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.network_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">network_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.network_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the loaded network names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of strings with the network names.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.networks">
+<span class="sig-name descname"><span class="pre">networks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig" title="simulaqron.settings.network_config.NetworkConfig"><span class="pre">NetworkConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.networks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.nodes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nodes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig"><span class="pre">NodeConfig</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access the nodes of the default network held by this configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of NodeConfig objects.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig" title="simulaqron.settings.network_config.NodeConfig">NodeConfig</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.read_from_file">
+<span class="sig-name descname"><span class="pre">read_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.read_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.read_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads config from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>PathLike</em><em> | </em><em>str</em>) – If a file_path was specified upon __init__ this will be
+used if file_path is None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.read_from_known_sources">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_from_known_sources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.read_from_known_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.read_from_known_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load config from the default config file.</p>
+<p>Uses <a class="reference internal" href="#simulaqron.settings.network_config.get_default_network_config_file" title="simulaqron.settings.network_config.get_default_network_config_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_default_network_config_file()</span></code></a> to resolve the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Loaded network configuration.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>NetworkConfigBuilder</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.read_from_legacy_files">
+<span class="sig-name descname"><span class="pre">read_from_legacy_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vnode_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qnodeos_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.read_from_legacy_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.read_from_legacy_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a network configuration from a set of legacy format (.cfg) network files.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This method is not implemented yet, and simply raises <code class="docutils literal notranslate"><span class="pre">NotImplementedException</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>app_file_path</strong> (<em>PathLike</em><em> | </em><em>str</em>) – Path of the classical network file.</p></li>
+<li><p><strong>vnode_file_path</strong> (<em>PathLike</em><em> | </em><em>str</em>) – Path of the virtual network file.</p></li>
+<li><p><strong>qnodeos_file_path</strong> (<em>PathLike</em><em> | </em><em>str</em>) – Path of the QNodeOS network file. If this path is not give,
+the same hosts as vnodes_file_path will be used, assigning a
+new, random port in the 8000-9000 range.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.remove_all_networks">
+<span class="sig-name descname"><span class="pre">remove_all_networks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.remove_all_networks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.remove_all_networks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes all the in-memory networks from the configuration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.remove_network">
+<span class="sig-name descname"><span class="pre">remove_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.remove_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.remove_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a network from the config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>network_name</strong> (<em>str</em>) – Name of the network (default: “default”).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.remove_node">
+<span class="sig-name descname"><span class="pre">remove_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.remove_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.remove_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a node from the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_name</strong> (<em>str</em>) – Name of the node to remove, e.g. Alice.</p></li>
+<li><p><strong>network_name</strong> (<em>str</em>) – Name of the network to delete the node from (default: “default”)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.used_sockets">
+<span class="sig-name descname"><span class="pre">used_sockets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.used_sockets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.using_default_network">
+<span class="sig-name descname"><span class="pre">using_default_network</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.using_default_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.using_default_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the embedded default network configuration.</p>
+<p>Used for test isolation - always loads the embedded default
+regardless of local config files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The path of the file containing the default network configuration.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NetworksConfiguration.write_to_file">
+<span class="sig-name descname"><span class="pre">write_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NetworksConfiguration.write_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NetworksConfiguration.write_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the content of this config to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>PathLike</em><em> | </em><em>str</em>) – The path of the file to write the content to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.settings.network_config.</span></span><span class="sig-name descname"><span class="pre">NodeConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qnodeos_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vnode_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qnodeos_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vnode_hostname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NodeConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">JSONSerializerMixin</span></code></p>
+<p>Used by NetworkConfig to keep track of the node config of a single node.
+This object holds the hostname and port info for the application, the SimulaQron
+Virtual Node and the QNodeOS server.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfig.app_hostname">
+<span class="sig-name descname"><span class="pre">app_hostname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'localhost'</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfig.app_hostname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfig.app_port">
+<span class="sig-name descname"><span class="pre">app_port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfig.app_port" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfig.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfigType" title="simulaqron.settings.network_config.NodeConfigType"><span class="pre">NodeConfigType</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NodeConfig.get_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfig.get_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the corresponding host and port config tuple for the given type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config_type</strong> (<em>str</em><em> | </em><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfigType" title="simulaqron.settings.network_config.NodeConfigType"><em>NodeConfigType</em></a>) – The type of configuration to get. Can either be expressed as
+a string or a NodeConfigType.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the host and port config for the given configuration type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfig.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfig.qnodeos_hostname">
+<span class="sig-name descname"><span class="pre">qnodeos_hostname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'localhost'</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfig.qnodeos_hostname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfig.qnodeos_port">
+<span class="sig-name descname"><span class="pre">qnodeos_port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfig.qnodeos_port" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfig.vnode_hostname">
+<span class="sig-name descname"><span class="pre">vnode_hostname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'localhost'</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfig.vnode_hostname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfig.vnode_port">
+<span class="sig-name descname"><span class="pre">vnode_port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfig.vnode_port" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfigType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.settings.network_config.</span></span><span class="sig-name descname"><span class="pre">NodeConfigType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#NodeConfigType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfigType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StrEnum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfigType.APP">
+<span class="sig-name descname"><span class="pre">APP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'app'</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfigType.APP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfigType.QNODEOS">
+<span class="sig-name descname"><span class="pre">QNODEOS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'qnodeos'</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfigType.QNODEOS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.NodeConfigType.VNODE">
+<span class="sig-name descname"><span class="pre">VNODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'vnode'</span></em><a class="headerlink" href="#simulaqron.settings.network_config.NodeConfigType.VNODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="simulaqron.settings.network_config.get_default_network_config_file">
+<span class="sig-prename descclassname"><span class="pre">simulaqron.settings.network_config.</span></span><span class="sig-name descname"><span class="pre">get_default_network_config_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_embedded</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/simulaqron/settings/network_config.html#get_default_network_config_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.network_config.get_default_network_config_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the network config file path to use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>use_embedded</strong> (<em>bool</em>) – If True, always use the embedded default (for tests).
+If False, uses priority: LOCAL &gt; HOME &gt; embedded.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the network config file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.settings.simulaqron_config">
+<span id="simulaqron-settings-simulaqron-config-module"></span><h2>simulaqron.settings.simulaqron_config module<a class="headerlink" href="#module-simulaqron.settings.simulaqron_config" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.settings.simulaqron_config.</span></span><span class="sig-name descname"><span class="pre">SimBackend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/simulaqron_config.html#SimBackend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimBackend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">JSONSerializerMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enum used to list the supported SimulaQron backends.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimBackend.PROJECTQ">
+<span class="sig-name descname"><span class="pre">PROJECTQ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'projectq'</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimBackend.PROJECTQ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimBackend.QUTIP">
+<span class="sig-name descname"><span class="pre">QUTIP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'qutip'</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimBackend.QUTIP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimBackend.STABILIZER">
+<span class="sig-name descname"><span class="pre">STABILIZER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'stabilizer'</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimBackend.STABILIZER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.settings.simulaqron_config.</span></span><span class="sig-name descname"><span class="pre">SimulaqronConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_qubits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_registers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conn_retry_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conn_max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recv_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recv_retry_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recv_max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimBackend" title="simulaqron.settings.simulaqron_config.SimBackend"><span class="pre">SimBackend</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SimBackend.QUTIP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_qubits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_app_waiting_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/simulaqron_config.html#SimulaqronConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">JSONSerializerMixin</span></code></p>
+<p>Holds the general SimulaQron config.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.conn_max_retries">
+<span class="sig-name descname"><span class="pre">conn_max_retries</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.conn_max_retries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.conn_retry_time">
+<span class="sig-name descname"><span class="pre">conn_retry_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.conn_retry_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.default_settings">
+<span class="sig-name descname"><span class="pre">default_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/simulaqron_config.html#SimulaqronConfig.default_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.default_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the current SimulaQron configuration object to its default configuration set.
+The default configuration is:
+* max_qubits = 20
+* max_registers = 1000
+* conn_retry_time = 0.5
+* conn_max_retries = 10
+* recv_timeout = 100
+* recv_retry_time = 0.1
+* recv_max_retries = 10
+* log_level = logging.WARNING
+* sim_backend = SimBackend.QUTIP
+* noisy_qubits = False
+* max_app_waiting_time = -1.0  # In seconds, negative means unlimited waiting
+* t1: float = 1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.log_level">
+<span class="sig-name descname"><span class="pre">log_level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.log_level" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.max_app_waiting_time">
+<span class="sig-name descname"><span class="pre">max_app_waiting_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1.0</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.max_app_waiting_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.max_qubits">
+<span class="sig-name descname"><span class="pre">max_qubits</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.max_qubits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.max_registers">
+<span class="sig-name descname"><span class="pre">max_registers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.max_registers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.noisy_qubits">
+<span class="sig-name descname"><span class="pre">noisy_qubits</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.noisy_qubits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.read_from_file">
+<span class="sig-name descname"><span class="pre">read_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/simulaqron_config.html#SimulaqronConfig.read_from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.read_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the SimulaQron configuration from the given file path.
+:param file_path:  A <cite>pathlib.Path</cite> or <cite>str</cite> representing the file path to read the configurations from.
+:type file_path: Path | str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.read_from_known_sources">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_from_known_sources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="_modules/simulaqron/settings/simulaqron_config.html#SimulaqronConfig.read_from_known_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.read_from_known_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the SimulaQron configuration from usual locations.
+This method will try to load the configuration files <em>in the following order</em> from (1)
+the current folder (<cite>./simulaqron_settings.json</cite>) and, (2) simulaqron settings in the
+user’s home folder (<cite>~/.simulaqron/simulaqron_settings.json</cite>).</p>
+<p>If none of these files exists, this method will create a SimulaQron configuration in
+user’s home folder (<cite>~/.simulaqron/simulaqron_settings.json</cite>) containing the default
+SimulaQron configuration.</p>
+<p>To check the default configuration, check the documentation of <cite>default_settings</cite>.
+See Also: <a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.default_settings" title="simulaqron.settings.simulaqron_config.SimulaqronConfig.default_settings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">default_settings()</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_max_retries">
+<span class="sig-name descname"><span class="pre">recv_max_retries</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_max_retries" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_retry_time">
+<span class="sig-name descname"><span class="pre">recv_retry_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.1</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_retry_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_timeout">
+<span class="sig-name descname"><span class="pre">recv_timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.sim_backend">
+<span class="sig-name descname"><span class="pre">sim_backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimBackend" title="simulaqron.settings.simulaqron_config.SimBackend"><span class="pre">SimBackend</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'qutip'</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.sim_backend" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.t1">
+<span class="sig-name descname"><span class="pre">t1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.0</span></em><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.t1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.SimulaqronConfig.write_to_file">
+<span class="sig-name descname"><span class="pre">write_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/simulaqron_config.html#SimulaqronConfig.write_to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.write_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the current in-memory configuration (<cite>simulaqron_config</cite>) to the given file path.
+:param path:A <cite>PathLike</cite> object (even a string) representing the path to write the configuration to.
+:type path: PathLike</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="simulaqron.settings.simulaqron_config.get_default_simulaqron_config_file">
+<span class="sig-prename descclassname"><span class="pre">simulaqron.settings.simulaqron_config.</span></span><span class="sig-name descname"><span class="pre">get_default_simulaqron_config_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/settings/simulaqron_config.html#get_default_simulaqron_config_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.settings.simulaqron_config.get_default_simulaqron_config_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the simulaqron config file path to use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to the simulaqron config file.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.settings">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-simulaqron.settings" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">simulaqron.settings package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-simulaqron.settings.network_config">simulaqron.settings.network_config module</a><ul>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig"><code class="docutils literal notranslate"><span class="pre">NetworkConfig</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig.add_node"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.add_node()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig.add_node_config"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.add_node_config()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig.is_empty"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.is_empty</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig.name"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.name</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig.nodes"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.nodes</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig.nodes_names"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.nodes_names</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig.remove_node"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.remove_node()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworkConfig.topology"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.topology</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.add_network"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.add_network()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.add_network_config"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.add_network_config()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.add_node"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.add_node()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.get_node_names"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.get_node_names()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.get_nodes"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.get_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.network_names"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.network_names</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.networks"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.networks</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.nodes"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.nodes</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.read_from_file"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.read_from_file()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.read_from_known_sources"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.read_from_known_sources()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.read_from_legacy_files"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.read_from_legacy_files()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.remove_all_networks"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.remove_all_networks()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.remove_network"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.remove_network()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.remove_node"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.remove_node()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.used_sockets"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.used_sockets</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.using_default_network"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.using_default_network()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NetworksConfiguration.write_to_file"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.write_to_file()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig"><code class="docutils literal notranslate"><span class="pre">NodeConfig</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig.app_hostname"><code class="docutils literal notranslate"><span class="pre">NodeConfig.app_hostname</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig.app_port"><code class="docutils literal notranslate"><span class="pre">NodeConfig.app_port</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig.get_config"><code class="docutils literal notranslate"><span class="pre">NodeConfig.get_config()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig.name"><code class="docutils literal notranslate"><span class="pre">NodeConfig.name</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig.qnodeos_hostname"><code class="docutils literal notranslate"><span class="pre">NodeConfig.qnodeos_hostname</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig.qnodeos_port"><code class="docutils literal notranslate"><span class="pre">NodeConfig.qnodeos_port</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig.vnode_hostname"><code class="docutils literal notranslate"><span class="pre">NodeConfig.vnode_hostname</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfig.vnode_port"><code class="docutils literal notranslate"><span class="pre">NodeConfig.vnode_port</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfigType"><code class="docutils literal notranslate"><span class="pre">NodeConfigType</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfigType.APP"><code class="docutils literal notranslate"><span class="pre">NodeConfigType.APP</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfigType.QNODEOS"><code class="docutils literal notranslate"><span class="pre">NodeConfigType.QNODEOS</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.NodeConfigType.VNODE"><code class="docutils literal notranslate"><span class="pre">NodeConfigType.VNODE</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.settings.network_config.get_default_network_config_file"><code class="docutils literal notranslate"><span class="pre">get_default_network_config_file()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.settings.simulaqron_config">simulaqron.settings.simulaqron_config module</a><ul>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimBackend"><code class="docutils literal notranslate"><span class="pre">SimBackend</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimBackend.PROJECTQ"><code class="docutils literal notranslate"><span class="pre">SimBackend.PROJECTQ</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimBackend.QUTIP"><code class="docutils literal notranslate"><span class="pre">SimBackend.QUTIP</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimBackend.STABILIZER"><code class="docutils literal notranslate"><span class="pre">SimBackend.STABILIZER</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.conn_max_retries"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.conn_max_retries</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.conn_retry_time"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.conn_retry_time</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.default_settings"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.default_settings()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.log_level"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.log_level</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.max_app_waiting_time"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.max_app_waiting_time</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.max_qubits"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.max_qubits</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.max_registers"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.max_registers</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.noisy_qubits"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.noisy_qubits</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.read_from_file"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.read_from_file()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.read_from_known_sources"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.read_from_known_sources()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_max_retries"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.recv_max_retries</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_retry_time"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.recv_retry_time</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_timeout"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.recv_timeout</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.sim_backend"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.sim_backend</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.t1"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.t1</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.SimulaqronConfig.write_to_file"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.write_to_file()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.settings.simulaqron_config.get_default_simulaqron_config_file"><code class="docutils literal notranslate"><span class="pre">get_default_simulaqron_config_file()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.settings">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="simulaqron.sdk.html"
+                          title="previous chapter">simulaqron.sdk package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="simulaqron.start.html"
+                          title="next chapter">simulaqron.start package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/simulaqron.settings.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.start.html" title="simulaqron.start package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.sdk.html" title="simulaqron.sdk package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" >simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.settings package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

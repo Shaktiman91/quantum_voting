@@ -1,0 +1,778 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>simulaqron.sdk.connection &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinxdoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.sdk.connection</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simulaqron.sdk.connection</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ctypes</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocess.pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.backend.messages</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">MessageHeader</span><span class="p">,</span>
+                                      <span class="n">MsgDoneMessage</span><span class="p">,</span> <span class="n">ReturnArrayMessage</span><span class="p">,</span>
+                                      <span class="n">ReturnRegMessage</span><span class="p">,</span> <span class="n">ReturnMessage</span><span class="p">,</span> <span class="n">deserialize_return_msg</span><span class="p">,</span>
+                                      <span class="n">ErrorCode</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> <span class="n">APP_ID</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.lang.ir</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenericInstr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.lang.operand</span><span class="w"> </span><span class="kn">import</span> <span class="n">Address</span><span class="p">,</span> <span class="n">Register</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">EPRSocket</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseNetQASMConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.network</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkInfo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.shared_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SharedMemoryManager</span><span class="p">,</span> <span class="n">SharedMemory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.transpile</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubroutineTranspiler</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.general</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimUnsupportedError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.general.host_config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">SocketsConfig</span><span class="p">,</span>
+                                            <span class="n">get_node_id_from_net_config</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">network_config</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;SimulaQronConnection&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SimulaQronConnection"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SimulaQronConnection</span><span class="p">(</span><span class="n">BaseNetQASMConnection</span><span class="p">):</span>
+    <span class="n">NON_STABILIZER_INSTR</span> <span class="o">=</span> <span class="p">[</span><span class="n">GenericInstr</span><span class="o">.</span><span class="n">T</span><span class="p">]</span>
+
+    <span class="c1"># Process pool will be set externally when launching the applications</span>
+    <span class="c1"># This is due to the fact that the code creating the connections will run</span>
+    <span class="c1"># *inside a pool worker*, so it cannot create a new process pool because the</span>
+    <span class="c1"># worker itself is a daemon process.</span>
+    <span class="n">PROCESS_POOL</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Pool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">app_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">max_qubits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="n">log_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LogConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">epr_sockets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">EPRSocket</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">compiler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">SubroutineTranspiler</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">socket_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">conn_retry_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main class representing the connection from NetQASM to the SimulaQron simulator.</span>
+<span class="sd">        This class implements the</span>
+
+<span class="sd">        :param app_name: Name of the app to run.</span>
+<span class="sd">        :type app_name: str</span>
+<span class="sd">        :param app_id: The ID of the application. If not given, a new one will be created.</span>
+<span class="sd">        :type app_id: int | None</span>
+<span class="sd">        :param max_qubits: Maximum number of qubits tu simulate in the simulator.</span>
+<span class="sd">        :type max_qubits: int</span>
+<span class="sd">        :param log_config: Configuration of the logging. Check the documentation of</span>
+<span class="sd">                           ``netqasm.sdk.config.LogConfig`` for more information about this.</span>
+<span class="sd">        :type log_config: LogConfig</span>
+<span class="sd">        :param epr_sockets: List of ``EPRSocket`` s to use in the simulator.</span>
+<span class="sd">        :type epr_sockets: List[EPRSocket]</span>
+<span class="sd">        :param compiler: A transpiler object that transpiles the NetQASM instructions.</span>
+<span class="sd">        :type compiler: Type[SubroutineTranspiler] | None</span>
+<span class="sd">        :param socket_address: A tuple containing a hostname and port to use to connect to the QNodeOS server.</span>
+<span class="sd">        :type socket_address: Tuple[str, int]</span>
+<span class="sd">        :param conn_retry_time: Maximum time in seconds to wait between attempts to connect to the QNoseOS server.</span>
+<span class="sd">        :type conn_retry_time: float</span>
+<span class="sd">        :param network_name: The name of the network to connect to</span>
+<span class="sd">        :type network_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">app_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span>
+            <span class="c1"># NOTE currently node_name and app_name are the same in simulaqron</span>
+            <span class="n">node_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span>
+            <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
+            <span class="n">max_qubits</span><span class="o">=</span><span class="n">max_qubits</span><span class="p">,</span>
+            <span class="n">log_config</span><span class="o">=</span><span class="n">log_config</span><span class="p">,</span>
+            <span class="n">epr_sockets</span><span class="o">=</span><span class="n">epr_sockets</span><span class="p">,</span>
+            <span class="n">compiler</span><span class="o">=</span><span class="n">compiler</span><span class="p">,</span>
+            <span class="n">_init_app</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">_setup_epr_sockets</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qnodeos_net</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_socket</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">node_name</span><span class="p">,</span>
+            <span class="n">socket_address</span><span class="o">=</span><span class="n">socket_address</span><span class="p">,</span>
+            <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span>
+            <span class="n">retry_time</span><span class="o">=</span><span class="n">conn_retry_time</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Next message ID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Messages ID&#39;s with deferred callbacks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_messages_callbacks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Messages IDs we&#39;re waiting to be done</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_msg_ids</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># Keep track of finished msg IDs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_done_msg_ids</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="c1"># Stores an error received from the backend so it can be raised after</span>
+        <span class="c1"># _wait_for_done unblocks, rather than raising inside _handle_reply</span>
+        <span class="c1"># (which would leave the msg_id in _waiting_msg_ids and break close())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pending_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Buffer for returned messages</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># Buffer for retrieved qubit states</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_states</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">complex</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shared_memory</span><span class="p">:</span> <span class="n">SharedMemory</span> <span class="o">=</span> <span class="n">SharedMemoryManager</span><span class="o">.</span><span class="n">create_shared_memory</span><span class="p">(</span><span class="n">app_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_new_app</span><span class="p">(</span><span class="n">max_qubits</span><span class="o">=</span><span class="n">max_qubits</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_epr_sockets</span><span class="p">(</span><span class="n">epr_sockets</span><span class="o">=</span><span class="n">epr_sockets</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SimulaQronConnection.try_connection"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.try_connection">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">try_connection</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">socket_address</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Try to establish a connection to the specified node name. The connection can be made</span>
+<span class="sd">        by specifying the ``socket_address`` tuple (as a hostname and port number tuple) or</span>
+<span class="sd">        by specifying the node and network names. In the latter case, SimulaQron will search</span>
+<span class="sd">        for that node and network names on the loaded network configuration, and get the</span>
+<span class="sd">        corresponding socket configuration (hostname and port number) to connect to.</span>
+
+<span class="sd">        :param name: The name of the node to connect to.</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param socket_address: A hostname-port pair to specify the hostname and port number</span>
+<span class="sd">                               to connect to. This argument is optional.</span>
+<span class="sd">        :type socket_address: Tuple[str, int] | None</span>
+<span class="sd">        :param network_name: The name of the network to search the node name.</span>
+<span class="sd">        :type network_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># NOTE using retry_time=None causes an error to be raised of the connection cannot</span>
+        <span class="c1"># be established, which can be used to check if the connection is available</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Trying if connection is up yet&quot;</span><span class="p">)</span>
+        <span class="n">SimulaQronConnection</span><span class="o">.</span><span class="n">_create_socket</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">socket_address</span><span class="o">=</span><span class="n">socket_address</span><span class="p">,</span>
+            <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span>
+            <span class="n">retry_time</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulaQronConnection.close"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.close">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">clear_app</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">stop_backend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">exception</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Closes the SimulaQron connection. It also sends the corresponding messages</span>
+<span class="sd">        to the backend to clean up the states associated with the connection.</span>
+<span class="sd">        This leaves the quantum backend ready to be used with a new client.</span>
+
+<span class="sd">        :param clear_app: Clear the application before closing the connection.</span>
+<span class="sd">        :type clear_app: bool</span>
+<span class="sd">        :param stop_backend: Stop the backend when closing the connection.</span>
+<span class="sd">        :type stop_backend: bool</span>
+<span class="sd">        :param exception: Whether the app is stopping due to an exception or not.</span>
+<span class="sd">        :type exception: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">clear_app</span><span class="p">,</span> <span class="n">stop_backend</span><span class="p">,</span> <span class="n">exception</span><span class="p">)</span>
+        <span class="c1"># Clear the shared memories occupied by this connection</span>
+        <span class="n">SharedMemoryManager</span><span class="o">.</span><span class="n">reset_memories</span><span class="p">()</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_socket</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">socket_address</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">retry_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SocketsConfig</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">]:</span>
+        <span class="c1"># Get network configuration and addresses</span>
+        <span class="n">addr</span><span class="p">,</span> <span class="n">qnodeos_net</span> <span class="o">=</span> <span class="n">SimulaQronConnection</span><span class="o">.</span><span class="n">_setup_network_data</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">socket_address</span><span class="o">=</span><span class="n">socket_address</span><span class="p">,</span>
+            <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Open a socket to the backend</span>
+        <span class="n">qnodeos_socket</span> <span class="o">=</span> <span class="n">SimulaQronConnection</span><span class="o">.</span><span class="n">_setup_socket</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">addr</span><span class="o">=</span><span class="n">addr</span><span class="p">,</span> <span class="n">retry_time</span><span class="o">=</span><span class="n">retry_time</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">qnodeos_net</span><span class="p">,</span> <span class="n">qnodeos_socket</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_network_data</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">socket_address</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+            <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">socket</span><span class="o">.</span><span class="n">AddressFamily</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SocketKind</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SocketsConfig</span><span class="p">]]:</span>
+        <span class="n">qnodeos_net</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SocketsConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">socket_address</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">qnodeos_net</span> <span class="o">=</span> <span class="n">SocketsConfig</span><span class="p">(</span><span class="n">network_config</span><span class="p">,</span> <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s2">&quot;qnodeos&quot;</span><span class="p">)</span>
+            <span class="c1"># Host data</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">qnodeos_net</span><span class="o">.</span><span class="n">hostDict</span><span class="p">:</span>
+                <span class="n">myHost</span> <span class="o">=</span> <span class="n">qnodeos_net</span><span class="o">.</span><span class="n">hostDict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Host name &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; is not in the qnodeos network&quot;</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Get IP and port number</span>
+            <span class="n">addr</span> <span class="o">=</span> <span class="n">myHost</span><span class="o">.</span><span class="n">addr</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hostname</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">socket_address</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hostname</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;hostname should be a string&quot;</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;port should be an int&quot;</span>
+            <span class="n">addrs</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">getaddrinfo</span><span class="p">(</span>
+                <span class="n">hostname</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">proto</span><span class="o">=</span><span class="n">socket</span><span class="o">.</span><span class="n">IPPROTO_TCP</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span>
+            <span class="p">)</span>
+            <span class="n">addr</span> <span class="o">=</span> <span class="n">addrs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">addr</span><span class="p">,</span> <span class="n">qnodeos_net</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_socket</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">addr</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">socket</span><span class="o">.</span><span class="n">AddressFamily</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SocketKind</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+            <span class="n">retry_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">:</span>
+        <span class="n">qnodeos_socket</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;App </span><span class="si">%s</span><span class="s2"> : Trying to connect to NetQASM server (at </span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">addr</span>
+                <span class="p">)</span>
+
+                <span class="n">qnodeos_socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">addr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">addr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">addr</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">qnodeos_socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">addr</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">ConnectionRefusedError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">retry_time</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">err</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;App </span><span class="si">%s</span><span class="s2"> : Could not connect to NetQASM server, trying again...&quot;</span><span class="p">,</span>
+                    <span class="n">name</span>
+                <span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">retry_time</span><span class="p">)</span>
+                <span class="n">qnodeos_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                    <span class="s2">&quot;App </span><span class="si">%s</span><span class="s2"> : Critical error when connection to NetQASM server: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">name</span><span class="p">,</span> <span class="n">err</span>
+                <span class="p">)</span>
+                <span class="n">qnodeos_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">raise</span> <span class="n">err</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;App </span><span class="si">%s</span><span class="s2"> : Connected to NetQASM server at </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">addr</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">qnodeos_socket</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_network_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">NetworkInfo</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">SimulaQronNetworkInfo</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_commit_serialized_message</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">raw_msg</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Commit a message to the backend/qnodeos&quot;&quot;&quot;</span>
+        <span class="n">msg_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_new_msg_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_msg_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">msg_id</span><span class="p">)</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">MessageHeader</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_msg</span><span class="p">)</span>
+        <span class="n">msg_hdr</span> <span class="o">=</span> <span class="n">MessageHeader</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">)</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">msg_hdr</span><span class="p">)</span> <span class="o">+</span> <span class="n">raw_msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Written </span><span class="si">%d</span><span class="s2"> bytes to NetQASM server&quot;</span><span class="p">,</span> <span class="n">written</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_done</span><span class="p">(</span><span class="n">msg_id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Register the callback so it will be called once the message</span>
+            <span class="c1"># is acknowledged</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_messages_callbacks</span><span class="p">[</span><span class="n">msg_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wait_for_done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Waits for a message to be declared done by qnodeos.</span>
+<span class="sd">        If `msg_id` is None (default), then we wait once for any message to be done.</span>
+<span class="sd">        The ID of this message is then returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">msg_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Waiting for any msg to be done&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Waiting for msg ID </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">done_msg_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_reply</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">msg_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Finished waiting for any message</span>
+                <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">msg_id</span> <span class="o">==</span> <span class="n">done_msg_id</span><span class="p">:</span>
+                <span class="c1"># Finished waiting for specified message</span>
+                <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Executing callback for message </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">done_msg_id</span><span class="p">)</span>
+                    <span class="n">callback</span><span class="p">()</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Other message done, not the one we&#39;re waiting for</span>
+                <span class="c1"># Wait for another don</span>
+                <span class="k">continue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Received done for msg ID </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">done_msg_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending_error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending_error</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pending_error</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">raise</span> <span class="n">err</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_more_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads in some more data on the socket to qnodeos&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_socket</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error in recv from NetQASM server&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">err</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">+=</span> <span class="n">data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got new data &#39;</span><span class="si">%s</span><span class="s2">&#39; on socket to qnodeos&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_reply</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle all next replies until a done message and return the msg ID for the done&quot;&quot;&quot;</span>
+        <span class="c1"># Try to read next message from the buffer otherwise read some more and try again</span>
+        <span class="c1"># TODO - Change the while to use a condition that can be controlled externally</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ret_msg</span> <span class="o">=</span> <span class="n">deserialize_return_msg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="c1"># Incomplete message</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Incomplete message&quot;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_read_more_data</span><span class="p">()</span>
+                <span class="k">continue</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Unexpected exception:&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Remove the data of this message from the buffer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">ret_msg</span><span class="p">):]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Got message </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ret_msg</span><span class="p">)</span>
+            <span class="k">match</span> <span class="n">ret_msg</span><span class="p">:</span>
+                <span class="k">case</span> <span class="n">MsgDoneMessage</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done_msg_ids</span><span class="p">:</span>
+                        <span class="c1"># Duplicate: already handled by a preceding RichErrorMessage for</span>
+                        <span class="c1"># the same subroutine. The backend sends both; skip this one so</span>
+                        <span class="c1"># _wait_for_done keeps looking for the message it actually needs.</span>
+                        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_msg_ids</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_done_msg_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span><span class="p">)</span>
+                    <span class="c1"># Call the registered callback, if any</span>
+                    <span class="k">if</span> <span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_messages_callbacks</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">SimulaQronConnection</span><span class="o">.</span><span class="n">PROCESS_POOL</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Callback process pool was not set correctly&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_messages_callbacks</span><span class="p">[</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">SimulaQronConnection</span><span class="o">.</span><span class="n">PROCESS_POOL</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">_messages_callbacks</span><span class="p">[</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span><span class="p">]</span>
+                            <span class="p">)</span>
+                        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_messages_callbacks</span><span class="p">[</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span><span class="p">]</span>
+                    <span class="k">return</span> <span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span>
+                <span class="k">case</span> <span class="n">ReturnRegMessage</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_shared_memory</span><span class="p">(</span>
+                        <span class="n">entry</span><span class="o">=</span><span class="n">Register</span><span class="o">.</span><span class="n">from_raw</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">register</span><span class="p">),</span>
+                        <span class="n">value</span><span class="o">=</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">case</span> <span class="n">ReturnArrayMessage</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_shared_memory</span><span class="p">(</span>
+                        <span class="n">entry</span><span class="o">=</span><span class="n">Address</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">address</span><span class="p">),</span>
+                        <span class="n">value</span><span class="o">=</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">case</span> <span class="n">ReturnQubitStateMessage</span><span class="p">():</span>
+                    <span class="c1"># We locally store the state info to return it later. We have to</span>
+                    <span class="c1"># do this since _handle_reply cannot return values others than the</span>
+                    <span class="c1"># message id when handling the reply of the original message</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_store_qubit_state</span><span class="p">(</span>
+                        <span class="n">ret_msg</span><span class="o">.</span><span class="n">qubit_id</span><span class="p">,</span>
+                        <span class="n">ret_msg</span><span class="o">.</span><span class="n">dimension</span><span class="p">,</span>
+                        <span class="n">ret_msg</span><span class="o">.</span><span class="n">get_real_part</span><span class="p">(),</span>
+                        <span class="n">ret_msg</span><span class="o">.</span><span class="n">get_imag_part</span><span class="p">()</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">case</span> <span class="n">RichErrorMessage</span><span class="p">():</span>
+                    <span class="c1"># Treat the error as terminal for this msg_id: unblock _wait_for_done</span>
+                    <span class="c1"># so the client loop exits cleanly and close() can still run afterward.</span>
+                    <span class="k">if</span> <span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_msg_ids</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_msg_ids</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_done_msg_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">ret_msg</span><span class="o">.</span><span class="n">err_code</span> <span class="o">==</span> <span class="n">ErrorCode</span><span class="o">.</span><span class="n">UNSUPP</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_pending_error</span> <span class="o">=</span> <span class="n">SimUnsupportedError</span><span class="p">(</span><span class="s2">&quot;Operation not supported&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_pending_error</span> <span class="o">=</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Quantum node rejected request: </span><span class="si">{</span><span class="n">ret_msg</span><span class="o">.</span><span class="n">get_err_msg</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">return</span> <span class="n">ret_msg</span><span class="o">.</span><span class="n">msg_id</span>
+                <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown return message of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ret_msg</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SimulaQronConnection.block"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.block">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">block</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Blocks the handling of new messages until all the pending message IDs are acknowledged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_waiting_msg_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Blocking and waiting for msg IDs </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_msg_ids</span>
+            <span class="p">)</span>
+            <span class="c1"># Wait for any msg to be done</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_done</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;All messages done, finished blocking&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_shared_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">Register</span> <span class="o">|</span> <span class="n">Address</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]):</span>
+        <span class="n">shared_memory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_memory</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Register</span><span class="p">):</span>
+            <span class="n">shared_memory</span><span class="o">.</span><span class="n">set_register</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Address</span><span class="p">):</span>
+            <span class="n">address</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">address</span>
+            <span class="n">shared_memory</span><span class="o">.</span><span class="n">init_new_array</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="n">address</span><span class="p">,</span> <span class="n">new_array</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot update shared memory with entry specified as </span><span class="si">{</span><span class="n">entry</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_store_qubit_state</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">qubit_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">dimension</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">real_part</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+            <span class="n">imag_part</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Storing qubit state for qubit_id </span><span class="si">%d</span><span class="s2">: real=</span><span class="si">%s</span><span class="s2">, imag=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                           <span class="n">qubit_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">real_part</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">imag_part</span><span class="p">)</span>
+                           <span class="p">)</span>
+        <span class="n">density_matrix</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">complex</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimension</span><span class="p">):</span>
+            <span class="n">row</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">complex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimension</span><span class="p">):</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">real_part</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">imag_part</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+            <span class="n">density_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_states</span><span class="p">[</span><span class="n">qubit_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">density_matrix</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_retrieve_qubit_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">complex</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">qubit_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_states</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;State for the qubit with id &#39;</span><span class="si">%d</span><span class="s2">&#39; cannot be found in the conneciton buffer&quot;</span><span class="p">,</span> <span class="n">qubit_id</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_states</span><span class="p">[</span><span class="n">qubit_id</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_states</span><span class="p">[</span><span class="n">qubit_id</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">msg_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done_msg_ids</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_new_msg_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">msg_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_id</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">msg_id</span>
+
+<div class="viewcode-block" id="SimulaQronConnection.get_qubit_state"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.get_qubit_state">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_qubit_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">qubit_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">complex</span><span class="p">]:</span>
+        <span class="c1"># Check if there are some pending (unflushed) operations on the qubit</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">_pending_commands</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Qubit </span><span class="si">{</span><span class="n">qubit_id</span><span class="si">}</span><span class="s2"> has unflushed operations&quot;</span><span class="p">)</span>
+        <span class="c1"># Here we craft the special message that signals QNodeOS to</span>
+        <span class="c1"># retrieve the state of a qubit.</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">GetQubitStateMessage</span><span class="p">(</span><span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span> <span class="n">qubit_id</span><span class="o">=</span><span class="n">qubit_id</span><span class="p">)</span>
+        <span class="c1"># We commit the message, and block until receiving a response</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_commit_message</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Retrieve and return the qubit state</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retrieve_qubit_state</span><span class="p">(</span><span class="n">qubit_id</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># Definitions for the new message types</span>
+<span class="n">QUBIT_REGISTRY_NUM</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint8</span>
+<span class="n">MAX_QUBIT_STATE_LEN</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">MAX_ERR_MSG_LEN</span> <span class="o">=</span> <span class="mi">500</span>
+
+
+<span class="c1"># &quot;Extend&quot; (by redefining the enum) the Message Type</span>
+<div class="viewcode-block" id="NewMessageType"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.NewMessageType">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NewMessageType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">INIT_NEW_APP</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">OPEN_EPR_SOCKET</span> <span class="o">=</span> <span class="mh">0x01</span>
+    <span class="n">SUBROUTINE</span> <span class="o">=</span> <span class="mh">0x02</span>
+    <span class="n">STOP_APP</span> <span class="o">=</span> <span class="mh">0x03</span>
+    <span class="n">SIGNAL</span> <span class="o">=</span> <span class="mh">0x04</span>
+    <span class="n">GET_QUBIT_STATE</span> <span class="o">=</span> <span class="mh">0xCA</span></div>
+
+
+<span class="c1"># New class for the get qubit state message</span>
+<div class="viewcode-block" id="GetQubitStateMessage"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.GetQubitStateMessage">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">GetQubitStateMessage</span><span class="p">(</span><span class="n">Message</span><span class="p">):</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;app_id&quot;</span><span class="p">,</span> <span class="n">APP_ID</span><span class="p">),</span>  <span class="c1"># type: ignore</span>
+        <span class="p">(</span><span class="s2">&quot;qubit_id&quot;</span><span class="p">,</span> <span class="n">QUBIT_REGISTRY_NUM</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">TYPE</span> <span class="o">=</span> <span class="n">NewMessageType</span><span class="o">.</span><span class="n">GET_QUBIT_STATE</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">qubit_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implements a specific NetQASM message to get the state of a qubit from the</span>
+<span class="sd">        SimulaQron simulator.</span>
+
+<span class="sd">        :param app_id: The app ID to get the qubit from.</span>
+<span class="sd">        :type app_id: int</span>
+<span class="sd">        :param qubit_id: The qubit ID to retrieve the state.</span>
+<span class="sd">        :type qubit_id: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TYPE</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_id</span> <span class="o">=</span> <span class="n">app_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qubit_id</span> <span class="o">=</span> <span class="n">qubit_id</span></div>
+
+
+<div class="viewcode-block" id="NewReturnMessageType"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.NewReturnMessageType">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NewReturnMessageType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">DONE</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">ERR</span> <span class="o">=</span> <span class="mh">0x01</span>
+    <span class="n">RET_ARR</span> <span class="o">=</span> <span class="mh">0x02</span>
+    <span class="n">RET_REG</span> <span class="o">=</span> <span class="mh">0x03</span>
+    <span class="n">RET_QUBIT_STATE</span> <span class="o">=</span> <span class="mh">0xFE</span></div>
+
+
+<div class="viewcode-block" id="RichErrorMessage"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.RichErrorMessage">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RichErrorMessage</span><span class="p">(</span><span class="n">ReturnMessage</span><span class="p">):</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;msg_id&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;err_code&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;err_msg_len&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;err_msg&quot;</span><span class="p">,</span> <span class="n">MAX_ERR_MSG_LEN</span> <span class="o">*</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint8</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="c1"># This works because the enum types are mapped to the very same value</span>
+    <span class="n">TYPE</span> <span class="o">=</span> <span class="n">NewReturnMessageType</span><span class="o">.</span><span class="n">ERR</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err_code</span><span class="p">:</span> <span class="n">ErrorCode</span><span class="p">,</span> <span class="n">err_msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enriched message to the Host that an error occurred at the quantum node controller.</span>
+
+<span class="sd">        :param err_code: The error code to report.</span>
+<span class="sd">        :type err_code: ErrorCode</span>
+<span class="sd">        :param err_msg: The error message.</span>
+<span class="sd">        :type err_msg: str</span>
+<span class="sd">        :param msg_id: The ID of the subroutine message that caused the error, so the</span>
+<span class="sd">                       client can unblock its _wait_for_done loop for that message.</span>
+<span class="sd">        :type msg_id: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TYPE</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_id</span> <span class="o">=</span> <span class="n">msg_id</span>
+        <span class="n">err_bytes</span> <span class="o">=</span> <span class="n">err_msg</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">err_bytes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MAX_ERR_MSG_LEN</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Reported error message too long&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_code</span> <span class="o">=</span> <span class="n">err_code</span><span class="o">.</span><span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_msg_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">err_bytes</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">err_bytes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">err_msg</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+<div class="viewcode-block" id="RichErrorMessage.get_err_msg"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.RichErrorMessage.get_err_msg">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_err_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">bytes_vals</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">err_msg_len</span><span class="p">):</span>
+            <span class="n">bytes_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">err_msg</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">bytes_vals</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># New class for the return of the get qubit state message</span>
+<div class="viewcode-block" id="ReturnQubitStateMessage"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ReturnQubitStateMessage</span><span class="p">(</span><span class="n">ReturnMessage</span><span class="p">):</span>
+    <span class="c1"># TODO - Adapt this class to accept square, 2-dim arrays</span>
+    <span class="n">_fields_</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;qubit_id&quot;</span><span class="p">,</span> <span class="n">QUBIT_REGISTRY_NUM</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;dim&quot;</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;real_part&quot;</span><span class="p">,</span> <span class="n">MAX_QUBIT_STATE_LEN</span> <span class="o">*</span> <span class="p">(</span><span class="n">MAX_QUBIT_STATE_LEN</span> <span class="o">*</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_float</span><span class="p">)),</span>  <span class="c1"># type: ignore</span>
+        <span class="p">(</span><span class="s2">&quot;imag_part&quot;</span><span class="p">,</span> <span class="n">MAX_QUBIT_STATE_LEN</span> <span class="o">*</span> <span class="p">(</span><span class="n">MAX_QUBIT_STATE_LEN</span> <span class="o">*</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_float</span><span class="p">)),</span>  <span class="c1"># type: ignore</span>
+    <span class="p">]</span>
+    <span class="n">TYPE</span> <span class="o">=</span> <span class="n">NewReturnMessageType</span><span class="o">.</span><span class="n">RET_QUBIT_STATE</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">real_part</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">imag_part</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Specific NetQASM message used to transmit the qubit state back to the application.</span>
+
+<span class="sd">        :param qubit_id: The qubit ID.</span>
+<span class="sd">        :type qubit_id: int</span>
+<span class="sd">        :param real_part: The real part of the qubit state.</span>
+<span class="sd">        :type real_part: List[List[float]]</span>
+<span class="sd">        :param imag_part: The imaginary part of the qubit state.</span>
+<span class="sd">        :type imag_part: List[List[float]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TYPE</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Sanity checks - given matrices are square</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">real_part</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">imag_part</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">real_part</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">imag_part</span><span class="p">)</span> <span class="ow">and</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">real_part</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">real_part</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">imag_part</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">imag_part</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">qubit_id</span> <span class="o">=</span> <span class="n">qubit_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">real_part</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">&gt;</span> <span class="n">MAX_QUBIT_STATE_LEN</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Return qubit state message too long&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">real_part</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">real_part</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">imag_part</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">imag_part</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span>
+
+<div class="viewcode-block" id="ReturnQubitStateMessage.get_real_part"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.get_real_part">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_real_part</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="n">real_part</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+            <span class="n">row</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_part</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+            <span class="n">real_part</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">real_part</span></div>
+
+<div class="viewcode-block" id="ReturnQubitStateMessage.get_imag_part"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.get_imag_part">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_imag_part</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="n">imag_part</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+            <span class="n">row</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imag_part</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]))</span>
+            <span class="n">imag_part</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">imag_part</span></div></div>
+
+
+<span class="c1"># Really dark magic to *replace* the definitions from the netqasm library</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">netqasm.backend.messages</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nmsg</span>  <span class="c1"># noqa: E402</span>
+
+<span class="n">nmsg</span><span class="o">.</span><span class="n">MessageType</span> <span class="o">=</span> <span class="n">NewMessageType</span>
+<span class="n">nmsg</span><span class="o">.</span><span class="n">ReturnMessageType</span> <span class="o">=</span> <span class="n">NewReturnMessageType</span>
+<span class="n">nmsg</span><span class="o">.</span><span class="n">MESSAGE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">nmsg</span><span class="o">.</span><span class="n">MessageType</span><span class="o">.</span><span class="n">INIT_NEW_APP</span><span class="p">:</span> <span class="n">nmsg</span><span class="o">.</span><span class="n">InitNewAppMessage</span><span class="p">,</span>
+    <span class="n">nmsg</span><span class="o">.</span><span class="n">MessageType</span><span class="o">.</span><span class="n">OPEN_EPR_SOCKET</span><span class="p">:</span> <span class="n">nmsg</span><span class="o">.</span><span class="n">OpenEPRSocketMessage</span><span class="p">,</span>
+    <span class="n">nmsg</span><span class="o">.</span><span class="n">MessageType</span><span class="o">.</span><span class="n">SUBROUTINE</span><span class="p">:</span> <span class="n">nmsg</span><span class="o">.</span><span class="n">SubroutineMessage</span><span class="p">,</span>
+    <span class="n">nmsg</span><span class="o">.</span><span class="n">MessageType</span><span class="o">.</span><span class="n">STOP_APP</span><span class="p">:</span> <span class="n">nmsg</span><span class="o">.</span><span class="n">StopAppMessage</span><span class="p">,</span>
+    <span class="n">nmsg</span><span class="o">.</span><span class="n">MessageType</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">:</span> <span class="n">nmsg</span><span class="o">.</span><span class="n">SignalMessage</span><span class="p">,</span>
+    <span class="n">NewMessageType</span><span class="o">.</span><span class="n">GET_QUBIT_STATE</span><span class="p">:</span> <span class="n">GetQubitStateMessage</span>
+<span class="p">}</span>
+<span class="n">nmsg</span><span class="o">.</span><span class="n">RETURN_MESSAGE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">nmsg</span><span class="o">.</span><span class="n">ReturnMessageType</span><span class="o">.</span><span class="n">DONE</span><span class="p">:</span> <span class="n">MsgDoneMessage</span><span class="p">,</span>
+    <span class="n">nmsg</span><span class="o">.</span><span class="n">ReturnMessageType</span><span class="o">.</span><span class="n">ERR</span><span class="p">:</span> <span class="n">RichErrorMessage</span><span class="p">,</span>
+    <span class="n">nmsg</span><span class="o">.</span><span class="n">ReturnMessageType</span><span class="o">.</span><span class="n">RET_REG</span><span class="p">:</span> <span class="n">ReturnRegMessage</span><span class="p">,</span>
+    <span class="n">nmsg</span><span class="o">.</span><span class="n">ReturnMessageType</span><span class="o">.</span><span class="n">RET_ARR</span><span class="p">:</span> <span class="n">ReturnArrayMessage</span><span class="p">,</span>
+    <span class="n">NewReturnMessageType</span><span class="o">.</span><span class="n">RET_QUBIT_STATE</span><span class="p">:</span> <span class="n">ReturnQubitStateMessage</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="SimulaQronNetworkInfo"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronNetworkInfo">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SimulaQronNetworkInfo</span><span class="p">(</span><span class="n">NetworkInfo</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_node_id</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">node_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the node id for the node with the given name&quot;&quot;&quot;</span>
+        <span class="c1"># TODO always use network name &quot;default&quot;?</span>
+        <span class="n">_qnodeos_net</span> <span class="o">=</span> <span class="n">SocketsConfig</span><span class="p">(</span><span class="n">network_config</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s2">&quot;qnodeos&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_node_id_from_net_config</span><span class="p">(</span><span class="n">_qnodeos_net</span><span class="p">,</span> <span class="n">node_name</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_node_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">node_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the node name for the node with the given ID&quot;&quot;&quot;</span>
+        <span class="c1"># TODO always use network name &quot;default&quot;?</span>
+        <span class="n">_qnodeos_net</span> <span class="o">=</span> <span class="n">SocketsConfig</span><span class="p">(</span><span class="n">network_config</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s2">&quot;qnodeos&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">host</span> <span class="ow">in</span> <span class="n">_qnodeos_net</span><span class="o">.</span><span class="n">hostDict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">node_id</span> <span class="o">==</span> <span class="n">host</span><span class="o">.</span><span class="n">ip</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">node_name</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Unknown node ID </span><span class="si">{node_id}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SimulaQronNetworkInfo.get_node_id_for_app"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_id_for_app">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_id_for_app</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the node id for the app with the given name.</span>
+
+<span class="sd">        :param app_name: The app name.</span>
+<span class="sd">        :type app_name: str</span>
+<span class="sd">        :return: The node ID.</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># NOTE app_name and node_name are for now the same in simulaqron</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_node_id</span><span class="p">(</span><span class="n">node_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulaQronNetworkInfo.get_node_name_for_app"><a class="viewcode-back" href="../../../simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_name_for_app">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_node_name_for_app</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the node name for the app with the given name.</span>
+
+<span class="sd">        :param app_name: The app name.</span>
+<span class="sd">        :type app_name: str</span>
+<span class="sd">        :return: The node name.</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># NOTE app_name and node_name are for now the same in simulaqron</span>
+        <span class="k">return</span> <span class="n">app_name</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.sdk.connection</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

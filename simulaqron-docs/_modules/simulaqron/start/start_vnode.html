@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>simulaqron.start.start_vnode &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinxdoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.start.start_vnode</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simulaqron.start.start_vnode</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2017, Stephanie Wehner and Axel Dahlberg</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright</span>
+<span class="c1">#    notice, this list of conditions and the following disclaimer.</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright</span>
+<span class="c1">#    notice, this list of conditions and the following disclaimer in the</span>
+<span class="c1">#    documentation and/or other materials provided with the distribution.</span>
+<span class="c1"># 3. All advertising materials mentioning features or use of this software</span>
+<span class="c1">#    must display the following acknowledgement:</span>
+<span class="c1">#    This product includes software developed by Stephanie Wehner, QuTech.</span>
+<span class="c1"># 4. Neither the name of the QuTech organization nor the</span>
+<span class="c1">#    names of its contributors may be used to endorse or promote products</span>
+<span class="c1">#    derived from this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER &#39;&#39;AS IS&#39;&#39; AND ANY</span>
+<span class="c1"># EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED</span>
+<span class="c1"># WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</span>
+<span class="c1"># DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY</span>
+<span class="c1"># DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES</span>
+<span class="c1"># (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;</span>
+<span class="c1"># LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND</span>
+<span class="c1"># ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c1"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</span>
+<span class="c1"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.reactor</span><span class="w"> </span><span class="kn">import</span> <span class="n">reactor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.virtual_node.virtual</span><span class="w"> </span><span class="kn">import</span> <span class="n">Backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">simulaqron_settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">network_config</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;start_vnode&quot;</span><span class="p">)</span>
+
+<span class="n">stdout_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sigterm_handler</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_signo</span><span class="p">,</span> <span class="n">_stack_frame</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;START_VNODE: Shutting down Node &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; from signal </span><span class="si">{</span><span class="n">_signo</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stdout_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stdout_file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">stdout_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">reactor</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="start_vnode"><a class="viewcode-back" href="../../../simulaqron.start.html#simulaqron.start.start_vnode.start_vnode">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">start_vnode</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network_config_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Start the execution of a virtual simulaqron node. This node will simulate all quantum aspects</span>
+<span class="sd">    of the node, and is then reachable via Twisted PB (Simulaqron Native Mode) or - when also starting QNPU - </span>
+<span class="sd">    the QNPU Server which translates NetQASM to native mode. </span>
+
+<span class="sd">    :param name: Name of the node (e.g., &#39;Alice&#39;).</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    :param network_config_file: Path to network config file.</span>
+<span class="sd">    :type network_config_file: Path</span>
+<span class="sd">    :param network_name: Name of the network (e.g., &#39;default&#39;).</span>
+<span class="sd">    :type network_name: str</span>
+<span class="sd">    :param log_level: Logging level (e.g., &#39;DEBUG&#39;, &#39;INFO&#39;, &#39;WARNING&#39;).</span>
+<span class="sd">    :type log_level: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Let&#39;s ensure we have read the config file. This relies on the right one being passed from network.py</span>
+    <span class="n">network_config</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="n">network_config_file</span><span class="p">)</span>
+
+    <span class="c1"># We will have our logging output be written to a file in order to not distract from the app</span>
+    <span class="c1"># logging that the user will later see on the screen</span>
+    <span class="n">stdout_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/tmp/simulaqron-stdout-stderr-vnode-</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">.out.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout_file</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">stdout_file</span>
+    
+    <span class="c1"># Force configure root logger with a handler, ensure our log output to this file</span>
+    <span class="c1"># will allow us to trace back exactly where it came from in the codebase</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">:</span><span class="si">%(levelname)s</span><span class="s2">:</span><span class="si">%(name)s</span><span class="s2">:</span><span class="si">%(filename)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">:</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">log_level</span><span class="p">,</span>
+        <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">stream</span><span class="o">=</span><span class="n">stdout_file</span>  <span class="c1"># send logs to the same file</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Set up the handlers: those define what we will do when the process is terminated (by killing it)</span>
+    <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="n">_sigterm_handler</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+    <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="n">_sigterm_handler</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+
+    <span class="c1"># Let&#39;s now test logging works by printing a message we are starting</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;START_VNODE: Starting VIRTUAL NODE </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># Start the backend with the parameters configured in the simulaqron log file</span>
+    <span class="n">be</span> <span class="o">=</span> <span class="n">Backend</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">network_name</span><span class="o">=</span><span class="n">network_name</span><span class="p">)</span>
+    <span class="n">be</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">max_qubits</span><span class="o">=</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">max_qubits</span><span class="p">,</span> <span class="n">max_registers</span><span class="o">=</span><span class="n">simulaqron_settings</span><span class="o">.</span><span class="n">max_registers</span><span class="p">)</span>
+
+    <span class="c1"># Print a message we have terminated the node.</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;START_VNODE: Ending VIRTUAL NODE </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.start.start_vnode</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

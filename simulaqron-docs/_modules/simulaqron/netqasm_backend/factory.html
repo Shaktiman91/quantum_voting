@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>simulaqron.netqasm_backend.factory &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinxdoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.netqasm_backend.factory</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simulaqron.netqasm_backend.factory</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2017, Stephanie Wehner and Axel Dahlberg</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright</span>
+<span class="c1">#    notice, this list of conditions and the following disclaimer.</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright</span>
+<span class="c1">#    notice, this list of conditions and the following disclaimer in the</span>
+<span class="c1">#    documentation and/or other materials provided with the distribution.</span>
+<span class="c1"># 3. All advertising materials mentioning features or use of this software</span>
+<span class="c1">#    must display the following acknowledgement:</span>
+<span class="c1">#    This product includes software developed by Stephanie Wehner, QuTech.</span>
+<span class="c1"># 4. Neither the name of the QuTech organization nor the</span>
+<span class="c1">#    names of its contributors may be used to endorse or promote products</span>
+<span class="c1">#    derived from this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER &#39;&#39;AS IS&#39;&#39; AND ANY</span>
+<span class="c1"># EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED</span>
+<span class="c1"># WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</span>
+<span class="c1"># DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY</span>
+<span class="c1"># DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES</span>
+<span class="c1"># (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;</span>
+<span class="c1"># LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND</span>
+<span class="c1"># ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c1"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</span>
+<span class="c1"># SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.backend.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageHeader</span><span class="p">,</span> <span class="n">ErrorCode</span><span class="p">,</span> <span class="n">deserialize_host_msg</span><span class="p">,</span> <span class="n">Message</span><span class="p">,</span> \
+    <span class="n">InitNewAppMessage</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">twisted.internet.defer</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeferredLock</span><span class="p">,</span> <span class="n">inlineCallbacks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">twisted.internet.protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">Factory</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">connectionDone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">twisted.internet.task</span><span class="w"> </span><span class="kn">import</span> <span class="n">deferLater</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.reactor</span><span class="w"> </span><span class="kn">import</span> <span class="n">reactor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.general.host_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">SocketsConfig</span><span class="p">,</span> <span class="n">Host</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.netqasm_backend.qnodeos</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubroutineHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.sdk.connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">RichErrorMessage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">network_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.virtual_node.virtual</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_method</span>
+
+
+<div class="viewcode-block" id="IncompleteMessageError"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.IncompleteMessageError">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">IncompleteMessageError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when trying to parse an incomplete NetQASM message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="NetQASMProtocol"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NetQASMProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="c1"># Dictionary storing the next unique qubit id for each used app_id</span>
+    <span class="n">_next_q_id</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Dictionary storing the next unique entanglement id for each used</span>
+    <span class="c1"># (host_app_id,remote_node,remote_app_id)</span>
+    <span class="n">_next_ent_id</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory</span><span class="p">:</span> <span class="s2">&quot;NetQASMFactory&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implementation of a ``twisted.internet.protocol.Protocol`` class that handles</span>
+<span class="sd">        the connection to a server capable of handling NetQASM messages.</span>
+
+<span class="sd">        This class is the entry point when a new NetQASM message is received. It is also</span>
+<span class="sd">        responsible for calling (in a &quot;twisted deferred&quot; way) the message handlers that</span>
+<span class="sd">        implement the logic of handling and executing the message.</span>
+
+<span class="sd">        :param factory: The :py:class:`NetQASMFactory` object that handles this object.</span>
+<span class="sd">        :type factory: NetQASMFactory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># NetQASM Factory, including our connection to the SimulaQron backend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="o">=</span> <span class="n">factory</span>
+
+        <span class="c1"># Default application ID, typically one connection per application but</span>
+        <span class="c1"># we will deliberately NOT check for that since this is the task of</span>
+        <span class="c1"># higher layers or an OS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_id</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Define the backend to use.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">messageHandler</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">backend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">messageHandler</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="bp">self</span>
+
+        <span class="c1"># Flag to determine whether we already received _all_ of the NetQASM header</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">got_netqasm_header</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Header for which we are currently processing a packet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">currHeader</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Buffer received data (which may arrive in chunks)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Convenience</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Initialized Protocol&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NetQASMProtocol.connectionMade"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionMade">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">connectionMade</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implementation of the ``connectionMade`` method from the ``twisted.internet.protocol.Protocol`` class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connection made&quot;</span><span class="p">)</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="NetQASMProtocol.connectionLost"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionLost">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">connectionLost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="n">connectionDone</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implementation of the ``connectionLost`` method from the ``twisted.internet.protocol.Protocol`` class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection lost: </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">_active_protocol</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cleanup_all</span><span class="p">()</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cleanup_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clean up all state - Note that we allow only ONE connection</span>
+<span class="sd">        to one NetQASM node server at a time, making the below safe.</span>
+
+<span class="sd">        If we were to ever decide to allow multiple, the below is too radical</span>
+<span class="sd">        and decidedly unsafe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Cleaning up all state&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Clear qubit list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">qubitList</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        
+        <span class="c1"># Clear protocol class state</span>
+        <span class="n">NetQASMProtocol</span><span class="o">.</span><span class="n">_next_q_id</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">NetQASMProtocol</span><span class="o">.</span><span class="n">_next_ent_id</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        
+        <span class="c1"># Clear executioner class state</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.netqasm_backend.executioner</span><span class="w"> </span><span class="kn">import</span> <span class="n">VanillaSimulaQronExecutioner</span>
+        <span class="n">VanillaSimulaQronExecutioner</span><span class="o">.</span><span class="n">_next_create_id</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        
+        <span class="c1"># Clear executioner instance state</span>
+        <span class="n">executor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">messageHandler</span><span class="o">.</span><span class="n">_executor</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="s1">&#39;_network_stack&#39;</span><span class="p">):</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">_network_stack</span><span class="o">.</span><span class="n">_sockets</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="s1">&#39;_epr_create_requests&#39;</span><span class="p">):</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">_epr_create_requests</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="s1">&#39;_epr_recv_requests&#39;</span><span class="p">):</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">_epr_recv_requests</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        
+        <span class="c1"># Reset shared memory</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.shared_memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">SharedMemoryManager</span>
+            <span class="n">SharedMemoryManager</span><span class="o">.</span><span class="n">reset_memories</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not reset shared memory: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Cleanup complete&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NetQASMProtocol.dataReceived"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol.dataReceived">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">dataReceived</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        We will always wait to receive enough data for the</span>
+<span class="sd">        header, and then the entire packet first before commencing processing.</span>
+
+<span class="sd">        This method is the first entry point when the SimulaQron QNodeOS server</span>
+<span class="sd">        receives a NetQASM message. Once any data is received, it attaches it to</span>
+<span class="sd">        an internal buffer, and tries to parse a NetQASM message.</span>
+<span class="sd">        If a message cannot be parsed, the raw data will be stored and this method</span>
+<span class="sd">        will return, waiting form more data. It a message can be parsed, it will be</span>
+<span class="sd">        for further processing to the message handler (usually the</span>
+<span class="sd">        :py:class:´SubroutineHandler´ class).</span>
+
+<span class="sd">        :param data: The data received from the remote.</span>
+<span class="sd">        :type data: bytes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Read whatever we received into a buffer</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">+</span> <span class="n">data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">msg_id</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_message</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">IncompleteMessageError</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">messageHandler</span><span class="o">.</span><span class="n">handle_netqasm_message</span><span class="p">(</span><span class="n">msg_id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">addCallback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_handled_message</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">addErrback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_error</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_log_handled_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished handling message with result = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="nd">@inlineCallbacks</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_log_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">failure</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Handling message failed with failure = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">failure</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="c1"># Use the executor&#39;s current msg_id so the client&#39;s _wait_for_done loop</span>
+        <span class="c1"># can unblock for the correct subroutine rather than hanging forever.</span>
+        <span class="n">msg_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">messageHandler</span><span class="p">,</span> <span class="s1">&#39;_executor&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s1">&#39;_current_msg_id&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">msg_id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_return_msg</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="n">RichErrorMessage</span><span class="p">(</span><span class="n">err_code</span><span class="o">=</span><span class="n">ErrorCode</span><span class="o">.</span><span class="n">GENERAL</span><span class="p">,</span> <span class="n">err_msg</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">failure</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="n">msg_id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">))</span>
+        <span class="c1"># self.transport.abortConnection()</span>
+        <span class="c1"># yield None</span>
+        <span class="k">yield</span> <span class="n">deferLater</span><span class="p">(</span><span class="n">reactor</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NetQASMProtocol.stop"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol.stop">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stops this NetQASM protocol object. No further messages will be handled</span>
+<span class="sd">        after invoking this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">msg_hdr</span> <span class="o">=</span> <span class="n">MessageHeader</span><span class="o">.</span><span class="n">from_buffer_copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">IncompleteMessageError</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">msg_hdr</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">IncompleteMessageError</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">deserialize_host_msg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">[</span><span class="n">MessageHeader</span><span class="o">.</span><span class="n">len</span><span class="p">():])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="p">[</span><span class="n">msg_hdr</span><span class="o">.</span><span class="n">length</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">msg_hdr</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">msg</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_init_new_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">InitNewAppMessage</span><span class="p">):</span>
+        <span class="n">app_id</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">app_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_app</span><span class="p">(</span><span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">)</span>
+        <span class="n">max_qubits</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">max_qubits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Allocating a new unit module&quot;</span>
+                           <span class="s2">&quot;of size </span><span class="si">%d</span><span class="s2"> for application with app ID </span><span class="si">%d</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                           <span class="n">max_qubits</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_executioner</span><span class="o">.</span><span class="n">init_new_application</span><span class="p">(</span>
+            <span class="n">app_id</span><span class="o">=</span><span class="n">app_id</span><span class="p">,</span>
+            <span class="n">max_qubits</span><span class="o">=</span><span class="n">max_qubits</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_return_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Message</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a msg to the host.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span></div>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#</span>
+<span class="c1"># NetQASM Factory</span>
+<span class="c1">#</span>
+<span class="c1"># Twisted factory for the NetQASM protocol</span>
+<span class="c1">#</span>
+
+
+<div class="viewcode-block" id="NetQASMFactory"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">NetQASMFactory</span><span class="p">(</span><span class="n">Factory</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">host</span><span class="p">:</span> <span class="n">Host</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">qnodeos_net</span><span class="p">:</span> <span class="n">SocketsConfig</span><span class="p">,</span>
+            <span class="n">backend</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">SubroutineHandler</span><span class="p">],</span>
+            <span class="n">network_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Factory class that creates :py:class:`NetQASMProtocol` objects. This factory</span>
+<span class="sd">        will create one protocol instance per connection.</span>
+
+<span class="sd">        This factory is handled by the internals of the twisted reactor, and should not be</span>
+<span class="sd">        instantiated by the user.</span>
+
+<span class="sd">        :param host: The hostname to listen to new connections.</span>
+<span class="sd">        :type host: str</span>
+<span class="sd">        :param name: A name for this protocol factory.</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param qnodeos_net: The :py:class:`SocketsConfig` object containing the *QNodeOS* sockets specifications.</span>
+<span class="sd">        :type qnodeos_net: SocketsConfig</span>
+<span class="sd">        :param backend: The class of QNodeOS subroutine handlers that the protocol will forward messages to.</span>
+<span class="sd">        :type backend: Type[SubroutineHandler]</span>
+<span class="sd">        :param network_name: The name of the network to handle messages from.</span>
+<span class="sd">        :type network_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qnodeos_net</span> <span class="o">=</span> <span class="n">qnodeos_net</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virtRoot</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qReg</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_name</span> <span class="o">=</span> <span class="n">network_name</span>
+
+        <span class="c1"># Dictionary that keeps qubit dictionaries for each application</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qubitList</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;VirtualQubitRef&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># noqa: F821</span>
+
+        <span class="c1"># Lock governing access to the qubitList</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">DeferredLock</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Read in topology, if specified. topology=None means fully connected</span>
+        <span class="c1"># topology</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topology</span> <span class="o">=</span> <span class="n">network_config</span><span class="p">[</span><span class="n">network_name</span><span class="p">]</span><span class="o">.</span><span class="n">topology</span>
+
+        <span class="c1"># Track active connection - we will allow only one at a time</span>
+        <span class="c1"># as the code for the netqasm backend was not designed for multiple</span>
+        <span class="c1"># even though the virtual Node backend of SimulaQron would allow </span>
+        <span class="c1"># that</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active_protocol</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="NetQASMFactory.stop"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.stop">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stops this instance of the factory. No more protocol objects will be created</span>
+<span class="sd">        after invoking this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">yield</span> <span class="n">call_method</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">virtRoot</span><span class="p">,</span> <span class="s2">&quot;stop_vnode&quot;</span><span class="p">)</span>
+        <span class="n">reactor</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="NetQASMFactory.buildProtocol"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.buildProtocol">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">buildProtocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an instance of NetQASMProtocol when a connection is made.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">protocol</span> <span class="o">=</span> <span class="n">NetQASMProtocol</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active_protocol</span> <span class="o">=</span> <span class="n">protocol</span>
+        <span class="k">return</span> <span class="n">protocol</span></div>
+
+<div class="viewcode-block" id="NetQASMFactory.set_virtual_node"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.set_virtual_node">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">set_virtual_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">virtRoot</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the virtual root allowing connections to the SimulaQron backend.</span>
+
+<span class="sd">        :param virtRoot: The virtual root object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">virtRoot</span> <span class="o">=</span> <span class="n">virtRoot</span></div>
+
+<div class="viewcode-block" id="NetQASMFactory.lookup"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.lookup">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">port</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lookup name of remote host used within SimulaQron given ip and port number.</span>
+<span class="sd">        :param ip: The IP address to look for. This value needs to be transformed into an integer value.</span>
+<span class="sd">        :param port: The port to look for.</span>
+<span class="sd">        :return: The name of the node that matches the IP-port pair. None if none matches.</span>
+<span class="sd">        :rtype: str | None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qnodeos_net</span><span class="o">.</span><span class="n">hostDict</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qnodeos_net</span><span class="o">.</span><span class="n">hostDict</span><span class="p">[</span><span class="n">entry</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">ip</span> <span class="o">==</span> <span class="n">ip</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">port</span> <span class="o">==</span> <span class="n">port</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No such node&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="NetQASMFactory.is_adjacent"><a class="viewcode-back" href="../../../simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.is_adjacent">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_adjacent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remote_host_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if remote host is adjacent to this node, according to the</span>
+<span class="sd">        specified topology.</span>
+
+<span class="sd">        :param remote_host_name: The name of the remote host</span>
+<span class="sd">        :type remote_host_name: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if a topology is defined, otherwise use fully connected</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">remote_host_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">topology</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Node </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not in the specified topology and is therefore &quot;</span>
+                <span class="s2">&quot;assumed to have no neighbors&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.netqasm_backend.factory</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

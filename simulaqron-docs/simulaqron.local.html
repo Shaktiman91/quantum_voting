@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>simulaqron.local package &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="simulaqron.netqasm_backend package" href="simulaqron.netqasm_backend.html" />
+    <link rel="prev" title="simulaqron.general package" href="simulaqron.general.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.netqasm_backend.html" title="simulaqron.netqasm_backend package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.general.html" title="simulaqron.general package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" accesskey="U">simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.local package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="simulaqron-local-package">
+<h1>simulaqron.local package<a class="headerlink" href="#simulaqron-local-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-simulaqron.local.setup">
+<span id="simulaqron-local-setup-module"></span><h2>simulaqron.local.setup module<a class="headerlink" href="#module-simulaqron.local.setup" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="simulaqron.local.setup.setup_local">
+<span class="sig-prename descclassname"><span class="pre">simulaqron.local.setup.</span></span><span class="sig-name descname"><span class="pre">setup_local</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">myName</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">virtualNet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.SocketsConfig" title="simulaqron.general.host_config.SocketsConfig"><span class="pre">SocketsConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">classicalNet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.SocketsConfig" title="simulaqron.general.host_config.SocketsConfig"><span class="pre">SocketsConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lNode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/local/setup.html#setup_local"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.local.setup.setup_local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets up a local classical application level communication server (if desired according to the configuration file),
+a client connection to the local virtual node quantum backend and a client connections to all other
+classical communication servers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>myName</strong> (<em>str</em>) – Name of this node.</p></li>
+<li><p><strong>virtualNet</strong> (<a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.SocketsConfig" title="simulaqron.general.host_config.SocketsConfig"><em>SocketsConfig</em></a>) – Servers of the virtual nodes (dictionary of host objects).</p></li>
+<li><p><strong>classicalNet</strong> (<a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.SocketsConfig" title="simulaqron.general.host_config.SocketsConfig"><em>SocketsConfig</em></a>) – Servers on the classical communication network (dictionary of host objects).</p></li>
+<li><p><strong>lNode</strong> (<em>pb.Root</em>) – Twisted PB root to use as local server (if applicable).</p></li>
+<li><p><strong>func</strong> (<em>Callable</em>) – Function to run if all connections are set up.</p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – Additional arguments to be given to <code class="docutils literal notranslate"><span class="pre">func</span></code>.</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Additional keyword-based arguments to be passed to <code class="docutils literal notranslate"><span class="pre">func</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.local">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-simulaqron.local" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">simulaqron.local package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-simulaqron.local.setup">simulaqron.local.setup module</a><ul>
+<li><a class="reference internal" href="#simulaqron.local.setup.setup_local"><code class="docutils literal notranslate"><span class="pre">setup_local()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.local">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="simulaqron.general.html"
+                          title="previous chapter">simulaqron.general package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="simulaqron.netqasm_backend.html"
+                          title="next chapter">simulaqron.netqasm_backend package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/simulaqron.local.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.netqasm_backend.html" title="simulaqron.netqasm_backend package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.general.html" title="simulaqron.general package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" >simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.local package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

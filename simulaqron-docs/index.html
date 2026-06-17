@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>SimulaQron Documentation &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting started" href="GettingStarted.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="GettingStarted.html" title="Getting started"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">SimulaQron Documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="simulaqron-documentation">
+<h1>SimulaQron Documentation<a class="headerlink" href="#simulaqron-documentation" title="Permalink to this heading">¶</a></h1>
+<p>Welcome to the Quantum Internet simulator SimulaQron!</p>
+<p>SimulaQron is a distributed simulation of the end nodes in a future quantum internet with the specific goal to explore
+application development. Each node in the simulated network provides the illusion of having a local quantum processor
+to potential applications, while the nodes connect classically to allow the exchange of simulated qubits and the
+creation of simulated entanglement.</p>
+<section id="key-features">
+<h2>Key features<a class="headerlink" href="#key-features" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Distributed quantum internet simulation</strong> — install a local simulation program on each computer, or run all nodes
+on a single machine</p></li>
+<li><p><strong>Three simulation backends</strong> — stabilizer formalism (efficient), <a class="reference external" href="http://qutip.org/">QuTip</a> (default, mixed
+state), and <a class="reference external" href="https://projectq.ch/">ProjectQ</a> (pure state)</p></li>
+<li><p><strong>Two programming interfaces</strong> — the NetQASM SDK (recommended) and a native Twisted mode for low-level access</p></li>
+<li><p><strong>Configurable network topologies</strong> — complete, ring, path, random tree, or custom topologies</p></li>
+<li><p><strong>Classical communication</strong> — built-in client/server framework for exchanging classical messages between nodes</p></li>
+</ul>
+</section>
+<section id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Install dependencies</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="o">-</span><span class="n">y</span> <span class="s2">&quot;ppa:deadsnakes/ppa&quot;</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="mf">.12</span><span class="o">-</span><span class="n">full</span> <span class="n">python3</span><span class="mf">.12</span><span class="o">-</span><span class="n">dev</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">cmake</span> <span class="n">linux</span><span class="o">-</span><span class="n">headers</span><span class="o">-</span><span class="n">generic</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Create a python virtual environment</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span><span class="mf">.12</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">simulaqron</span><span class="o">-</span><span class="n">venv</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Activate the virtual environment</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">simulaqron</span><span class="o">-</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Install SimulaQron</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">simulaqron</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Configure SimulaQron</strong> — use the <code class="docutils literal notranslate"><span class="pre">simulaqron</span></code> command line tool to create a default <code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="nb">set</span> <span class="n">default</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Configure your network</strong> — use the <code class="docutils literal notranslate"><span class="pre">simulaqron</span></code> command line tool to create a default <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> file, which contains 5 nodes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">nodes</span> <span class="n">default</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Start the simulaqron backend</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">start</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Write your first program</strong> using the NetQASM SDK. Save this code as <code class="docutils literal notranslate"><span class="pre">program.py</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.runtime.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_simulator</span>
+<span class="n">set_simulator</span><span class="p">(</span><span class="s2">&quot;simulaqron&quot;</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.external</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetQASMConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qubit</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+<span class="n">q</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>                             <span class="c1"># execute queued operations</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Qubit measurement: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>    <span class="c1"># read measurement result</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Execute your program</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">program</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Check the output</strong>. Output should be <code class="docutils literal notranslate"><span class="pre">Qubit</span> <span class="pre">measurement:</span> <span class="pre">0/1</span></code>. Measurement should randomly be <code class="docutils literal notranslate"><span class="pre">0</span></code> or <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
+<li><p><strong>Stop simulaqron backend</strong>. Before running another application, stop the current running backend:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">simulaqron</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Run other more complex examples</strong> — see <a class="reference internal" href="Examples.html"><span class="doc">Examples</span></a> for complete working programs.</p></li>
+</ol>
+</section>
+<section id="where-to-go-next">
+<h2>Where to go next<a class="headerlink" href="#where-to-go-next" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>New to SimulaQron?</strong> Start with <a class="reference internal" href="GettingStarted.html"><span class="doc">Getting Started</span></a> for installation and your first example</p></li>
+<li><p><strong>Want to write programs?</strong> See <a class="reference internal" href="NetQASM.html"><span class="doc">The NetQASM Interface</span></a> for the NetQASM SDK reference</p></li>
+<li><p><strong>Looking for examples?</strong> See <a class="reference internal" href="Examples.html"><span class="doc">Examples</span></a> — new SDK, event-based, and native-mode examples</p></li>
+<li><p><strong>Configuring networks and settings?</strong> See <a class="reference internal" href="ConfNodes.html#networkconfig"><span class="std std-ref">Configuring the Network</span></a> and <a class="reference internal" href="GettingStarted.html#settings"><span class="std std-ref">Settings</span></a>.</p></li>
+<li><p><strong>Architecture and internals?</strong> See <a class="reference internal" href="Overview.html"><span class="doc">Overview</span></a></p></li>
+</ul>
+<p>We also have a <a class="reference external" href="http://iopscience.iop.org/article/10.1088/2058-9565/aad56e">paper</a> describing the design of
+SimulaQron, freely available on <a class="reference external" href="https://arxiv.org/abs/1712.08032">arxiv</a>.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GettingStarted.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="GettingStarted.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GettingStarted.html#testing-a-simple-example">Testing a simple example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GettingStarted.html#settings">Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="NetQASM.html">The NetQASM interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="NetQASM.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NetQASM.html#core-concepts">Core concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NetQASM.html#minimal-example">Minimal example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NetQASM.html#two-node-epr-example">Two-node EPR example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NetQASM.html#classical-communication">Classical communication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NetQASM.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NetQASM.html#further-reading">Further reading</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Examples.html">SimulaQron Programming Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#how-to-get-the-examples">How to get the examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#new-sdk-examples">New SDK examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#event-based-examples">Event-based examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#native-mode-examples">Native mode examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ConfNodes.html">SimulaQron Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ConfNodes.html#running-all-nodes-on-a-single-machine">Running all nodes on a single machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ConfNodes.html#running-nodes-on-separate-machines">Running nodes on separate machines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ConfNodes.html#configuring-the-network">Configuring the network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ConfNodes.html#network-topologies">Network topologies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ConfNodes.html#generate-network-topologies">Generate network topologies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ConfNodes.html#starting-multiple-networks">Starting multiple networks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Overview.html#programming-simulaqron">Programming SimulaQron</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Overview.html#how-simulaqron-works-internally">How SimulaQron works internally</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Overview.html#report-bugs-and-contribute">Report bugs and contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.html">simulaqron package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.html#module-simulaqron.cli">simulaqron.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.html#module-simulaqron.math">simulaqron.math module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.html#module-simulaqron.network">simulaqron.network module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.html#module-simulaqron.reactor">simulaqron.reactor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.html#module-simulaqron.sim_util">simulaqron.sim_util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.html#module-simulaqron">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<ul class="simple">
+<li><p>Index</p></li>
+<li><p>Module Index</p></li>
+<li><p>Search</p></li>
+</ul>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">SimulaQron Documentation</a><ul>
+<li><a class="reference internal" href="#key-features">Key features</a></li>
+<li><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li><a class="reference internal" href="#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="GettingStarted.html"
+                          title="next chapter">Getting started</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="GettingStarted.html" title="Getting started"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">SimulaQron Documentation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

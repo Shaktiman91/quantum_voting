@@ -1,0 +1,762 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>simulaqron.netqasm_backend package &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="simulaqron.run package" href="simulaqron.run.html" />
+    <link rel="prev" title="simulaqron.local package" href="simulaqron.local.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.run.html" title="simulaqron.run package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.local.html" title="simulaqron.local package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" accesskey="U">simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.netqasm_backend package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="simulaqron-netqasm-backend-package">
+<h1>simulaqron.netqasm_backend package<a class="headerlink" href="#simulaqron-netqasm-backend-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-simulaqron.netqasm_backend.executioner">
+<span id="simulaqron-netqasm-backend-executioner-module"></span><h2>simulaqron.netqasm_backend.executioner module<a class="headerlink" href="#module-simulaqron.netqasm_backend.executioner" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.NetworkStack">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.netqasm_backend.executioner.</span></span><span class="sig-name descname"><span class="pre">NetworkStack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executioner</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#NetworkStack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.NetworkStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseNetworkStack</span></code></p>
+<p>This is just a wrapper around the executioners methods for entanglement generation
+in order to use the correct framework as used by the netqasm executioner.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class is candidate to be deleted! Test and delete if not needed!</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.NetworkStack.get_purpose_id">
+<span class="sig-name descname"><span class="pre">get_purpose_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote_node_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#NetworkStack.get_purpose_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.NetworkStack.get_purpose_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.NetworkStack.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#NetworkStack.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.NetworkStack.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles a request to the network stack</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.NetworkStack.setup_epr_socket">
+<span class="sig-name descname"><span class="pre">setup_epr_socket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epr_socket_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_node_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_epr_socket_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#NetworkStack.setup_epr_socket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.NetworkStack.setup_epr_socket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asks the network stack to setup circuits to be used</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.UnknownQubitError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.netqasm_backend.executioner.</span></span><span class="sig-name descname"><span class="pre">UnknownQubitError</span></span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#UnknownQubitError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.UnknownQubitError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></p>
+<p>Raised when the requested qubit ID could not be found.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.netqasm_backend.executioner.</span></span><span class="sig-name descname"><span class="pre">VanillaSimulaQronExecutioner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></p>
+<p>Creates a class that is capable of executing some “vanilla” NetQASM instructions using
+the SimulaQron simulator. This is the main class that bridges the “QNodeOS” world with the
+SimulaQron simulator.
+Every instruction of the NetQASM subroutine is sent to an instance of this class, so the
+“QNodeOS” server knows how to interact with SimulaQron’s Virtual Node to command the execution
+of the NetQASM instructions.
+To this end, this class implements the <code class="docutils literal notranslate"><span class="pre">netqasm.executor.backend.Executor</span></code> class, overwriting
+the methods that are invoked by the NetQASM library when executing a subroutine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> (<em>Any</em>) – Arguments directly passed to the NetQASM <code class="docutils literal notranslate"><span class="pre">Executor</span></code> constructor.</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Keyword arguments directly passed to the NetQASM <code class="docutils literal notranslate"><span class="pre">Executor</span></code> constructor.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.ROTATION_AXIS">
+<span class="sig-name descname"><span class="pre">ROTATION_AXIS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.RotXInstruction'&gt;:</span> <span class="pre">(1,</span> <span class="pre">0,</span> <span class="pre">0),</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.RotYInstruction'&gt;:</span> <span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">0),</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.RotZInstruction'&gt;:</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">1)}</span></em><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.ROTATION_AXIS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.SIMULAQRON_OPS">
+<span class="sig-name descname"><span class="pre">SIMULAQRON_OPS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.GateXInstruction'&gt;:</span> <span class="pre">'apply_X',</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.GateYInstruction'&gt;:</span> <span class="pre">'apply_Y',</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.GateZInstruction'&gt;:</span> <span class="pre">'apply_Z',</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.GateHInstruction'&gt;:</span> <span class="pre">'apply_H',</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.GateSInstruction'&gt;:</span> <span class="pre">'apply_S',</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.GateKInstruction'&gt;:</span> <span class="pre">'apply_K',</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.GateTInstruction'&gt;:</span> <span class="pre">'apply_T',</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.CnotInstruction'&gt;:</span> <span class="pre">'cnot_onto',</span> <span class="pre">&lt;class</span> <span class="pre">'netqasm.lang.instr.vanilla.CphaseInstruction'&gt;:</span> <span class="pre">'cphase_onto'}</span></em><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.SIMULAQRON_OPS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.add_factory">
+<span class="sig-name descname"><span class="pre">add_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory" title="simulaqron.netqasm_backend.factory.NetQASMFactory"><span class="pre">NetQASMFactory</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.add_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.add_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the factory object used in the connection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>factory</strong> (<a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory" title="simulaqron.netqasm_backend.factory.NetQASMFactory"><em>NetQASMFactory</em></a>) – The factory object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.add_return_msg_func">
+<span class="sig-name descname"><span class="pre">add_return_msg_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.add_return_msg_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.add_return_msg_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the function invoked for returning a message back to the client</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – The function tobe used to return a message back to the client.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_rotation">
+<span class="sig-name descname"><span class="pre">apply_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.apply_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes a rotation of <code class="docutils literal notranslate"><span class="pre">angle</span></code> radians around the <code class="docutils literal notranslate"><span class="pre">axis</span></code> axis of the specified
+qubit ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>axis</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>, </em><em>int</em><em>]</em>) – The axis to rotate around. This axis is expected to be a tuple of
+integers in the format (x, y, z).</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – The angle to rotate around. This angle should be in radians.</p></li>
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit to apply the rotation on.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_single_qubit_gate">
+<span class="sig-name descname"><span class="pre">apply_single_qubit_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SingleQubitInstruction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.apply_single_qubit_gate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_single_qubit_gate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the given single-qubit gate to the specified physical qubit ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate</strong> (<em>core_instructions.SingleQubitInstruction</em>) – The single-qubit gate to apply.</p></li>
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID of the qubit to use.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_two_qubit_gate">
+<span class="sig-name descname"><span class="pre">apply_two_qubit_gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TwoQubitInstruction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_id1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_id2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.apply_two_qubit_gate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_two_qubit_gate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the given two-qubits gate to the physical qubit qubit_id1 and qubit_id2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate</strong> (<em>core_instructions.TwoQubitInstruction</em>) – The two-qubit gate to apply.</p></li>
+<li><p><strong>qubit_id1</strong> (<em>int</em>) – The qubit ID of the first qubit to use.</p></li>
+<li><p><strong>qubit_id2</strong> (<em>int</em>) – The qubit ID of the second qubit to use.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_epr">
+<span class="sig-name descname"><span class="pre">cmd_epr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">create_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_node_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LinkLayerCreate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.cmd_epr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_epr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create EPR pair with another node.
+Depending on the IPs and ports this will either create an EPR-pair and send one part, or just receive.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>create_id</strong> (<em>int</em>) – The create ID.</p></li>
+<li><p><strong>remote_node_id</strong> (<em>int</em>) – The remote node ID.</p></li>
+<li><p><strong>epr_socket_id</strong> (<em>int</em>) – The EPR socket ID.</p></li>
+<li><p><strong>remote_epr_socket_id</strong> (<em>int</em>) – The remote EPR socket ID.</p></li>
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID.</p></li>
+<li><p><strong>create_request</strong> (<em>LinkLayerCreate</em>) – The <code class="xref py py-class docutils literal notranslate"><span class="pre">LinkLayerCreate</span></code> object with the EPR information.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_epr_recv">
+<span class="sig-name descname"><span class="pre">cmd_epr_recv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.cmd_epr_recv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_epr_recv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive half of epr from another node. Block until qubit is received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epr_socket_id</strong> (<em>int</em>) – The EPR socket ID.</p></li>
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_measure">
+<span class="sig-name descname"><span class="pre">cmd_measure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.cmd_measure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes a measure on the given qubit ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID to execute measure on.</p></li>
+<li><p><strong>inplace</strong> (<em>bool</em>) – If True, execute the measurement inplace.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_new">
+<span class="sig-name descname"><span class="pre">cmd_new</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">physical_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.cmd_new"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request a new qubit. Since we don’t need it, this python NetQASM just provides very crude timing
+information (return_q_id is used internally).
+Additionally, ignore_max_qubits is used internally to ignore the check of number of virtual qubits
+at the node such that the node can temporarily create a qubit for EPR creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>physical_address</strong> (<em>int</em>) – The physical address of the qubit to be created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_reset">
+<span class="sig-name descname"><span class="pre">cmd_reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.cmd_reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the given qubit to the state <span class="math notranslate nohighlight">\(|0&gt;\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID to reset.</p></li>
+<li><p><strong>correct</strong> (<em>bool</em>) – If True, apply a correction to ensure the qubit was reset.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.factory">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">factory</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory" title="simulaqron.netqasm_backend.factory.NetQASMFactory"><span class="pre">NetQASMFactory</span></a></em><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>The NetQASM Factory associated with this executioner.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_error_class">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_error_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote_err</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.get_error_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_error_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a function to get the error class of a remote thrown error when using callRemote.
+.. warning:: This method is candidate to be deleted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>remote_err</strong> – <code class="xref py py-obj docutils literal notranslate"><span class="pre">twisted.spread.pb.RemoteError</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_qubit_state">
+<span class="sig-name descname"><span class="pre">get_qubit_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">Deferred</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.get_qubit_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_qubit_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the state of the given qubit ID as a real and imaginary part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID to retrieve the state.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing 2 lists of floats, representing the real and imaginary part.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator[Deferred, Tuple[List[float], List[float]], Tuple[List[float], List[float]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit">
+<span class="sig-name descname"><span class="pre">get_virt_qubit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Referenceable</span></span></span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.get_virt_qubit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get reference to the virtual qubit reference in SimulaQron given app and qubit id, if it exists.
+If not found, raises a <a class="reference internal" href="#simulaqron.netqasm_backend.executioner.UnknownQubitError" title="simulaqron.netqasm_backend.executioner.UnknownQubitError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnknownQubitError</span></code></a>.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Twisted PB does not allow references to objects to be passed back between connections.</p>
+</div>
+<p>If you need to pass a qubit reference back to the Twisted PB on a _different_ connection,
+then use get_virt_qubit_indep below.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_id</strong> (<em>int</em>) – The qubit to get reference to.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The virtual qubit reference as a <code class="docutils literal notranslate"><span class="pre">twisted.spread.flavors.Referenceable</span></code> object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>twisted.spread.flavors.Referenceable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit_num">
+<span class="sig-name descname"><span class="pre">get_virt_qubit_num</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.get_virt_qubit_num"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the <em>integer</em> qubit ID to virtual qubit in SimulaQron specific to this connection.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This method return a qubit ID (an integer), not a <code class="docutils literal notranslate"><span class="pre">twisted.spread.flavors.Referenceable</span></code>
+object. If you need to get a twisted object, check <a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit" title="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_virt_qubit()</span></code></a>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID to get virtual qubit ID.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.new_ent_id">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">new_ent_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_node_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.new_ent_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.new_ent_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new unique entanglement id for the specified host_app_id, remote_node and remote_app_id.
+Used by cmd_epr.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epr_socket_id</strong> (<em>int</em>) – The EPR socket ID.</p></li>
+<li><p><strong>remote_epr_socket_id</strong> (<em>int</em>) – The remote EPR socket ID.</p></li>
+<li><p><strong>remote_node_id</strong> (<em>int</em>) – The remote node ID.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.node_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">node_id</span></span><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.node_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the ID of the node on which this simulation runs on.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.remove_qubit_id">
+<span class="sig-name descname"><span class="pre">remove_qubit_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.remove_qubit_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.remove_qubit_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the qubit ID from the NetQASMFactory object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID to remove.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.send_epr_half">
+<span class="sig-name descname"><span class="pre">send_epr_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_node_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ent_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LinkLayerOKTypeK</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.send_epr_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.send_epr_half" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send qubit to another node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID.</p></li>
+<li><p><strong>epr_socket_id</strong> (<em>int</em>) – The EPR socket ID.</p></li>
+<li><p><strong>remote_node_name</strong> (<em>str</em>) – The remote node name.</p></li>
+<li><p><strong>remote_epr_socket_id</strong> (<em>int</em>) – The remote EPR socket ID.</p></li>
+<li><p><strong>ent_info</strong> (<em>LinkLayerOKTypeK</em>) – The local entanglement information.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.send_epr_outcome_half">
+<span class="sig-name descname"><span class="pre">send_epr_outcome_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_node_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_epr_socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ent_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LinkLayerOKTypeM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_basis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Basis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VanillaSimulaQronExecutioner.send_epr_outcome_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.send_epr_outcome_half" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send outcome from measure directly to another node.</p>
+<p>:param epr_socket_id:The EPR socket ID.
+:type epr_socket_id: int
+:param remote_node_name: The remote node name.
+:type remote_node_name: str
+:param remote_epr_socket_id: The remote EPR socket ID.
+:type remote_epr_socket_id: int
+:param ent_info: The entanglement info objects.
+:type ent_info: LinkLayerOKTypeM
+:param remote_outcome: The outcome of the remote measurement.
+:type remote_outcome:
+:param remote_basis: The base on which the remote qubit was mesured.
+:type remote_basis: Basis</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.executioner.VirtualQubitRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.netqasm_backend.executioner.</span></span><span class="sig-name descname"><span class="pre">VirtualQubitRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">virt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Referenceable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/executioner.html#VirtualQubitRef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.executioner.VirtualQubitRef" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Reference to a Virtual Qubit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID to reference.</p></li>
+<li><p><strong>timestamp</strong> (<em>int</em>) – A timestamp.</p></li>
+<li><p><strong>virt</strong> (<em>pb.Referenceable</em>) – The Referenceable object pointing to the virtual qubit.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.netqasm_backend.factory">
+<span id="simulaqron-netqasm-backend-factory-module"></span><h2>simulaqron.netqasm_backend.factory module<a class="headerlink" href="#module-simulaqron.netqasm_backend.factory" title="Permalink to this heading">¶</a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.IncompleteMessageError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.netqasm_backend.factory.</span></span><span class="sig-name descname"><span class="pre">IncompleteMessageError</span></span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#IncompleteMessageError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.IncompleteMessageError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when trying to parse an incomplete NetQASM message.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.netqasm_backend.factory.</span></span><span class="sig-name descname"><span class="pre">NetQASMFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.Host" title="simulaqron.general.host_config.Host"><span class="pre">Host</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qnodeos_net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.SocketsConfig" title="simulaqron.general.host_config.SocketsConfig"><span class="pre">SocketsConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler" title="simulaqron.netqasm_backend.qnodeos.SubroutineHandler"><span class="pre">SubroutineHandler</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Factory</span></code></p>
+<p>Factory class that creates <a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol" title="simulaqron.netqasm_backend.factory.NetQASMProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">NetQASMProtocol</span></code></a> objects. This factory
+will create one protocol instance per connection.</p>
+<p>This factory is handled by the internals of the twisted reactor, and should not be
+instantiated by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<em>str</em>) – The hostname to listen to new connections.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – A name for this protocol factory.</p></li>
+<li><p><strong>qnodeos_net</strong> (<a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.SocketsConfig" title="simulaqron.general.host_config.SocketsConfig"><em>SocketsConfig</em></a>) – The <code class="xref py py-class docutils literal notranslate"><span class="pre">SocketsConfig</span></code> object containing the <em>QNodeOS</em> sockets specifications.</p></li>
+<li><p><strong>backend</strong> (<em>Type</em><em>[</em><a class="reference internal" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler" title="simulaqron.netqasm_backend.qnodeos.SubroutineHandler"><em>SubroutineHandler</em></a><em>]</em>) – The class of QNodeOS subroutine handlers that the protocol will forward messages to.</p></li>
+<li><p><strong>network_name</strong> (<em>str</em>) – The name of the network to handle messages from.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMFactory.buildProtocol">
+<span class="sig-name descname"><span class="pre">buildProtocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMFactory.buildProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.buildProtocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an instance of NetQASMProtocol when a connection is made.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMFactory.is_adjacent">
+<span class="sig-name descname"><span class="pre">is_adjacent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote_host_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMFactory.is_adjacent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.is_adjacent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if remote host is adjacent to this node, according to the
+specified topology.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>remote_host_name</strong> (<em>str</em>) – The name of the remote host</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMFactory.lookup">
+<span class="sig-name descname"><span class="pre">lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMFactory.lookup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.lookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lookup name of remote host used within SimulaQron given ip and port number.
+:param ip: The IP address to look for. This value needs to be transformed into an integer value.
+:param port: The port to look for.
+:return: The name of the node that matches the IP-port pair. None if none matches.
+:rtype: str | None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMFactory.set_virtual_node">
+<span class="sig-name descname"><span class="pre">set_virtual_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">virtRoot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMFactory.set_virtual_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.set_virtual_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the virtual root allowing connections to the SimulaQron backend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>virtRoot</strong> – The virtual root object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMFactory.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMFactory.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops this instance of the factory. No more protocol objects will be created
+after invoking this method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMProtocol">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.netqasm_backend.factory.</span></span><span class="sig-name descname"><span class="pre">NetQASMProtocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory" title="simulaqron.netqasm_backend.factory.NetQASMFactory"><span class="pre">NetQASMFactory</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Implementation of a <code class="docutils literal notranslate"><span class="pre">twisted.internet.protocol.Protocol</span></code> class that handles
+the connection to a server capable of handling NetQASM messages.</p>
+<p>This class is the entry point when a new NetQASM message is received. It is also
+responsible for calling (in a “twisted deferred” way) the message handlers that
+implement the logic of handling and executing the message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>factory</strong> (<a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory" title="simulaqron.netqasm_backend.factory.NetQASMFactory"><em>NetQASMFactory</em></a>) – The <a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory" title="simulaqron.netqasm_backend.factory.NetQASMFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">NetQASMFactory</span></code></a> object that handles this object.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionLost">
+<span class="sig-name descname"><span class="pre">connectionLost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reason=&lt;twisted.python.failure.Failure</span> <span class="pre">twisted.internet.error.ConnectionDone:</span> <span class="pre">Connection</span> <span class="pre">was</span> <span class="pre">closed</span> <span class="pre">cleanly.&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMProtocol.connectionLost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionLost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of the <code class="docutils literal notranslate"><span class="pre">connectionLost</span></code> method from the <code class="docutils literal notranslate"><span class="pre">twisted.internet.protocol.Protocol</span></code> class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionMade">
+<span class="sig-name descname"><span class="pre">connectionMade</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMProtocol.connectionMade"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionMade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of the <code class="docutils literal notranslate"><span class="pre">connectionMade</span></code> method from the <code class="docutils literal notranslate"><span class="pre">twisted.internet.protocol.Protocol</span></code> class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMProtocol.dataReceived">
+<span class="sig-name descname"><span class="pre">dataReceived</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMProtocol.dataReceived"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol.dataReceived" title="Permalink to this definition">¶</a></dt>
+<dd><p>We will always wait to receive enough data for the
+header, and then the entire packet first before commencing processing.</p>
+<p>This method is the first entry point when the SimulaQron QNodeOS server
+receives a NetQASM message. Once any data is received, it attaches it to
+an internal buffer, and tries to parse a NetQASM message.
+If a message cannot be parsed, the raw data will be stored and this method
+will return, waiting form more data. It a message can be parsed, it will be
+for further processing to the message handler (usually the
+:py:class:´SubroutineHandler´ class).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – The data received from the remote.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.factory.NetQASMProtocol.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/factory.html#NetQASMProtocol.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops this NetQASM protocol object. No further messages will be handled
+after invoking this method.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.netqasm_backend.qnodeos">
+<span id="simulaqron-netqasm-backend-qnodeos-module"></span><h2>simulaqron.netqasm_backend.qnodeos module<a class="headerlink" href="#module-simulaqron.netqasm_backend.qnodeos" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.qnodeos.SubroutineHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.netqasm_backend.qnodeos.</span></span><span class="sig-name descname"><span class="pre">SubroutineHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory" title="simulaqron.netqasm_backend.factory.NetQASMFactory"><span class="pre">NetQASMFactory</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">instr_log_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flavour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Flavour</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/qnodeos.html#SubroutineHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">QNodeController</span></code></p>
+<p>Class that handles the NetQASM messages and bridges the NetQASM with the SimulaQron world.</p>
+<p>The main responsibility of this class is to “transform” the native python generators (used
+by the NetQASM library) into twisted <code class="docutils literal notranslate"><span class="pre">Deferred</span></code> s.</p>
+<p>Each time the QNodeOS Server (specifically, the NetQASMProtocol instance) receives and correctly
+parses a NetQASM message (e.g. a subroutine), it will be delegated to this class for further
+processing.</p>
+<p>The main entry point that process the message is the <a class="reference internal" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.handle_netqasm_message" title="simulaqron.netqasm_backend.qnodeos.SubroutineHandler.handle_netqasm_message"><code class="xref py py-meth docutils literal notranslate"><span class="pre">handle_netqasm_message()</span></code></a> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>factory</strong> (<a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory" title="simulaqron.netqasm_backend.factory.NetQASMFactory"><em>NetQASMFactory</em></a>) – The <code class="xref py py-class docutils literal notranslate"><span class="pre">NetQASMFactory</span></code> object.</p></li>
+<li><p><strong>instr_log_dir</strong> (<em>str</em><em> | </em><em>None</em>) – Directory used to write log files to.</p></li>
+<li><p><strong>flavour</strong> (<em>Flavour</em><em> | </em><em>None</em>) – NetQASM flavour to use.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.qnodeos.SubroutineHandler.handle_netqasm_message">
+<span class="sig-name descname"><span class="pre">handle_netqasm_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/qnodeos.html#SubroutineHandler.handle_netqasm_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.handle_netqasm_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle incoming NetQASM messages by bridging two async models.</p>
+<p>NetQASM’s executor uses Python generators (yield from) while SimulaQron
+uses Twisted deferred’s (&#64;inlineCallbacks). This method bridges them by:
+1. Running the parent’s generator manually
+2. Detecting whether each yielded item is a Twisted Deferred or a nested generator
+3. For Deferred’s: yielding to Twisted’s reactor to await completion
+4. For nested generators: consuming them fully and capturing their return value</p>
+<p>Without this bridge, nested generator return values (like physical_address
+from _instr_qalloc) would be lost, causing None to propagate through the system.
+This is also what caused the tests to fail, and probably other random weird things.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg_id</strong> (<em>int</em>) – The id of the message to process.</p></li>
+<li><p><strong>msg</strong> (<em>Message</em>) – The message to process.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.qnodeos.SubroutineHandler.protocol">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">protocol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Protocol</span></em><a class="headerlink" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <code class="xref py py-class docutils literal notranslate"><span class="pre">NetQASMProtocol</span></code> object associated with this routine Handler.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.netqasm_backend.qnodeos.SubroutineHandler.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/netqasm_backend/qnodeos.html#SubroutineHandler.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops this instance of the SubroutineHandler.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.netqasm_backend">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-simulaqron.netqasm_backend" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">simulaqron.netqasm_backend package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-simulaqron.netqasm_backend.executioner">simulaqron.netqasm_backend.executioner module</a><ul>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.NetworkStack"><code class="docutils literal notranslate"><span class="pre">NetworkStack</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.NetworkStack.get_purpose_id"><code class="docutils literal notranslate"><span class="pre">NetworkStack.get_purpose_id()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.NetworkStack.put"><code class="docutils literal notranslate"><span class="pre">NetworkStack.put()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.NetworkStack.setup_epr_socket"><code class="docutils literal notranslate"><span class="pre">NetworkStack.setup_epr_socket()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.UnknownQubitError"><code class="docutils literal notranslate"><span class="pre">UnknownQubitError</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.ROTATION_AXIS"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.ROTATION_AXIS</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.SIMULAQRON_OPS"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.SIMULAQRON_OPS</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.add_factory"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.add_factory()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.add_return_msg_func"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.add_return_msg_func()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_rotation"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.apply_rotation()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_single_qubit_gate"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.apply_single_qubit_gate()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_two_qubit_gate"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.apply_two_qubit_gate()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_epr"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_epr()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_epr_recv"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_epr_recv()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_measure"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_measure()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_new"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_new()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_reset"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_reset()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.factory"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.factory</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_error_class"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.get_error_class()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_qubit_state"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.get_qubit_state()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.get_virt_qubit()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit_num"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.get_virt_qubit_num()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.new_ent_id"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.new_ent_id()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.node_id"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.node_id</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.remove_qubit_id"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.remove_qubit_id()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.send_epr_half"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.send_epr_half()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.send_epr_outcome_half"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.send_epr_outcome_half()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.executioner.VirtualQubitRef"><code class="docutils literal notranslate"><span class="pre">VirtualQubitRef</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.netqasm_backend.factory">simulaqron.netqasm_backend.factory module</a><ul>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.IncompleteMessageError"><code class="docutils literal notranslate"><span class="pre">IncompleteMessageError</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.buildProtocol"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.buildProtocol()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.is_adjacent"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.is_adjacent()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.lookup"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.lookup()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.set_virtual_node"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.set_virtual_node()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMFactory.stop"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.stop()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionLost"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol.connectionLost()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionMade"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol.connectionMade()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol.dataReceived"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol.dataReceived()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.factory.NetQASMProtocol.stop"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol.stop()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.netqasm_backend.qnodeos">simulaqron.netqasm_backend.qnodeos module</a><ul>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler"><code class="docutils literal notranslate"><span class="pre">SubroutineHandler</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.handle_netqasm_message"><code class="docutils literal notranslate"><span class="pre">SubroutineHandler.handle_netqasm_message()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.protocol"><code class="docutils literal notranslate"><span class="pre">SubroutineHandler.protocol</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.stop"><code class="docutils literal notranslate"><span class="pre">SubroutineHandler.stop()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.netqasm_backend">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="simulaqron.local.html"
+                          title="previous chapter">simulaqron.local package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="simulaqron.run.html"
+                          title="next chapter">simulaqron.run package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/simulaqron.netqasm_backend.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.run.html" title="simulaqron.run package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.local.html" title="simulaqron.local package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" >simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.netqasm_backend package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

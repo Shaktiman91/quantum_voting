@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>SimulaQron Configuration &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview" href="Overview.html" />
+    <link rel="prev" title="Distributing a graph state" href="native-mode/GraphState.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Overview.html" title="Overview"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="native-mode/GraphState.html" title="Distributing a graph state"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">SimulaQron Configuration</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="simulaqron-configuration">
+<h1>SimulaQron Configuration<a class="headerlink" href="#simulaqron-configuration" title="Permalink to this heading">¶</a></h1>
+<p>SimulaQron uses two configuration files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> — defines nodes, their socket ports, and network topology (described on this page)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> — configures the simulation backend, timeouts, and other settings
+(see the Settings section in <a class="reference internal" href="GettingStarted.html#settings"><span class="std std-ref">Configuring Settings</span></a>)</p></li>
+</ul>
+<section id="running-all-nodes-on-a-single-machine">
+<h2>Running all nodes on a single machine<a class="headerlink" href="#running-all-nodes-on-a-single-machine" title="Permalink to this heading">¶</a></h2>
+<p>When developing and testing, you typically run all simulated nodes on one computer.
+In this case, all sockets use <code class="docutils literal notranslate"><span class="pre">localhost</span></code> and you just need distinct port numbers for each node.</p>
+<section id="using-the-simulaqron-cli">
+<h3>Using the SimulaQron CLI<a class="headerlink" href="#using-the-simulaqron-cli" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">simulaqron</span></code> command manages the backend for you. To start a network with nodes Alice and Bob:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">start</span> <span class="o">--</span><span class="n">nodes</span> <span class="n">Alice</span><span class="p">,</span><span class="n">Bob</span>
+</pre></div>
+</div>
+<p>This reads <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> and <code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> from the current directory (or uses
+defaults), starts the virtual node servers, the QNodeOS servers, and the classical communication servers for
+each node listed.</p>
+<p>To stop the backend:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">stop</span>
+</pre></div>
+</div>
+<p>If something went wrong (e.g. the process was killed) and SimulaQron thinks the network is still running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">reset</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">simulaqron</span> <span class="pre">start</span></code> command accepts these arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--nodes</span> <span class="pre">&lt;nodes_list&gt;</span></code> (optional): Comma-separated list of node names to start. These must exist in
+the network configuration file. If not given, SimulaQron will start all the defined nodes in
+<code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--simulaqron-config-file=PATH</span></code> (optional): Path to a SimulaQron settings file. Defaults to
+<code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> in the current folder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--network-config-file=PATH</span></code> (optional): Path to a network configuration file. Defaults to
+<code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> in the current folder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--network-name=&lt;network-name&gt;</span></code> (optional): Name of the network to start (must match a name in the config file).
+Defaults to <code class="docutils literal notranslate"><span class="pre">default</span></code>.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">simulaqron</span> <span class="pre">start</span></code> will fail if any of the ports specified in the config files are already in
+use by a running SimulaQron network or another program.</p>
+</div>
+</section>
+<section id="using-per-example-run-scripts">
+<h3>Using per-example run scripts<a class="headerlink" href="#using-per-example-run-scripts" title="Permalink to this heading">¶</a></h3>
+<p>Each example in <code class="docutils literal notranslate"><span class="pre">examples/new-sdk/</span></code> and <code class="docutils literal notranslate"><span class="pre">examples/native-mode/</span></code> includes a <code class="docutils literal notranslate"><span class="pre">run.sh</span></code> script that starts
+the SimulaQron backend and launches the node programs. This is the easiest way to try an example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">examples</span><span class="o">/</span><span class="n">new</span><span class="o">-</span><span class="n">sdk</span><span class="o">/</span><span class="n">corrRNG</span>
+<span class="n">bash</span> <span class="n">run</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">run.sh</span></code> script reads the <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> and <code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> in the example
+directory, so each example is self-contained.</p>
+</section>
+</section>
+<section id="running-nodes-on-separate-machines">
+<h2>Running nodes on separate machines<a class="headerlink" href="#running-nodes-on-separate-machines" title="Permalink to this heading">¶</a></h2>
+<p>To simulate a real distributed quantum network, you can run each node on a different physical computer.
+In this case, you need to:</p>
+<ol class="arabic">
+<li><p><strong>Use real hostnames/IPs</strong> instead of <code class="docutils literal notranslate"><span class="pre">localhost</span></code> in the <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> file.
+Each node’s sockets must be reachable from the other machines.</p></li>
+<li><p><strong>Copy the same</strong> <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> <strong>to every machine</strong>. All nodes must agree on the
+network configuration.</p></li>
+<li><p><strong>Start only the local node</strong> on each machine. On the machine running Alice:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">start</span> <span class="o">--</span><span class="n">nodes</span> <span class="n">Alice</span>
+</pre></div>
+</div>
+<p>On the machine running Bob:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">start</span> <span class="o">--</span><span class="n">nodes</span> <span class="n">Bob</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Run your node program</strong> on each machine after the backend is started.</p></li>
+</ol>
+<p>An example <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> for a distributed setup:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;Alice&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;app_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;192.168.1.10&quot;</span><span class="p">,</span> <span class="mi">8000</span><span class="p">],</span>
+                <span class="s2">&quot;qnodeos_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;192.168.1.10&quot;</span><span class="p">,</span> <span class="mi">8001</span><span class="p">],</span>
+                <span class="s2">&quot;vnode_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;192.168.1.10&quot;</span><span class="p">,</span> <span class="mi">8004</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Bob&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;app_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;192.168.1.20&quot;</span><span class="p">,</span> <span class="mi">8000</span><span class="p">],</span>
+                <span class="s2">&quot;qnodeos_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;192.168.1.20&quot;</span><span class="p">,</span> <span class="mi">8001</span><span class="p">],</span>
+                <span class="s2">&quot;vnode_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;192.168.1.20&quot;</span><span class="p">,</span> <span class="mi">8004</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;topology&quot;</span><span class="p">:</span> <span class="n">null</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When running on separate machines, the port numbers can be the same on each machine since they
+bind to different IP addresses.</p>
+</div>
+</section>
+<section id="configuring-the-network">
+<span id="networkconfig"></span><h2>Configuring the network<a class="headerlink" href="#configuring-the-network" title="Permalink to this heading">¶</a></h2>
+<p>The network configuration file (<code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code>) defines nodes and their socket assignments.
+For each node, you specify IP and port for three sockets:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">app_socket</span></code> — classical communication between application-level nodes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">qnodeos_socket</span></code> — connection to the QNodeOS server that interprets NetQASM subroutines</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vnode_socket</span></code> — connection to the SimulaQron VirtualNode that runs the quantum simulation</p></li>
+</ul>
+<p>You can easily copy the default network configuration by using the simulaqron CLI command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">nodes</span> <span class="n">default</span>
+</pre></div>
+</div>
+<p>This will create a <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> file in the current folder with 5 nodes: <cite>Alice</cite>,
+<cite>Bob</cite>, <cite>Charlie</cite>, <cite>David</cite> and <cite>Eve</cite>.</p>
+<section id="using-the-cli-to-add-nodes">
+<h3>Using the CLI to add nodes<a class="headerlink" href="#using-the-cli-to-add-nodes" title="Permalink to this heading">¶</a></h3>
+<p>You can build up a network incrementally using the CLI:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">nodes</span> <span class="n">add</span> <span class="n">Maria</span>
+</pre></div>
+</div>
+<p>This adds Maria to the default network with random ports on <code class="docutils literal notranslate"><span class="pre">localhost</span></code>. To add to a different network:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">nodes</span> <span class="n">add</span> <span class="n">Maria</span> <span class="o">--</span><span class="n">network</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;OtherNetwork&quot;</span>
+</pre></div>
+</div>
+<p>You can also specify explicit hostnames and ports:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--hostname</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--app-port</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--qnodeos-port</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--vnode-port</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--neighbors</span></code></p></li>
+</ul>
+</section>
+<section id="writing-the-json-config-manually">
+<h3>Writing the JSON config manually<a class="headerlink" href="#writing-the-json-config-manually" title="Permalink to this heading">¶</a></h3>
+<p>For more complex setups, write the <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> file directly.
+Here is an example with two networks (“default” and “small_network”):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;Alice&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;app_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8000</span><span class="p">],</span>
+                <span class="s2">&quot;qnodeos_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8001</span><span class="p">],</span>
+                <span class="s2">&quot;vnode_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8004</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Bob&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;app_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8007</span><span class="p">],</span>
+                <span class="s2">&quot;qnodeos_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8008</span><span class="p">],</span>
+                <span class="s2">&quot;vnode_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8010</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;topology&quot;</span><span class="p">:</span> <span class="n">null</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;small_network&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;Test&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;app_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8031</span><span class="p">],</span>
+                <span class="s2">&quot;qnodeos_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8043</span><span class="p">],</span>
+                <span class="s2">&quot;vnode_socket&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">8089</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;topology&quot;</span><span class="p">:</span> <span class="n">null</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Place this file in the same directory as your code and name it <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code>.
+Alternatively, load a custom path in your Python code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">simulaqron.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">network_config</span>
+
+<span class="n">network_config</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">(</span><span class="s2">&quot;/path/to/your/simulaqron_network.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="network-topologies">
+<span id="id1"></span><h2>Network topologies<a class="headerlink" href="#network-topologies" title="Permalink to this heading">¶</a></h2>
+<p>Each network configuration contains a <code class="docutils literal notranslate"><span class="pre">&quot;topology&quot;</span></code> entry that defines which nodes can communicate
+quantum information with each other. Setting it to <code class="docutils literal notranslate"><span class="pre">null</span></code> means fully connected (every node can reach
+every other node).</p>
+<p>A custom topology is specified as a dictionary of adjacency lists:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+ <span class="s2">&quot;Alice&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">],</span>
+ <span class="s2">&quot;Bob&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="s2">&quot;Charlie&quot;</span><span class="p">],</span>
+ <span class="s2">&quot;Charlie&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This describes a network where Alice is adjacent to Bob, Bob is adjacent to Alice and Charlie, and Charlie
+is adjacent to Bob.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Directed topologies are also supported. For example, Alice can send a qubit to Bob but Bob
+cannot send a qubit to Alice.</p>
+</div>
+</section>
+<section id="generate-network-topologies">
+<h2>Generate network topologies<a class="headerlink" href="#generate-network-topologies" title="Permalink to this heading">¶</a></h2>
+<p>SimulaQron can automatically generate certain well-known network topologies:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">complete</span></code>: Fully connected (default if no topology is specified)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ring</span></code>: Every node has exactly two neighbors, forming a cycle</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code>: Every node has at most two neighbors, no cycles</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">random_tree</span></code>: A random tree (connected, no cycles)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">random_connected_{int}</span></code>: A random connected graph with a specified number of edges (e.g.
+<code class="docutils literal notranslate"><span class="pre">random_connected_20</span></code> for 20 edges). The number of edges must be between <span class="math notranslate nohighlight">\(n-1\)</span> and
+<span class="math notranslate nohighlight">\(n(n-1)/2\)</span> for <span class="math notranslate nohighlight">\(n\)</span> nodes.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Topology generation via the CLI is planned but not yet implemented. For now, specify topologies
+directly in the <code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> file (see <a class="reference internal" href="#id1">Network topologies</a> above).</p>
+</div>
+<p>Along with setting up the network with the specified topology a .png figure is also generated and stored as
+config/topology.png. This is useful if a random network is used, to easily visualize the network used.</p>
+<p>The network that is then started might look like this:</p>
+<a class="reference internal image-reference" href="_images/topology.png"><img alt="Example network topology" class="align-center" src="_images/topology.png" style="width: 400px;" /></a>
+<p>To create a custom topology, see section <a class="reference internal" href="#id1">Network topologies</a> above.</p>
+</section>
+<section id="starting-multiple-networks">
+<h2>Starting multiple networks<a class="headerlink" href="#starting-multiple-networks" title="Permalink to this heading">¶</a></h2>
+<p>To run multiple networks at the same time, give them different names in the network configuration file
+and use the <code class="docutils literal notranslate"><span class="pre">--name</span></code> flag:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">start</span> <span class="o">--</span><span class="n">name</span> <span class="n">NETWORK</span> <span class="o">--</span><span class="n">nodes</span> <span class="n">Alice</span><span class="p">,</span><span class="n">Bob</span>
+</pre></div>
+</div>
+<p>To stop a specific network:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">stop</span> <span class="o">--</span><span class="n">name</span> <span class="n">NETWORK</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default the network name is “default”. To have multiple networks running at the same time the
+nodes cannot use the same port numbers.</p>
+</div>
+<p>The JSON configuration file can hold more than one network configuration. See <a class="reference internal" href="#writing-the-json-config-manually">Writing the JSON config manually</a>
+above for an example with multiple networks.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">SimulaQron Configuration</a><ul>
+<li><a class="reference internal" href="#running-all-nodes-on-a-single-machine">Running all nodes on a single machine</a><ul>
+<li><a class="reference internal" href="#using-the-simulaqron-cli">Using the SimulaQron CLI</a></li>
+<li><a class="reference internal" href="#using-per-example-run-scripts">Using per-example run scripts</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#running-nodes-on-separate-machines">Running nodes on separate machines</a></li>
+<li><a class="reference internal" href="#configuring-the-network">Configuring the network</a><ul>
+<li><a class="reference internal" href="#using-the-cli-to-add-nodes">Using the CLI to add nodes</a></li>
+<li><a class="reference internal" href="#writing-the-json-config-manually">Writing the JSON config manually</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#network-topologies">Network topologies</a></li>
+<li><a class="reference internal" href="#generate-network-topologies">Generate network topologies</a></li>
+<li><a class="reference internal" href="#starting-multiple-networks">Starting multiple networks</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="native-mode/GraphState.html"
+                          title="previous chapter">Distributing a graph state</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Overview.html"
+                          title="next chapter">Overview</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ConfNodes.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Overview.html" title="Overview"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="native-mode/GraphState.html" title="Distributing a graph state"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">SimulaQron Configuration</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

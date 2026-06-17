@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Overview &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="simulaqron package" href="simulaqron.html" />
+    <link rel="prev" title="SimulaQron Configuration" href="ConfNodes.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.html" title="simulaqron package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ConfNodes.html" title="SimulaQron Configuration"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Overview</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h1>
+<section id="programming-simulaqron">
+<h2>Programming SimulaQron<a class="headerlink" href="#programming-simulaqron" title="Permalink to this heading">¶</a></h2>
+<p>There are two ways to program SimulaQron to run applications. The first is to use SimulaQron’s native interface via
+<a class="reference external" href="https://twistedmatrix.com/">Twisted</a> Perspective Broker. This interface is specific to Python, and not (easily)
+accessible from other languages. We will call this interface SimulaQron’s native interface throughout. While you may
+play with simple applications this way, the main purpose of this interface is to allow the development of higher
+protocol layers and abstractions which will ultimately be used to program quantum networks.</p>
+<p>In the light of the alternate interface below it may appear inefficient to export an intermediary interface. However,
+the purpose of SimulaQron is precisely to explore and play with higher layer abstractions on top of any hardware, or
+its simulated version, SimulaQron. As such it is best to think of SimulaQron as a piece of simulated hardware with its
+own native interface, which we may first abstract into a higher level command language for programming. Examples of
+how to program SimulaQron in native mode can be found in <a class="reference internal" href="Examples.html"><span class="doc">Examples</span></a>.</p>
+<p>The second way to run applications is via a higher level interface, the NetQASM interface. If you want your
+applications to later use real quantum hardware more easily instead of SimulaQron, then this is the interface to use.
+Examples of how to program using the NetQASM can be found in <a class="reference internal" href="NetQASM.html"><span class="doc">The NetQASM Interface</span></a>.</p>
+<a class="reference internal image-reference" href="_images/netqasm_architecture.png"><img alt="SimulaQron Programming Interfaces" class="align-center" src="_images/netqasm_architecture.png" style="width: 500px;" /></a>
+<p>Practically, SimulaQron’s Backend is a server process running on each local classical computer (or on a single
+classical computer), emulating quantum hardware. The backend can be programmed directly using Twisted PB (native mode).
+For clarity, not efficiency, the NetQASM Backend is a separate server process, which connects to the SimulaQron backend
+using Twisted PB. If you are starting out, programming in the Python NetQASM library is by far the easiest way to get
+going! Further information about the Python NetQASM library can be found in <a class="reference external" href="https://netqasm.readthedocs.io/en/latest/">https://netqasm.readthedocs.io/en/latest/</a>.</p>
+</section>
+<section id="how-simulaqron-works-internally">
+<h2>How SimulaQron works internally<a class="headerlink" href="#how-simulaqron-works-internally" title="Permalink to this heading">¶</a></h2>
+<p>Let us here briefly sketch how the SimulaQron backend works internally. Further details can be found in our
+<a class="reference external" href="http://iopscience.iop.org/article/10.1088/2058-9565/aad56e">paper</a>.</p>
+<p>The simulator consists of two parts and has a relatively modular design:</p>
+<section id="virtual-quantum-nodes">
+<h3>Virtual quantum nodes<a class="headerlink" href="#virtual-quantum-nodes" title="Permalink to this heading">¶</a></h3>
+<p>A virtual quantum node is a server program running on a particular computer that pretends to be quantum hardware,
+simulating qubits and quantum communication. That is, you may think of these nodes as fake hardware programmable
+directly via SimulaQron’s native interface. Each node presents a number of virtual qubits for you to use. These
+virtual qubits would correspond to the physical qubits available at this node, would this be a real physical
+implementation of the quantum network node. By connecting to the virtual quantum node server, a client program that
+depends on using quantum hardware, may manipulate these qubits as if they were local physical qubit and also instruct
+to send them to remote nodes.</p>
+<p>The virtual quantum node servers are identified by their common names (eg Alice, Bob, Charlie), and amongst themselves
+connect classically to form a virtual simulation network as a backend.</p>
+<p>An important internal element in SimulaQron is the distinction between virtual qubits and simulated qubits. Virtual
+qubits are the qubits as they would be present in real quantum hardware. A virtual qubit is local to each virtual
+quantum node server and may be manipulated there. Each virtual qubit is simulated somewhere, by a simulated qubit.
+Importantly, this simulated qubit may be located at a different simulating node than the node holding the corresponding
+virtual qubit.</p>
+<p>To see why this is necessary, note that entangled qubits cannot be locally represented by any form of classical
+information (hence the quantum advantage of entanglement in the first place!). As such, if two (or more) virtual
+nodes share qubits which are somehow entangled with each other, then these qubits will actually need to be simulated
+at just one of these nodes. That is, they appear to be virtually local (as if they were real physical
+qubits), yet they are actually simulated at just one of the network nodes. As you might imagine,
+this also means that if we want to perform an entangling gate between two qubits which are virtually
+local, but actually simulated in two different backend quantum registers, then a merge of these
+registers is required before the entangling gate can be executed. This is all handled transparently
+by the backend provided here. For programming network applications using SimulaQron you will not need to
+deal with this backend simulation.</p>
+<p>Nevertheless, as a guide to the backend, it consists of three essential components:</p>
+<ul class="simple" id="sim-backends">
+<li><dl class="simple">
+<dt>quantumEngine - There are currently three different quantumEngines (simulation backends) implemented: Using</dt><dd><p><a class="reference external" href="http://qutip.org/">QuTip</a> and mixed state, using <a class="reference external" href="https://projectq.ch/">Project Q</a> and pure states and
+finally using stabilizer formalism.
+This corresponds to one quantum register full of qubits across which gates can be performed. Should you wish to
+use a different backend, you may wish to add a different engine.
+The three current backends give different runtimes due to how quantum states are stored and manipulated.
+In the stabilizer formalism, only Clifford operations can be performed and the simulation is in fact efficient
+in the number of qubits.
+See the figure below for a comparison of runtimes to create a GHZ-state on a number of qubits using the three
+different backends.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<a class="reference internal image-reference" href="_images/runtime_qutip_vs_projectq_vs_stabilizer.png"><img alt="Runtime of creating a GHZ-state using the three different backends currently implemented in SimulaQron." class="align-center" src="_images/runtime_qutip_vs_projectq_vs_stabilizer.png" style="width: 700px;" /></a>
+<ul class="simple">
+<li><dl class="simple">
+<dt>simulatedQubit - for each qubit simulated in that register, there is a simQubit object. This is local to each node.</dt><dd><p>It exports remote method calls. These methods are only called by the virtual node network itself: when a virtual
+node discovers the qubit is actually simulated remotely, it passes on this call by calling the relevant method on
+the remote qubit object.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>virtualQubit - this is the object representing a virtually local qubit. This carries information about the remote</dt><dd><p>simulating qubit. These virtualQubit objects can in turn be accessed by the clients who can access these virtual
+qubits as if they were real local physical qubits without having to know where they are actually simulated. That
+is, the client obtains a pointer to the relevant virtual qubit object on which it can perform operations directly.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>virtualNode - this is the local virtual node which accepts requests to get a virtual qubit object, send qubits to</dt><dd><p>other nodes, read out the state of qubits, perform gates etc.</p>
+</dd>
+</dl>
+</li>
+<li><p>backEnd - starts up the virtual node backend</p></li>
+</ul>
+<a class="reference internal image-reference" href="_images/simulated_virtualQubits_v7.png"><img alt="Virtual and simulated qubit" class="align-center" src="_images/simulated_virtualQubits_v7.png" style="width: 550px;" /></a>
+</section>
+<section id="the-local-client-engine">
+<h3>The local client engine<a class="headerlink" href="#the-local-client-engine" title="Permalink to this heading">¶</a></h3>
+<p>The second part is a framework for writing applications that use the virtually simulated quantum network. Such an
+application needs to connect locally to the virtual quantum node server simulating the underlying hardware (for
+programming in native mode), or to the NetQASM interface. It is up to these applications to exchange any classical
+communication required to execute the protocol.</p>
+</section>
+</section>
+<section id="report-bugs-and-contribute">
+<h2>Report bugs and contribute<a class="headerlink" href="#report-bugs-and-contribute" title="Permalink to this heading">¶</a></h2>
+<section id="bugs-and-feature-requests">
+<h3>Bugs and feature requests<a class="headerlink" href="#bugs-and-feature-requests" title="Permalink to this heading">¶</a></h3>
+<p>For bugs, feature requests, suggestions or other general questions please use GitHubs issue tracker in the
+repository (located under ‘Issues’ on the main page of the repository).
+Please start your message with specifying one of the four labels below for easier handling of issues, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Type</span><span class="p">:</span> <span class="n">bug</span>
+
+<span class="n">There</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">bug</span> <span class="n">when</span> <span class="n">applying</span> <span class="n">the</span> <span class="n">gate</span><span class="o">...</span>
+</pre></div>
+</div>
+<p>Always provide enough information to assess the issue and separate different issues into different messages.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><em>bug</em>: This is for bugs that are encountered. Please provide a way to reproduce the bug, preferably with a minimal</dt><dd><p>example, and explain what goes wrong.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><em>feature request</em>: Is there a feature that you think should be provided? Explain the details of the feature and why</dt><dd><p>you think this should be implemented.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><em>help wanted</em>: If there is something you having trouble with but which is not necessarily a bug. Also use this for</dt><dd><p>other general questions.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><em>suggestions</em>: If you have suggestions on how to improve the features already existing. Be clear on what exactly</dt><dd><p>you think should be improved and explain why.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="contribute">
+<h3>Contribute<a class="headerlink" href="#contribute" title="Permalink to this heading">¶</a></h3>
+<p>If you would like to contribute with your own code to fix a bug or add an additional feature, this is most welcomed.
+Please then make a pull request on GitHub, which will be reviewed before approval.</p>
+<p>For contributing use the <em>Develop</em>-branch. Please make sure you run the automated tests below before submitting
+any code. The easiest way to proceed is to:</p>
+<ol class="arabic simple">
+<li><p>Fork the repository at the <em>Develop</em>-branch.</p></li>
+<li><p>Make the changes and commit these to your forked branch.</p></li>
+<li><p>Make a pull request between your branch and the <em>Develop</em>-branch. Also provide a message which explains the changes and/or additions you have made.</p></li>
+</ol>
+</section>
+<section id="automated-tests">
+<h3>Automated tests<a class="headerlink" href="#automated-tests" title="Permalink to this heading">¶</a></h3>
+<p>There are number of automated tests that test many (but not all) of the features of SimulaQron and the NetQASM interface.
+To run these tests, you need to clone the SimulaQron <a class="reference external" href="https://github.com/SoftwareQuTech/SimulaQron">GitHub repository</a>,
+and follow the <code class="docutils literal notranslate"><span class="pre">README.md</span></code> file to install and run the tests.
+Some of the automated tests use quantum tomography and are thus inherently probabilistic.
+Therefore if you see that one of these fails, you can try to run the test again and see if it is consistent.
+If the tests are to slow on your computer you can also run the short version, which skips the quantum tomography tests.</p>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Overview</a><ul>
+<li><a class="reference internal" href="#programming-simulaqron">Programming SimulaQron</a></li>
+<li><a class="reference internal" href="#how-simulaqron-works-internally">How SimulaQron works internally</a><ul>
+<li><a class="reference internal" href="#virtual-quantum-nodes">Virtual quantum nodes</a></li>
+<li><a class="reference internal" href="#the-local-client-engine">The local client engine</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#report-bugs-and-contribute">Report bugs and contribute</a><ul>
+<li><a class="reference internal" href="#bugs-and-feature-requests">Bugs and feature requests</a></li>
+<li><a class="reference internal" href="#contribute">Contribute</a></li>
+<li><a class="reference internal" href="#automated-tests">Automated tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="ConfNodes.html"
+                          title="previous chapter">SimulaQron Configuration</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="simulaqron.html"
+                          title="next chapter">simulaqron package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/Overview.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.html" title="simulaqron package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ConfNodes.html" title="SimulaQron Configuration"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Overview</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

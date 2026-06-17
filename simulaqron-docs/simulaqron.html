@@ -1,0 +1,918 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>simulaqron package &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="simulaqron.general package" href="simulaqron.general.html" />
+    <link rel="prev" title="Overview" href="Overview.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.general.html" title="simulaqron.general package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Overview.html" title="Overview"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="simulaqron-package">
+<h1>simulaqron package<a class="headerlink" href="#simulaqron-package" title="Permalink to this heading">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.general.html">simulaqron.general package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.general.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.general.html#module-simulaqron.general.host_config">simulaqron.general.host_config module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.Host"><code class="docutils literal notranslate"><span class="pre">Host</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.SocketsConfig"><code class="docutils literal notranslate"><span class="pre">SocketsConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.SocketsConfig.filter"><code class="docutils literal notranslate"><span class="pre">SocketsConfig.filter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.SocketsConfig.print_details"><code class="docutils literal notranslate"><span class="pre">SocketsConfig.print_details()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.host_config.get_node_id_from_net_config"><code class="docutils literal notranslate"><span class="pre">get_node_id_from_net_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.general.html#module-simulaqron.general.errors">simulaqron.general.errors module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.general.html#simulaqron.general.errors.SimUnsupportedError"><code class="docutils literal notranslate"><span class="pre">SimUnsupportedError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.general.html#module-simulaqron.general">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.local.html">simulaqron.local package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.local.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.local.html#module-simulaqron.local.setup">simulaqron.local.setup module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.local.html#simulaqron.local.setup.setup_local"><code class="docutils literal notranslate"><span class="pre">setup_local()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.local.html#module-simulaqron.local">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.netqasm_backend.html">simulaqron.netqasm_backend package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.netqasm_backend.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.netqasm_backend.html#module-simulaqron.netqasm_backend.executioner">simulaqron.netqasm_backend.executioner module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.NetworkStack"><code class="docutils literal notranslate"><span class="pre">NetworkStack</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.NetworkStack.get_purpose_id"><code class="docutils literal notranslate"><span class="pre">NetworkStack.get_purpose_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.NetworkStack.put"><code class="docutils literal notranslate"><span class="pre">NetworkStack.put()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.NetworkStack.setup_epr_socket"><code class="docutils literal notranslate"><span class="pre">NetworkStack.setup_epr_socket()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.UnknownQubitError"><code class="docutils literal notranslate"><span class="pre">UnknownQubitError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.ROTATION_AXIS"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.ROTATION_AXIS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.SIMULAQRON_OPS"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.SIMULAQRON_OPS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.add_factory"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.add_factory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.add_return_msg_func"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.add_return_msg_func()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_rotation"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.apply_rotation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_single_qubit_gate"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.apply_single_qubit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.apply_two_qubit_gate"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.apply_two_qubit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_epr"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_epr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_epr_recv"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_epr_recv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_measure"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_measure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_new"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_new()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.cmd_reset"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.cmd_reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.factory"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.factory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_error_class"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.get_error_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_qubit_state"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.get_qubit_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.get_virt_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.get_virt_qubit_num"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.get_virt_qubit_num()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.new_ent_id"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.new_ent_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.node_id"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.node_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.remove_qubit_id"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.remove_qubit_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.send_epr_half"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.send_epr_half()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VanillaSimulaQronExecutioner.send_epr_outcome_half"><code class="docutils literal notranslate"><span class="pre">VanillaSimulaQronExecutioner.send_epr_outcome_half()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.executioner.VirtualQubitRef"><code class="docutils literal notranslate"><span class="pre">VirtualQubitRef</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.netqasm_backend.html#module-simulaqron.netqasm_backend.factory">simulaqron.netqasm_backend.factory module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.IncompleteMessageError"><code class="docutils literal notranslate"><span class="pre">IncompleteMessageError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.buildProtocol"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.buildProtocol()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.is_adjacent"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.is_adjacent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.lookup"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.lookup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.set_virtual_node"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.set_virtual_node()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMFactory.stop"><code class="docutils literal notranslate"><span class="pre">NetQASMFactory.stop()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionLost"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol.connectionLost()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol.connectionMade"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol.connectionMade()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol.dataReceived"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol.dataReceived()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.factory.NetQASMProtocol.stop"><code class="docutils literal notranslate"><span class="pre">NetQASMProtocol.stop()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.netqasm_backend.html#module-simulaqron.netqasm_backend.qnodeos">simulaqron.netqasm_backend.qnodeos module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.qnodeos.SubroutineHandler"><code class="docutils literal notranslate"><span class="pre">SubroutineHandler</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.handle_netqasm_message"><code class="docutils literal notranslate"><span class="pre">SubroutineHandler.handle_netqasm_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.protocol"><code class="docutils literal notranslate"><span class="pre">SubroutineHandler.protocol</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.netqasm_backend.html#simulaqron.netqasm_backend.qnodeos.SubroutineHandler.stop"><code class="docutils literal notranslate"><span class="pre">SubroutineHandler.stop()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.netqasm_backend.html#module-simulaqron.netqasm_backend">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.run.html">simulaqron.run package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.run.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.run.html#module-simulaqron.run.run">simulaqron.run.run module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.run.html#simulaqron.run.run.reset"><code class="docutils literal notranslate"><span class="pre">reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.run.html#simulaqron.run.run.run_applications"><code class="docutils literal notranslate"><span class="pre">run_applications()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.run.html#module-simulaqron.run">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.sdk.html">simulaqron.sdk package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.sdk.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.sdk.html#module-simulaqron.sdk.broadcast_channel">simulaqron.sdk.broadcast_channel module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.broadcast_channel.BroadcastChannel"><code class="docutils literal notranslate"><span class="pre">BroadcastChannel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.sdk.html#module-simulaqron.sdk.connection">simulaqron.sdk.connection module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.GetQubitStateMessage"><code class="docutils literal notranslate"><span class="pre">GetQubitStateMessage</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.GetQubitStateMessage.TYPE"><code class="docutils literal notranslate"><span class="pre">GetQubitStateMessage.TYPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.GetQubitStateMessage.app_id"><code class="docutils literal notranslate"><span class="pre">GetQubitStateMessage.app_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.GetQubitStateMessage.qubit_id"><code class="docutils literal notranslate"><span class="pre">GetQubitStateMessage.qubit_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewMessageType"><code class="docutils literal notranslate"><span class="pre">NewMessageType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewMessageType.GET_QUBIT_STATE"><code class="docutils literal notranslate"><span class="pre">NewMessageType.GET_QUBIT_STATE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewMessageType.INIT_NEW_APP"><code class="docutils literal notranslate"><span class="pre">NewMessageType.INIT_NEW_APP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewMessageType.OPEN_EPR_SOCKET"><code class="docutils literal notranslate"><span class="pre">NewMessageType.OPEN_EPR_SOCKET</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewMessageType.SIGNAL"><code class="docutils literal notranslate"><span class="pre">NewMessageType.SIGNAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewMessageType.STOP_APP"><code class="docutils literal notranslate"><span class="pre">NewMessageType.STOP_APP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewMessageType.SUBROUTINE"><code class="docutils literal notranslate"><span class="pre">NewMessageType.SUBROUTINE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewReturnMessageType"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewReturnMessageType.DONE"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.DONE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewReturnMessageType.ERR"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.ERR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewReturnMessageType.RET_ARR"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.RET_ARR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewReturnMessageType.RET_QUBIT_STATE"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.RET_QUBIT_STATE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.NewReturnMessageType.RET_REG"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.RET_REG</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.TYPE"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.TYPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.dim"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.dim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.dimension"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.dimension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.get_imag_part"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.get_imag_part()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.get_real_part"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.get_real_part()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.imag_part"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.imag_part</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.qubit_id"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.qubit_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.ReturnQubitStateMessage.real_part"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.real_part</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.RichErrorMessage"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.RichErrorMessage.TYPE"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.TYPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.RichErrorMessage.err_code"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.err_code</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.RichErrorMessage.err_msg"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.err_msg</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.RichErrorMessage.err_msg_len"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.err_msg_len</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.RichErrorMessage.get_err_msg"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.get_err_msg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.RichErrorMessage.msg_id"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.msg_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.NON_STABILIZER_INSTR"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.NON_STABILIZER_INSTR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.PROCESS_POOL"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.PROCESS_POOL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.block"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.close"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.get_qubit_state"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.get_qubit_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronConnection.try_connection"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.try_connection()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronNetworkInfo"><code class="docutils literal notranslate"><span class="pre">SimulaQronNetworkInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_id_for_app"><code class="docutils literal notranslate"><span class="pre">SimulaQronNetworkInfo.get_node_id_for_app()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_name_for_app"><code class="docutils literal notranslate"><span class="pre">SimulaQronNetworkInfo.get_node_name_for_app()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.sdk.html#module-simulaqron.sdk.socket">simulaqron.sdk.socket module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket"><code class="docutils literal notranslate"><span class="pre">Socket</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket.MAX_RETRIES"><code class="docutils literal notranslate"><span class="pre">Socket.MAX_RETRIES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket.RETRY_TIME"><code class="docutils literal notranslate"><span class="pre">Socket.RETRY_TIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket.close"><code class="docutils literal notranslate"><span class="pre">Socket.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket.recv"><code class="docutils literal notranslate"><span class="pre">Socket.recv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket.recv_silent"><code class="docutils literal notranslate"><span class="pre">Socket.recv_silent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket.recv_structured"><code class="docutils literal notranslate"><span class="pre">Socket.recv_structured()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket.send"><code class="docutils literal notranslate"><span class="pre">Socket.send()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket.send_silent"><code class="docutils literal notranslate"><span class="pre">Socket.send_silent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.sdk.html#simulaqron.sdk.socket.Socket.send_structured"><code class="docutils literal notranslate"><span class="pre">Socket.send_structured()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.sdk.html#module-simulaqron.sdk">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.settings.html">simulaqron.settings package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.settings.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.settings.html#module-simulaqron.settings.network_config">simulaqron.settings.network_config module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig"><code class="docutils literal notranslate"><span class="pre">NetworkConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.add_node"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.add_node()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.add_node_config"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.add_node_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.is_empty"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.is_empty</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.name"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.nodes"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.nodes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.nodes_names"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.nodes_names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.remove_node"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.remove_node()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworkConfig.topology"><code class="docutils literal notranslate"><span class="pre">NetworkConfig.topology</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.add_network"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.add_network()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.add_network_config"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.add_network_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.add_node"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.add_node()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.get_node_names"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.get_node_names()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.get_nodes"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.get_nodes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.network_names"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.network_names</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.networks"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.networks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.nodes"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.nodes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.read_from_file"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.read_from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.read_from_known_sources"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.read_from_known_sources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.read_from_legacy_files"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.read_from_legacy_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.remove_all_networks"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.remove_all_networks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.remove_network"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.remove_network()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.remove_node"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.remove_node()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.used_sockets"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.used_sockets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.using_default_network"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.using_default_network()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NetworksConfiguration.write_to_file"><code class="docutils literal notranslate"><span class="pre">NetworksConfiguration.write_to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig"><code class="docutils literal notranslate"><span class="pre">NodeConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig.app_hostname"><code class="docutils literal notranslate"><span class="pre">NodeConfig.app_hostname</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig.app_port"><code class="docutils literal notranslate"><span class="pre">NodeConfig.app_port</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig.get_config"><code class="docutils literal notranslate"><span class="pre">NodeConfig.get_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig.name"><code class="docutils literal notranslate"><span class="pre">NodeConfig.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig.qnodeos_hostname"><code class="docutils literal notranslate"><span class="pre">NodeConfig.qnodeos_hostname</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig.qnodeos_port"><code class="docutils literal notranslate"><span class="pre">NodeConfig.qnodeos_port</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig.vnode_hostname"><code class="docutils literal notranslate"><span class="pre">NodeConfig.vnode_hostname</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfig.vnode_port"><code class="docutils literal notranslate"><span class="pre">NodeConfig.vnode_port</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfigType"><code class="docutils literal notranslate"><span class="pre">NodeConfigType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfigType.APP"><code class="docutils literal notranslate"><span class="pre">NodeConfigType.APP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfigType.QNODEOS"><code class="docutils literal notranslate"><span class="pre">NodeConfigType.QNODEOS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.NodeConfigType.VNODE"><code class="docutils literal notranslate"><span class="pre">NodeConfigType.VNODE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.network_config.get_default_network_config_file"><code class="docutils literal notranslate"><span class="pre">get_default_network_config_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.settings.html#module-simulaqron.settings.simulaqron_config">simulaqron.settings.simulaqron_config module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimBackend"><code class="docutils literal notranslate"><span class="pre">SimBackend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimBackend.PROJECTQ"><code class="docutils literal notranslate"><span class="pre">SimBackend.PROJECTQ</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimBackend.QUTIP"><code class="docutils literal notranslate"><span class="pre">SimBackend.QUTIP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimBackend.STABILIZER"><code class="docutils literal notranslate"><span class="pre">SimBackend.STABILIZER</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.conn_max_retries"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.conn_max_retries</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.conn_retry_time"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.conn_retry_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.default_settings"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.default_settings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.log_level"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.log_level</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.max_app_waiting_time"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.max_app_waiting_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.max_qubits"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.max_qubits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.max_registers"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.max_registers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.noisy_qubits"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.noisy_qubits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.read_from_file"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.read_from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.read_from_known_sources"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.read_from_known_sources()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_max_retries"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.recv_max_retries</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_retry_time"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.recv_retry_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.recv_timeout"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.recv_timeout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.sim_backend"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.sim_backend</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.t1"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.t1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.SimulaqronConfig.write_to_file"><code class="docutils literal notranslate"><span class="pre">SimulaqronConfig.write_to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.settings.html#simulaqron.settings.simulaqron_config.get_default_simulaqron_config_file"><code class="docutils literal notranslate"><span class="pre">get_default_simulaqron_config_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.settings.html#module-simulaqron.settings">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.start.html">simulaqron.start package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.start.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.start.html#module-simulaqron.start.start_qnodeos">simulaqron.start.start_qnodeos module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.start.html#simulaqron.start.start_qnodeos.start_qnodeos"><code class="docutils literal notranslate"><span class="pre">start_qnodeos()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.start.html#module-simulaqron.start.start_vnode">simulaqron.start.start_vnode module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.start.html#simulaqron.start.start_vnode.start_vnode"><code class="docutils literal notranslate"><span class="pre">start_vnode()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.start.html#module-simulaqron.start">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.toolbox.html">simulaqron.toolbox package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.toolbox.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.toolbox.html#module-simulaqron.toolbox.stabilizer_states">simulaqron.toolbox.stabilizer_states module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState"><code class="docutils literal notranslate"><span class="pre">StabilizerState</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.Pauli2bool"><code class="docutils literal notranslate"><span class="pre">StabilizerState.Pauli2bool</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.Pauli_phase_tracking"><code class="docutils literal notranslate"><span class="pre">StabilizerState.Pauli_phase_tracking()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.add_qubit"><code class="docutils literal notranslate"><span class="pre">StabilizerState.add_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_CNOT"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_CNOT()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_CZ"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_CZ()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_H"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_H()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_K"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_K()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_S"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_S()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_X"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_X()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_Y"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_Y()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_Z"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_Z()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_sqrt_IZ"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_sqrt_IZ()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.apply_sqrt_minIX"><code class="docutils literal notranslate"><span class="pre">StabilizerState.apply_sqrt_minIX()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.bool2Pauli"><code class="docutils literal notranslate"><span class="pre">StabilizerState.bool2Pauli</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.bool2phase"><code class="docutils literal notranslate"><span class="pre">StabilizerState.bool2phase</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.boolean_gaussian_elimination"><code class="docutils literal notranslate"><span class="pre">StabilizerState.boolean_gaussian_elimination()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.check_symplectic"><code class="docutils literal notranslate"><span class="pre">StabilizerState.check_symplectic()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.contains"><code class="docutils literal notranslate"><span class="pre">StabilizerState.contains()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.find_SQC_equiv_graph_state"><code class="docutils literal notranslate"><span class="pre">StabilizerState.find_SQC_equiv_graph_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.measure"><code class="docutils literal notranslate"><span class="pre">StabilizerState.measure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.num_qubits"><code class="docutils literal notranslate"><span class="pre">StabilizerState.num_qubits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.phase2bool"><code class="docutils literal notranslate"><span class="pre">StabilizerState.phase2bool</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.put_in_standard_form"><code class="docutils literal notranslate"><span class="pre">StabilizerState.put_in_standard_form()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.tensor_product"><code class="docutils literal notranslate"><span class="pre">StabilizerState.tensor_product()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.to_array"><code class="docutils literal notranslate"><span class="pre">StabilizerState.to_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.toolbox.html#simulaqron.toolbox.stabilizer_states.StabilizerState.to_string"><code class="docutils literal notranslate"><span class="pre">StabilizerState.to_string()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.toolbox.html#module-simulaqron.toolbox">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulaqron.virtual_node.html">simulaqron.virt_node package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.virtual_node.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.virtual_node.html#module-simulaqron.virtual_node.basics">simulaqron.virtual_node.basics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.NoQubitError"><code class="docutils literal notranslate"><span class="pre">NoQubitError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine"><code class="docutils literal notranslate"><span class="pre">QuantumEngine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.absorb"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.absorb()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.absorb_parts"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.absorb_parts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.add_fresh_qubit"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.add_fresh_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.add_qubit"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.add_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_CNOT"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_CNOT()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_CPHASE"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_CPHASE()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_H"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_H()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_K"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_K()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_T"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_T()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_X"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_X()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_Y"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_Y()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_Z"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_Z()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_onequbit_gate"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_onequbit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_rotation"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_rotation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.apply_twoqubit_gate"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.apply_twoqubit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.get_density_matrix_RI"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.get_density_matrix_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.get_register_RI"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.get_register_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.measure_qubit"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.measure_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.measure_qubit_inplace"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.measure_qubit_inplace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.remove_qubit"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.remove_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumEngine.replace_qubit"><code class="docutils literal notranslate"><span class="pre">QuantumEngine.replace_qubit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.QuantumError"><code class="docutils literal notranslate"><span class="pre">QuantumError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.basics.VirtNetError"><code class="docutils literal notranslate"><span class="pre">VirtNetError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.virtual_node.html#module-simulaqron.virtual_node.project_q_simulator">simulaqron.virtual_node.project_q_simulator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.absorb"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.absorb()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.absorb_parts"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.absorb_parts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.add_fresh_qubit"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.add_fresh_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.add_qubit"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.add_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_CNOT"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_CNOT()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_CPHASE"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_CPHASE()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_H"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_H()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_K"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_K()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_T"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_T()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_X"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_X()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_Y"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_Y()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_Z"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_Z()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_onequbit_gate"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_onequbit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_rotation"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_rotation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.apply_twoqubit_gate"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.apply_twoqubit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.get_density_matrix_RI"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.get_density_matrix_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.get_register_RI"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.get_register_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.measure_qubit"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.measure_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.measure_qubit_inplace"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.measure_qubit_inplace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.remove_qubit"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.remove_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.project_q_simulator.ProjectQEngine.replace_qubit"><code class="docutils literal notranslate"><span class="pre">ProjectQEngine.replace_qubit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.virtual_node.html#module-simulaqron.virtual_node.quantum">simulaqron.virtual_node.quantum module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.isLocked"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.isLocked()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.lock"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.lock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.make_fresh"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.make_fresh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_apply_H"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_apply_H()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_apply_K"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_apply_K()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_apply_T"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_apply_T()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_apply_X"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_apply_X()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_apply_Y"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_apply_Y()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_apply_Z"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_apply_Z()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_apply_rotation"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_apply_rotation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_cnot_onto"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_cnot_onto()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_cphase_onto"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_cphase_onto()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_get_density_matrix_RI"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_get_density_matrix_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_get_details"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_get_details()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_get_number"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_get_number()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_get_numbers"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_get_numbers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_get_qubit"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_get_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_get_register"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_get_register()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_get_register_RI"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_get_register_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_get_sim_number"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_get_sim_number()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_isActive"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_isActive()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_isLocked"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_isLocked()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_lock"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_lock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_measure"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_measure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_measure_inplace"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_measure_inplace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.remote_unlock"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.remote_unlock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.quantum.SimulatedQubit.unlock"><code class="docutils literal notranslate"><span class="pre">SimulatedQubit.unlock()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.virtual_node.html#module-simulaqron.virtual_node.qutip_simulator">simulaqron.virtual_node.qutip_simulator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine"><code class="docutils literal notranslate"><span class="pre">QutipEngine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.absorb"><code class="docutils literal notranslate"><span class="pre">QutipEngine.absorb()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.absorb_parts"><code class="docutils literal notranslate"><span class="pre">QutipEngine.absorb_parts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.add_fresh_qubit"><code class="docutils literal notranslate"><span class="pre">QutipEngine.add_fresh_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.add_qubit"><code class="docutils literal notranslate"><span class="pre">QutipEngine.add_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_CNOT"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_CNOT()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_CPHASE"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_CPHASE()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_H"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_H()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_K"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_K()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_T"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_T()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_X"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_X()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_Y"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_Y()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_Z"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_Z()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_onequbit_gate"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_onequbit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_rotation"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_rotation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.apply_twoqubit_gate"><code class="docutils literal notranslate"><span class="pre">QutipEngine.apply_twoqubit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.get_density_matrix_RI"><code class="docutils literal notranslate"><span class="pre">QutipEngine.get_density_matrix_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.get_qubits"><code class="docutils literal notranslate"><span class="pre">QutipEngine.get_qubits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.get_qubits_RI"><code class="docutils literal notranslate"><span class="pre">QutipEngine.get_qubits_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.get_register_RI"><code class="docutils literal notranslate"><span class="pre">QutipEngine.get_register_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.measure_qubit"><code class="docutils literal notranslate"><span class="pre">QutipEngine.measure_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.measure_qubit_inplace"><code class="docutils literal notranslate"><span class="pre">QutipEngine.measure_qubit_inplace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.remove_qubit"><code class="docutils literal notranslate"><span class="pre">QutipEngine.remove_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.qutip_simulator.QutipEngine.replace_qubit"><code class="docutils literal notranslate"><span class="pre">QutipEngine.replace_qubit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.virtual_node.html#module-simulaqron.virtual_node.stabilizer_simulator">simulaqron.virtual_node.stabilizer_simulator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.absorb"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.absorb()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.absorb_parts"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.absorb_parts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.activeQubits"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.activeQubits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.add_fresh_qubit"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.add_fresh_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.add_qubit"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.add_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_CNOT"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_CNOT()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_CPHASE"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_CPHASE()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_H"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_H()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_K"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_K()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_T"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_T()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_X"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_X()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_Y"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_Y()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_Z"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_Z()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_onequbit_gate"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_onequbit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_rotation"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_rotation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.apply_twoqubit_gate"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.apply_twoqubit_gate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.get_density_matrix_RI"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.get_density_matrix_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.get_register_RI"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.get_register_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.measure_qubit"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.measure_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.measure_qubit_inplace"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.measure_qubit_inplace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.remove_qubit"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.remove_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.stabilizer_simulator.StabilizerEngine.replace_qubit"><code class="docutils literal notranslate"><span class="pre">StabilizerEngine.replace_qubit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.virtual_node.html#module-simulaqron.virtual_node.virtual">simulaqron.virtual_node.virtual module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.Backend"><code class="docutils literal notranslate"><span class="pre">Backend</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.Backend.start"><code class="docutils literal notranslate"><span class="pre">Backend.start()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.QubitNetQASM"><code class="docutils literal notranslate"><span class="pre">QubitNetQASM</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode"><code class="docutils literal notranslate"><span class="pre">VirtualNode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.connectNet"><code class="docutils literal notranslate"><span class="pre">VirtualNode.connectNet()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.connect_to_node"><code class="docutils literal notranslate"><span class="pre">VirtualNode.connect_to_node()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.get_connection"><code class="docutils literal notranslate"><span class="pre">VirtualNode.get_connection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.get_new_reg_num"><code class="docutils literal notranslate"><span class="pre">VirtualNode.get_new_reg_num()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.handle_connection"><code class="docutils literal notranslate"><span class="pre">VirtualNode.handle_connection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.handle_connection_error"><code class="docutils literal notranslate"><span class="pre">VirtualNode.handle_connection_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.local_merge_regs"><code class="docutils literal notranslate"><span class="pre">VirtualNode.local_merge_regs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_add_qubit"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_add_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_add_register"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_add_register()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_check_connections"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_check_connections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_clear_recv_queues"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_clear_recv_queues()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_delete_register"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_delete_register()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_get_global_lock"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_get_global_lock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_get_multiple_qubits"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_get_multiple_qubits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_get_register"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_get_register()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_get_register_RI"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_get_register_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_get_register_del"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_get_register_del()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_get_state"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_get_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_get_virtual_ref"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_get_virtual_ref()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_isLocked"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_isLocked()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_lock_reg_qubits"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_lock_reg_qubits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_merge_from"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_merge_from()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_merge_regs"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_merge_regs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_netqasm_add_epr_list"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_netqasm_add_epr_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_netqasm_add_recv_list"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_netqasm_add_recv_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_netqasm_get_epr_recv"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_netqasm_get_epr_recv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_netqasm_get_recv"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_netqasm_get_recv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_netqasm_send_epr_half"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_netqasm_send_epr_half()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_netqasm_send_qubit"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_netqasm_send_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_new_qubit"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_new_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_new_qubit_inreg"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_new_qubit_inreg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_new_register"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_new_register()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_release_global_lock"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_release_global_lock()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_remove_sim_qubit_num"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_remove_sim_qubit_num()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_send_qubit"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_send_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_sim_qubit_num_in_same_reg"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_sim_qubit_num_in_same_reg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_stop_vnode"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_stop_vnode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_transfer_qubit"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_transfer_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_unlock_reg_qubits"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_unlock_reg_qubits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualNode.remote_update_virtual_merge"><code class="docutils literal notranslate"><span class="pre">VirtualNode.remote_update_virtual_merge()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit"><code class="docutils literal notranslate"><span class="pre">VirtualQubit</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_apply_H"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_apply_H()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_apply_K"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_apply_K()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_apply_T"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_apply_T()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_apply_X"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_apply_X()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_apply_Y"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_apply_Y()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_apply_Z"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_apply_Z()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_apply_rotation"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_apply_rotation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_cnot_onto"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_cnot_onto()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_cphase_onto"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_cphase_onto()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_get_density_matrix_RI"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_get_density_matrix_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_get_number"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_get_number()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_get_qubit"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_get_qubit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_get_register_RI"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_get_register_RI()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_get_simNode"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_get_simNode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_get_virtNode"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_get_virtNode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_get_virt_num"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_get_virt_num()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.VirtualQubit.remote_measure"><code class="docutils literal notranslate"><span class="pre">VirtualQubit.remote_measure()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.call_method"><code class="docutils literal notranslate"><span class="pre">call_method()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulaqron.virtual_node.html#simulaqron.virtual_node.virtual.reraise_remote_error"><code class="docutils literal notranslate"><span class="pre">reraise_remote_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulaqron.virtual_node.html#module-simulaqron.virtual_node">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-simulaqron.cli">
+<span id="simulaqron-cli-module"></span><h2>simulaqron.cli module<a class="headerlink" href="#module-simulaqron.cli" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.cli.RunningSimulaQronDaemon">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.cli.</span></span><span class="sig-name descname"><span class="pre">RunningSimulaQronDaemon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pidfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/cli.html#RunningSimulaQronDaemon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.cli.RunningSimulaQronDaemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RunDaemon</span></code></p>
+<p>SimulaQronDaemon class used to represent SimulaQron daemons that are already running.
+This class is useful to stop the already-running daemons without needed to read all
+the required configurations.</p>
+<p>Initialize the daemon with a pidfile.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.cli.SimulaQronDaemon">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.cli.</span></span><span class="sig-name descname"><span class="pre">SimulaQronDaemon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pidfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/cli.html#SimulaQronDaemon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.cli.SimulaQronDaemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RunDaemon</span></code></p>
+<p>Daemon process that runs a SimulaQron network in the background.</p>
+<p>This daemon spawns virtual nodes and QNodeOS servers for each node
+in the network configuration. It runs until explicitly stopped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pidfile</strong> (<em>Path</em>) – Path to the PID file used to track the daemon process.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the network (e.g., ‘default’).</p></li>
+<li><p><strong>nodes</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of node names to start (e.g., [‘Alice’, ‘Bob’]).</p></li>
+<li><p><strong>network_config_file</strong> (<em>Path</em>) – Path to the network configuration file.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.cli.SimulaQronDaemon.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/cli.html#SimulaQronDaemon.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.cli.SimulaQronDaemon.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts all nodes defined in netsim’s config directory.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.math">
+<span id="simulaqron-math-module"></span><h2>simulaqron.math module<a class="headerlink" href="#module-simulaqron.math" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="simulaqron.math.assemble_qubit">
+<span class="sig-prename descclassname"><span class="pre">simulaqron.math.</span></span><span class="sig-name descname"><span class="pre">assemble_qubit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">realM</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imagM</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/simulaqron/math.html#assemble_qubit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.math.assemble_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstitute the qubit as array from its real and imaginary components given as a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>realM</strong> (<em>np.ndarray</em>) – Real component of the qubit.</p></li>
+<li><p><strong>imagM</strong> (<em>np.ndarray</em>) – Imaginary component of the qubit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Assembled qubit as vector of complex numbers.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.network">
+<span id="simulaqron-network-module"></span><h2>simulaqron.network module<a class="headerlink" href="#module-simulaqron.network" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.network.Network">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.network.</span></span><span class="sig-name descname"><span class="pre">Network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/network.html#Network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.network.Network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Used to spin up a simulated network.
+This class uses the network configuration loaded in the global network_config object and
+starts the nodes mentioned in the constructor of this class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of strings with the node names to start.</p></li>
+<li><p><strong>network_config_file</strong> (<em>str</em>) – Path to network config file (required).</p></li>
+<li><p><strong>network_name</strong> (<em>str</em>) – The name of network to start. Defaults to “default”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.network.Network.running">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">running</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#simulaqron.network.Network.running" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether the network up and running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the network up and running. False otherwise</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.network.Network.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait_until_running</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/network.html#Network.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.network.Network.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the network.
+The boolean flag ‘wait_until_running’ can be used whether the call to this method should
+blog until the all processes are running and are connected or not.
+:param wait_until_running: bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.network.Network.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/network.html#Network.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.network.Network.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the network.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="simulaqron.network.construct_topology_config">
+<span class="sig-prename descclassname"><span class="pre">simulaqron.network.</span></span><span class="sig-name descname"><span class="pre">construct_topology_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topology</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/simulaqron/network.html#construct_topology_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.network.construct_topology_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a dictionary that maps the node names with their neighbours, representing a network topology.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topology</strong> (<em>str</em><em> | </em><em>Dict</em>) – The type of topology to generate. Should be one of the following: None, ‘complete’,
+‘ring’, ‘random_tree’.</p></li>
+<li><p><strong>nodes</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of the names of the nodes.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary where keys are the names of the nodes and values are a list of strings of their neighbors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, List[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="simulaqron.network.get_random_connected">
+<span class="sig-prename descclassname"><span class="pre">simulaqron.network.</span></span><span class="sig-name descname"><span class="pre">get_random_connected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/simulaqron/network.html#get_random_connected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.network.get_random_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a dictionary describing a random connected graph with a specified number of edges,
+with the name of the vertices are taken from the ‘nodes’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Name of the nodes to be used</p></li>
+<li><p><strong>nr_edges</strong> (<em>int</em>) – The number of edges that the graph should have.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary where keys are the names of the nodes and values are a list of strings of their neighbors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, List[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="simulaqron.network.get_random_tree">
+<span class="sig-prename descclassname"><span class="pre">simulaqron.network.</span></span><span class="sig-name descname"><span class="pre">get_random_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/simulaqron/network.html#get_random_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.network.get_random_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a dictionary describing a random tree, with the name of the vertices are taken from the ‘nodes’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>nodes</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Name of the nodes to be used</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary where keys are the names of the nodes and values are a list of strings of their neighbors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, List[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.reactor">
+<span id="simulaqron-reactor-module"></span><h2>simulaqron.reactor module<a class="headerlink" href="#module-simulaqron.reactor" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-simulaqron.sim_util">
+<span id="simulaqron-sim-util-module"></span><h2>simulaqron.sim_util module<a class="headerlink" href="#module-simulaqron.sim_util" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="simulaqron.sim_util.get_qubit_state">
+<span class="sig-prename descclassname"><span class="pre">simulaqron.sim_util.</span></span><span class="sig-name descname"><span class="pre">get_qubit_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Qubit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduced_dm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/simulaqron/sim_util.html#get_qubit_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sim_util.get_qubit_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the state of the qubit, only possible in simulation and can be used for debugging.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The function gets the <em>current</em> state of the qubit(s). So make sure the subroutine
+is flushed before calling the method.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit</strong> (<em>Qubit</em>) – The qubit(s) to get the state of.</p></li>
+<li><p><strong>reduced_dm</strong> (<em>bool</em>) – Unused; declared to keep compatibility with other simulation engines</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The state as a density matrix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-simulaqron">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-simulaqron" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">simulaqron package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-simulaqron.cli">simulaqron.cli module</a><ul>
+<li><a class="reference internal" href="#simulaqron.cli.RunningSimulaQronDaemon"><code class="docutils literal notranslate"><span class="pre">RunningSimulaQronDaemon</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.cli.SimulaQronDaemon"><code class="docutils literal notranslate"><span class="pre">SimulaQronDaemon</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.cli.SimulaQronDaemon.run"><code class="docutils literal notranslate"><span class="pre">SimulaQronDaemon.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.math">simulaqron.math module</a><ul>
+<li><a class="reference internal" href="#simulaqron.math.assemble_qubit"><code class="docutils literal notranslate"><span class="pre">assemble_qubit()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.network">simulaqron.network module</a><ul>
+<li><a class="reference internal" href="#simulaqron.network.Network"><code class="docutils literal notranslate"><span class="pre">Network</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.network.Network.running"><code class="docutils literal notranslate"><span class="pre">Network.running</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.network.Network.start"><code class="docutils literal notranslate"><span class="pre">Network.start()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.network.Network.stop"><code class="docutils literal notranslate"><span class="pre">Network.stop()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.network.construct_topology_config"><code class="docutils literal notranslate"><span class="pre">construct_topology_config()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.network.get_random_connected"><code class="docutils literal notranslate"><span class="pre">get_random_connected()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.network.get_random_tree"><code class="docutils literal notranslate"><span class="pre">get_random_tree()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.reactor">simulaqron.reactor module</a></li>
+<li><a class="reference internal" href="#module-simulaqron.sim_util">simulaqron.sim_util module</a><ul>
+<li><a class="reference internal" href="#simulaqron.sim_util.get_qubit_state"><code class="docutils literal notranslate"><span class="pre">get_qubit_state()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Overview.html"
+                          title="previous chapter">Overview</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="simulaqron.general.html"
+                          title="next chapter">simulaqron.general package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/simulaqron.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.general.html" title="simulaqron.general package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Overview.html" title="Overview"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

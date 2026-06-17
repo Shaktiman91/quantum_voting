@@ -1,0 +1,319 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>The NetQASM interface &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SimulaQron Programming Examples" href="Examples.html" />
+    <link rel="prev" title="Getting started" href="GettingStarted.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Examples.html" title="SimulaQron Programming Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="GettingStarted.html" title="Getting started"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">The NetQASM interface</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="the-netqasm-interface">
+<h1>The NetQASM interface<a class="headerlink" href="#the-netqasm-interface" title="Permalink to this heading">¶</a></h1>
+<p>SimulaQron applications are written using the <strong>NetQASM SDK</strong>. This page describes the core concepts and
+programming model. For complete working examples, see <a class="reference internal" href="Examples.html"><span class="doc">Examples</span></a>.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
+<p>The NetQASM library is included as a dependency of SimulaQron. For the instructions how to install SimulaQron
+please check the <a class="reference internal" href="GettingStarted.html"><span class="doc">Getting Started</span></a> section.</p>
+</section>
+<section id="core-concepts">
+<h2>Core concepts<a class="headerlink" href="#core-concepts" title="Permalink to this heading">¶</a></h2>
+<section id="netqasmconnection">
+<h3>NetQASMConnection<a class="headerlink" href="#netqasmconnection" title="Permalink to this heading">¶</a></h3>
+<p>This objects represent your connection to the <strong>local quantum backend</strong> (SimulaQron’s virtual quantum node).
+This is <em>not</em> a connection to another party — it is how your node talks to its local simulated quantum hardware.
+All qubit operations are queued through this connection.</p>
+<p>Create it once, use it throughout your program, and close it at the end:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.external</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetQASMConnection</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+<span class="c1"># ... queue quantum operations ...</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If your program uses EPR pairs, pass the EPR sockets at creation time:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">EPRSocket</span>
+
+<span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">)</span>
+<span class="n">conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="qubit">
+<h3>Qubit<a class="headerlink" href="#qubit" title="Permalink to this heading">¶</a></h3>
+<p>A qubit allocated on the local quantum backend. The qubit gets initialized to the <span class="math notranslate nohighlight">\(|0\rangle\)</span> state.
+Pass the connection so the backend knows where to allocate it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qubit</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+<span class="n">q</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>           <span class="c1"># Hadamard</span>
+<span class="n">q</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>           <span class="c1"># Pauli X</span>
+<span class="n">q</span><span class="o">.</span><span class="n">cnot</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>   <span class="c1"># CNOT with another qubit</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Gates are <strong>queued</strong> — nothing executes until you call <code class="docutils literal notranslate"><span class="pre">flush()</span></code>.</p>
+</section>
+<section id="eprsocket">
+<h3>EPRSocket<a class="headerlink" href="#eprsocket" title="Permalink to this heading">¶</a></h3>
+<p>Used to create or receive entangled qubit pairs with a remote node:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">EPRSocket</span>
+
+<span class="c1"># On Alice&#39;s side:</span>
+<span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">)</span>
+<span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">create_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># On Bob&#39;s side:</span>
+<span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+<span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">recv_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="flush">
+<h3>flush()<a class="headerlink" href="#flush" title="Permalink to this heading">¶</a></h3>
+<p>The <strong>sync point</strong> that executes all queued quantum operations and makes measurement results available.
+Before <code class="docutils literal notranslate"><span class="pre">flush()</span></code>, measurement results are just futures/promises. After <code class="docutils literal notranslate"><span class="pre">flush()</span></code>, you can read them
+with <code class="docutils literal notranslate"><span class="pre">int(m)</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>          <span class="c1"># execute everything queued so far</span>
+<span class="n">result</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>       <span class="c1"># NOW this works</span>
+</pre></div>
+</div>
+<p>You can call <code class="docutils literal notranslate"><span class="pre">flush()</span></code> multiple times on the same connection. This enables <strong>mid-circuit classical logic</strong>
+— measure, read the result, and decide what to do next:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">m1</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+<span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">other_qubit</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>   <span class="c1"># conditional correction</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>See the mid-circuit logic example in <a class="reference internal" href="Examples.html"><span class="doc">Examples</span></a> for a full demonstration.</p>
+</section>
+</section>
+<section id="minimal-example">
+<h2>Minimal example<a class="headerlink" href="#minimal-example" title="Permalink to this heading">¶</a></h2>
+<p>A single-node program that creates a qubit, applies a Hadamard gate, and measures:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.runtime.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_simulator</span>
+<span class="n">set_simulator</span><span class="p">(</span><span class="s2">&quot;simulaqron&quot;</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk.external</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetQASMConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netqasm.sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qubit</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">Qubit</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+<span class="n">q</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Measurement outcome:&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If you want to run this minimal example, remember to start the SimulaQron backend before executing the code:
+<code class="docutils literal notranslate"><span class="pre">simulaqron</span> <span class="pre">start</span></code>.</p>
+</section>
+<section id="two-node-epr-example">
+<h2>Two-node EPR example<a class="headerlink" href="#two-node-epr-example" title="Permalink to this heading">¶</a></h2>
+<p>Alice and Bob generate an EPR pair and each measure their qubit to get correlated random numbers.</p>
+<p><strong>Alice</strong> (creates the EPR pair):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">)</span>
+<span class="n">conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+<span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">create_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">epr</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Alice:&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Bob</strong> (receives the EPR pair):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+<span class="n">conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+<span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">recv_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">epr</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bob:&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Both sides will print the same random number (0 or 1), demonstrating quantum correlation. A full working example
+of this can be found in the <code class="docutils literal notranslate"><span class="pre">new-sdk/corrRNG</span></code> example. See the <a class="reference internal" href="new-sdk/CorrRNG.html"><span class="doc">Correlated RNG</span></a> section for
+more details.</p>
+</section>
+<section id="classical-communication">
+<h2>Classical communication<a class="headerlink" href="#classical-communication" title="Permalink to this heading">¶</a></h2>
+<p>For exchanging classical messages between nodes (e.g. measurement outcomes for teleportation corrections),
+SimulaQron provides <code class="docutils literal notranslate"><span class="pre">SimulaQronClassicalClient</span></code> and <code class="docutils literal notranslate"><span class="pre">SimulaQronClassicalServer</span></code>.</p>
+<p>Your quantum program function receives <code class="docutils literal notranslate"><span class="pre">(reader,</span> <span class="pre">writer)</span></code> — standard asyncio streams — for sending and
+receiving classical messages:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">StreamReader</span><span class="p">,</span> <span class="n">StreamWriter</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_alice</span><span class="p">(</span><span class="n">reader</span><span class="p">:</span> <span class="n">StreamReader</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">StreamWriter</span><span class="p">):</span>
+    <span class="c1"># Quantum operations</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">create_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="c1"># Send classical message to Bob</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_bob</span><span class="p">(</span><span class="n">reader</span><span class="p">:</span> <span class="n">StreamReader</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">StreamWriter</span><span class="p">):</span>
+    <span class="c1"># Receive classical message from Alice</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+    <span class="n">correction</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Use correction in quantum operations</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+    <span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">recv_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">correction</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">epr</span><span class="o">.</span><span class="n">X</span><span class="p">()</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="new-sdk/Template.html"><span class="doc">Template</span></a> page for how to set up the client and server, and the
+<a class="reference internal" href="new-sdk/Teleport.html"><span class="doc">teleportation example</span></a> for a complete two-node program with classical messaging.</p>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
+<p>Each program needs two configuration files in its directory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">simulaqron_network.json</span></code> — defines the nodes and their socket ports. See <a class="reference internal" href="ConfNodes.html"><span class="doc">Configuring the Network</span></a>
+for details.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> — configures the simulation backend and other settings. See the
+Settings section in <a class="reference internal" href="GettingStarted.html"><span class="doc">Getting Started</span></a>.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">qutip</span></code> backend is used by default and is recommended unless you need Clifford gates (use
+<code class="docutils literal notranslate"><span class="pre">stabilizer</span></code> in that case).</p>
+</section>
+<section id="further-reading">
+<h2>Further reading<a class="headerlink" href="#further-reading" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="Examples.html"><span class="doc">Examples</span></a> — complete working examples from simple to complex</p></li>
+<li><p><a class="reference internal" href="new-sdk/Overview.html"><span class="doc">New SDK Overview</span></a> — detailed SDK concepts and file structure</p></li>
+<li><p><a class="reference external" href="https://netqasm.readthedocs.io/en/latest/">NetQASM library documentation</a></p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">The NetQASM interface</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#core-concepts">Core concepts</a><ul>
+<li><a class="reference internal" href="#netqasmconnection">NetQASMConnection</a></li>
+<li><a class="reference internal" href="#qubit">Qubit</a></li>
+<li><a class="reference internal" href="#eprsocket">EPRSocket</a></li>
+<li><a class="reference internal" href="#flush">flush()</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#minimal-example">Minimal example</a></li>
+<li><a class="reference internal" href="#two-node-epr-example">Two-node EPR example</a></li>
+<li><a class="reference internal" href="#classical-communication">Classical communication</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#further-reading">Further reading</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="GettingStarted.html"
+                          title="previous chapter">Getting started</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Examples.html"
+                          title="next chapter">SimulaQron Programming Examples</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/NetQASM.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Examples.html" title="SimulaQron Programming Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="GettingStarted.html" title="Getting started"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">The NetQASM interface</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

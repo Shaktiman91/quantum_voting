@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Ping-Pong: Basic Event Loop &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinxdoc.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Polite Ping-Pong: The State Machine Pattern" href="PolitePingPong.html" />
+    <link rel="prev" title="Event-Based Programming Overview" href="Overview.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="PolitePingPong.html" title="Polite Ping-Pong: The State Machine Pattern"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Overview.html" title="Event-Based Programming Overview"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" accesskey="U">SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Ping-Pong: Basic Event Loop</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="ping-pong-basic-event-loop">
+<h1>Ping-Pong: Basic Event Loop<a class="headerlink" href="#ping-pong-basic-event-loop" title="Permalink to this heading">¶</a></h1>
+<p>The simplest event-based example.  Alice sends a sequence of messages to Bob,
+who replies to each one.  No state machine — just a simple if/else to choose
+the reply.  Found in <code class="docutils literal notranslate"><span class="pre">examples/event-based/pingPong/</span></code>.</p>
+<p>This is purely classical (no quantum operations).  It demonstrates the basic
+async event loop pattern before adding state machines and quantum in later examples.</p>
+<section id="alice-client">
+<h2>Alice (client)<a class="headerlink" href="#alice-client" title="Permalink to this heading">¶</a></h2>
+<p>Alice sends a list of messages and prints Bob’s replies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_alice</span><span class="p">(</span><span class="n">reader</span><span class="p">:</span> <span class="n">StreamReader</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">StreamWriter</span><span class="p">):</span>
+    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ping&quot;</span><span class="p">,</span> <span class="s2">&quot;ping&quot;</span><span class="p">,</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;ping&quot;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alice: sending  &#39;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">await</span> <span class="n">writer</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
+
+        <span class="n">reply_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+        <span class="n">reply</span> <span class="o">=</span> <span class="n">reply_data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alice: received &#39;</span><span class="si">{</span><span class="n">reply</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="bob-server">
+<h2>Bob (server)<a class="headerlink" href="#bob-server" title="Permalink to this heading">¶</a></h2>
+<p>Bob replies “pong” to “ping” and “no way!” to anything else:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_bob</span><span class="p">(</span><span class="n">reader</span><span class="p">:</span> <span class="n">StreamReader</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">StreamWriter</span><span class="p">):</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">break</span>  <span class="c1"># Alice disconnected</span>
+
+        <span class="n">message</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">message</span> <span class="o">==</span> <span class="s2">&quot;ping&quot;</span><span class="p">:</span>
+            <span class="n">reply</span> <span class="o">=</span> <span class="s2">&quot;pong&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reply</span> <span class="o">=</span> <span class="s2">&quot;no way!&quot;</span>
+
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">await</span> <span class="n">writer</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="key-concepts">
+<h2>Key concepts<a class="headerlink" href="#key-concepts" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>reader/writer</strong>: The async streams for classical TCP communication.
+<code class="docutils literal notranslate"><span class="pre">writer.write()</span></code> sends bytes, <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">reader.read(N)</span></code> receives up to N bytes.</p></li>
+<li><p><strong>await writer.drain()</strong>: Ensures the write buffer is flushed to the network.</p></li>
+<li><p><strong>Connection lifecycle</strong>: Bob’s loop exits when <code class="docutils literal notranslate"><span class="pre">reader.read()</span></code> returns empty
+bytes, meaning Alice has disconnected.</p></li>
+</ul>
+</section>
+<section id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">examples</span><span class="o">/</span><span class="n">event</span><span class="o">-</span><span class="n">based</span><span class="o">/</span><span class="n">pingPong</span>
+<span class="n">bash</span> <span class="n">run</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>Expected output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Alice</span><span class="p">:</span> <span class="n">sending</span>  <span class="s1">&#39;ping&#39;</span>
+<span class="n">Bob</span><span class="p">:</span> <span class="n">received</span> <span class="s1">&#39;ping&#39;</span>
+<span class="n">Bob</span><span class="p">:</span> <span class="n">sending</span>  <span class="s1">&#39;pong&#39;</span>
+<span class="n">Alice</span><span class="p">:</span> <span class="n">received</span> <span class="s1">&#39;pong&#39;</span>
+<span class="n">Alice</span><span class="p">:</span> <span class="n">sending</span>  <span class="s1">&#39;ping&#39;</span>
+<span class="o">...</span>
+<span class="n">Alice</span><span class="p">:</span> <span class="n">sending</span>  <span class="s1">&#39;hello&#39;</span>
+<span class="n">Bob</span><span class="p">:</span> <span class="n">received</span> <span class="s1">&#39;hello&#39;</span>
+<span class="n">Bob</span><span class="p">:</span> <span class="n">sending</span>  <span class="s1">&#39;no way!&#39;</span>
+<span class="n">Alice</span><span class="p">:</span> <span class="n">received</span> <span class="s1">&#39;no way!&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Ping-Pong: Basic Event Loop</a><ul>
+<li><a class="reference internal" href="#alice-client">Alice (client)</a></li>
+<li><a class="reference internal" href="#bob-server">Bob (server)</a></li>
+<li><a class="reference internal" href="#key-concepts">Key concepts</a></li>
+<li><a class="reference internal" href="#running">Running</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Overview.html"
+                          title="previous chapter">Event-Based Programming Overview</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="PolitePingPong.html"
+                          title="next chapter">Polite Ping-Pong: The State Machine Pattern</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/event-based/PingPong.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="PolitePingPong.html" title="Polite Ping-Pong: The State Machine Pattern"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Overview.html" title="Event-Based Programming Overview"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../Examples.html" >SimulaQron Programming Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Ping-Pong: Basic Event Loop</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

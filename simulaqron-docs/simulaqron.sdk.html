@@ -1,0 +1,707 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>simulaqron.sdk package &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="simulaqron.settings package" href="simulaqron.settings.html" />
+    <link rel="prev" title="simulaqron.run package" href="simulaqron.run.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.settings.html" title="simulaqron.settings package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.run.html" title="simulaqron.run package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" accesskey="U">simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.sdk package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="simulaqron-sdk-package">
+<h1>simulaqron.sdk package<a class="headerlink" href="#simulaqron-sdk-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-simulaqron.sdk.broadcast_channel">
+<span id="simulaqron-sdk-broadcast-channel-module"></span><h2>simulaqron.sdk.broadcast_channel module<a class="headerlink" href="#module-simulaqron.sdk.broadcast_channel" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.sdk.broadcast_channel.BroadcastChannel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.sdk.broadcast_channel.</span></span><span class="sig-name descname"><span class="pre">BroadcastChannel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_app_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/broadcast_channel.html#BroadcastChannel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.broadcast_channel.BroadcastChannel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BroadcastChannelBySockets</span></code></p>
+<p>Implement a Broadcast channel over sockets</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class is candidate to be deleted. Test and delete if possible!</p>
+</div>
+<p>BroadcastChannel constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>app_name</strong> – application/Host name of self</p></li>
+<li><p><strong>remote_app_names</strong> – list of receiving remote Hosts</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.sdk.connection">
+<span id="simulaqron-sdk-connection-module"></span><h2>simulaqron.sdk.connection module<a class="headerlink" href="#module-simulaqron.sdk.connection" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.GetQubitStateMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.sdk.connection.</span></span><span class="sig-name descname"><span class="pre">GetQubitStateMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#GetQubitStateMessage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.GetQubitStateMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Message</span></code></p>
+<p>Implements a specific NetQASM message to get the state of a qubit from the
+SimulaQron simulator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>app_id</strong> (<em>int</em>) – The app ID to get the qubit from.</p></li>
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID to retrieve the state.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.GetQubitStateMessage.TYPE">
+<span class="sig-name descname"><span class="pre">TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">202</span></em><a class="headerlink" href="#simulaqron.sdk.connection.GetQubitStateMessage.TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.GetQubitStateMessage.app_id">
+<span class="sig-name descname"><span class="pre">app_id</span></span><a class="headerlink" href="#simulaqron.sdk.connection.GetQubitStateMessage.app_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.GetQubitStateMessage.qubit_id">
+<span class="sig-name descname"><span class="pre">qubit_id</span></span><a class="headerlink" href="#simulaqron.sdk.connection.GetQubitStateMessage.qubit_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewMessageType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.sdk.connection.</span></span><span class="sig-name descname"><span class="pre">NewMessageType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#NewMessageType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.NewMessageType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewMessageType.GET_QUBIT_STATE">
+<span class="sig-name descname"><span class="pre">GET_QUBIT_STATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">202</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewMessageType.GET_QUBIT_STATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewMessageType.INIT_NEW_APP">
+<span class="sig-name descname"><span class="pre">INIT_NEW_APP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewMessageType.INIT_NEW_APP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewMessageType.OPEN_EPR_SOCKET">
+<span class="sig-name descname"><span class="pre">OPEN_EPR_SOCKET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewMessageType.OPEN_EPR_SOCKET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewMessageType.SIGNAL">
+<span class="sig-name descname"><span class="pre">SIGNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewMessageType.SIGNAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewMessageType.STOP_APP">
+<span class="sig-name descname"><span class="pre">STOP_APP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewMessageType.STOP_APP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewMessageType.SUBROUTINE">
+<span class="sig-name descname"><span class="pre">SUBROUTINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewMessageType.SUBROUTINE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewReturnMessageType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.sdk.connection.</span></span><span class="sig-name descname"><span class="pre">NewReturnMessageType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#NewReturnMessageType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.NewReturnMessageType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewReturnMessageType.DONE">
+<span class="sig-name descname"><span class="pre">DONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewReturnMessageType.DONE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewReturnMessageType.ERR">
+<span class="sig-name descname"><span class="pre">ERR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewReturnMessageType.ERR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewReturnMessageType.RET_ARR">
+<span class="sig-name descname"><span class="pre">RET_ARR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewReturnMessageType.RET_ARR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewReturnMessageType.RET_QUBIT_STATE">
+<span class="sig-name descname"><span class="pre">RET_QUBIT_STATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">254</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewReturnMessageType.RET_QUBIT_STATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.NewReturnMessageType.RET_REG">
+<span class="sig-name descname"><span class="pre">RET_REG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#simulaqron.sdk.connection.NewReturnMessageType.RET_REG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.ReturnQubitStateMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.sdk.connection.</span></span><span class="sig-name descname"><span class="pre">ReturnQubitStateMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_part</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imag_part</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#ReturnQubitStateMessage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.ReturnQubitStateMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ReturnMessage</span></code></p>
+<p>Specific NetQASM message used to transmit the qubit state back to the application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qubit_id</strong> (<em>int</em>) – The qubit ID.</p></li>
+<li><p><strong>real_part</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><em>float</em><em>]</em><em>]</em>) – The real part of the qubit state.</p></li>
+<li><p><strong>imag_part</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><em>float</em><em>]</em><em>]</em>) – The imaginary part of the qubit state.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.ReturnQubitStateMessage.TYPE">
+<span class="sig-name descname"><span class="pre">TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">254</span></em><a class="headerlink" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.ReturnQubitStateMessage.dim">
+<span class="sig-name descname"><span class="pre">dim</span></span><a class="headerlink" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.ReturnQubitStateMessage.dimension">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dimension</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.dimension" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.ReturnQubitStateMessage.get_imag_part">
+<span class="sig-name descname"><span class="pre">get_imag_part</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#ReturnQubitStateMessage.get_imag_part"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.get_imag_part" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.ReturnQubitStateMessage.get_real_part">
+<span class="sig-name descname"><span class="pre">get_real_part</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#ReturnQubitStateMessage.get_real_part"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.get_real_part" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.ReturnQubitStateMessage.imag_part">
+<span class="sig-name descname"><span class="pre">imag_part</span></span><a class="headerlink" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.imag_part" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.ReturnQubitStateMessage.qubit_id">
+<span class="sig-name descname"><span class="pre">qubit_id</span></span><a class="headerlink" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.qubit_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.ReturnQubitStateMessage.real_part">
+<span class="sig-name descname"><span class="pre">real_part</span></span><a class="headerlink" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.real_part" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.RichErrorMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.sdk.connection.</span></span><span class="sig-name descname"><span class="pre">RichErrorMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">err_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ErrorCode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#RichErrorMessage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.RichErrorMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ReturnMessage</span></code></p>
+<p>Enriched message to the Host that an error occurred at the quantum node controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>err_code</strong> (<em>ErrorCode</em>) – The error code to report.</p></li>
+<li><p><strong>err_msg</strong> (<em>str</em>) – The error message.</p></li>
+<li><p><strong>msg_id</strong> (<em>int</em>) – The ID of the subroutine message that caused the error, so the
+client can unblock its _wait_for_done loop for that message.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.RichErrorMessage.TYPE">
+<span class="sig-name descname"><span class="pre">TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#simulaqron.sdk.connection.RichErrorMessage.TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.RichErrorMessage.err_code">
+<span class="sig-name descname"><span class="pre">err_code</span></span><a class="headerlink" href="#simulaqron.sdk.connection.RichErrorMessage.err_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.RichErrorMessage.err_msg">
+<span class="sig-name descname"><span class="pre">err_msg</span></span><a class="headerlink" href="#simulaqron.sdk.connection.RichErrorMessage.err_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.RichErrorMessage.err_msg_len">
+<span class="sig-name descname"><span class="pre">err_msg_len</span></span><a class="headerlink" href="#simulaqron.sdk.connection.RichErrorMessage.err_msg_len" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.RichErrorMessage.get_err_msg">
+<span class="sig-name descname"><span class="pre">get_err_msg</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#RichErrorMessage.get_err_msg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.RichErrorMessage.get_err_msg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.RichErrorMessage.msg_id">
+<span class="sig-name descname"><span class="pre">msg_id</span></span><a class="headerlink" href="#simulaqron.sdk.connection.RichErrorMessage.msg_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure/Union member</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.sdk.connection.</span></span><span class="sig-name descname"><span class="pre">SimulaQronConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_qubits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LogConfig</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epr_sockets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">EPRSocket</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compiler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">SubroutineTranspiler</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">socket_address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conn_retry_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#SimulaQronConnection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseNetQASMConnection</span></code></p>
+<p>Main class representing the connection from NetQASM to the SimulaQron simulator.
+This class implements the</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>app_name</strong> (<em>str</em>) – Name of the app to run.</p></li>
+<li><p><strong>app_id</strong> (<em>int</em><em> | </em><em>None</em>) – The ID of the application. If not given, a new one will be created.</p></li>
+<li><p><strong>max_qubits</strong> (<em>int</em>) – Maximum number of qubits tu simulate in the simulator.</p></li>
+<li><p><strong>log_config</strong> (<em>LogConfig</em>) – Configuration of the logging. Check the documentation of
+<code class="docutils literal notranslate"><span class="pre">netqasm.sdk.config.LogConfig</span></code> for more information about this.</p></li>
+<li><p><strong>epr_sockets</strong> (<em>List</em><em>[</em><em>EPRSocket</em><em>]</em>) – List of <code class="docutils literal notranslate"><span class="pre">EPRSocket</span></code> s to use in the simulator.</p></li>
+<li><p><strong>compiler</strong> (<em>Type</em><em>[</em><em>SubroutineTranspiler</em><em>] </em><em>| </em><em>None</em>) – A transpiler object that transpiles the NetQASM instructions.</p></li>
+<li><p><strong>socket_address</strong> (<em>Tuple</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em>) – A tuple containing a hostname and port to use to connect to the QNodeOS server.</p></li>
+<li><p><strong>conn_retry_time</strong> (<em>float</em>) – Maximum time in seconds to wait between attempts to connect to the QNoseOS server.</p></li>
+<li><p><strong>network_name</strong> (<em>str</em>) – The name of the network to connect to</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronConnection.NON_STABILIZER_INSTR">
+<span class="sig-name descname"><span class="pre">NON_STABILIZER_INSTR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;GenericInstr.T:</span> <span class="pre">30&gt;]</span></em><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronConnection.NON_STABILIZER_INSTR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronConnection.PROCESS_POOL">
+<span class="sig-name descname"><span class="pre">PROCESS_POOL</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Pool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronConnection.PROCESS_POOL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronConnection.block">
+<span class="sig-name descname"><span class="pre">block</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#SimulaQronConnection.block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronConnection.block" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blocks the handling of new messages until all the pending message IDs are acknowledged.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronConnection.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clear_app</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exception</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#SimulaQronConnection.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronConnection.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the SimulaQron connection. It also sends the corresponding messages
+to the backend to clean up the states associated with the connection.
+This leaves the quantum backend ready to be used with a new client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clear_app</strong> (<em>bool</em>) – Clear the application before closing the connection.</p></li>
+<li><p><strong>stop_backend</strong> (<em>bool</em>) – Stop the backend when closing the connection.</p></li>
+<li><p><strong>exception</strong> (<em>bool</em>) – Whether the app is stopping due to an exception or not.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronConnection.get_qubit_state">
+<span class="sig-name descname"><span class="pre">get_qubit_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qubit_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">complex</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#SimulaQronConnection.get_qubit_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronConnection.get_qubit_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronConnection.try_connection">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">try_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">socket_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#SimulaQronConnection.try_connection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronConnection.try_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to establish a connection to the specified node name. The connection can be made
+by specifying the <code class="docutils literal notranslate"><span class="pre">socket_address</span></code> tuple (as a hostname and port number tuple) or
+by specifying the node and network names. In the latter case, SimulaQron will search
+for that node and network names on the loaded network configuration, and get the
+corresponding socket configuration (hostname and port number) to connect to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the node to connect to.</p></li>
+<li><p><strong>socket_address</strong> (<em>Tuple</em><em>[</em><em>str</em><em>, </em><em>int</em><em>] </em><em>| </em><em>None</em>) – A hostname-port pair to specify the hostname and port number
+to connect to. This argument is optional.</p></li>
+<li><p><strong>network_name</strong> (<em>str</em>) – The name of the network to search the node name.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronNetworkInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.sdk.connection.</span></span><span class="sig-name descname"><span class="pre">SimulaQronNetworkInfo</span></span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#SimulaQronNetworkInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronNetworkInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NetworkInfo</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_id_for_app">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_node_id_for_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#SimulaQronNetworkInfo.get_node_id_for_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_id_for_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the node id for the app with the given name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>app_name</strong> (<em>str</em>) – The app name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The node ID.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_name_for_app">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_node_name_for_app</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/connection.html#SimulaQronNetworkInfo.get_node_name_for_app"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_name_for_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the node name for the app with the given name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>app_name</strong> (<em>str</em>) – The app name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The node name.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.sdk.socket">
+<span id="simulaqron-sdk-socket-module"></span><h2>simulaqron.sdk.socket module<a class="headerlink" href="#module-simulaqron.sdk.socket" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulaqron.sdk.socket.</span></span><span class="sig-name descname"><span class="pre">Socket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_app_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">socket_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_callbacks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_server</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/socket.html#Socket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.socket.Socket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Socket</span></code></p>
+<p>Socket constructor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>app_name</strong> – application/Host name of this socket’s owner</p></li>
+<li><p><strong>remote_app_name</strong> – application/Host name of this socket’s remote</p></li>
+<li><p><strong>socket_id</strong> – local ID to use for this socket</p></li>
+<li><p><strong>timeout</strong> – maximum amount of real time to try to connect to the remote
+socket</p></li>
+<li><p><strong>use_callbacks</strong> – whether to call the <cite>recv_callback</cite> method upon receiving
+a message</p></li>
+<li><p><strong>log_config</strong> – logging configuration for this socket</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket.MAX_RETRIES">
+<span class="sig-name descname"><span class="pre">MAX_RETRIES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#simulaqron.sdk.socket.Socket.MAX_RETRIES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket.RETRY_TIME">
+<span class="sig-name descname"><span class="pre">RETRY_TIME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.2</span></em><a class="headerlink" href="#simulaqron.sdk.socket.Socket.RETRY_TIME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/socket.html#Socket.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.socket.Socket.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes this socket. Mo more messages can be sent or received after
+invoking this method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket.recv">
+<span class="sig-name descname"><span class="pre">recv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/socket.html#Socket.recv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.socket.Socket.recv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a message from the remote node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block</strong> (<em>bool</em>) – Whether the underlying read operation should be blocking or not.</p></li>
+<li><p><strong>timeout</strong> (<em>float</em><em> | </em><em>None</em>) – Max time (in seconds) to wait for a message from the remote.</p></li>
+<li><p><strong>maxsize</strong> (<em>int</em><em> | </em><em>None</em>) – Maximum size of bytes to read from the remote.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The received message as a string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket.recv_silent">
+<span class="sig-name descname"><span class="pre">recv_silent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/socket.html#Socket.recv_silent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.socket.Socket.recv_silent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a message without logging it. All arguments passed to this
+invocation are ignored. For more fine-grain control, please check the
+<a class="reference internal" href="#simulaqron.sdk.socket.Socket.recv" title="simulaqron.sdk.socket.Socket.recv"><code class="xref py py-meth docutils literal notranslate"><span class="pre">recv()</span></code></a> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block</strong> (<em>bool</em>) – Ignored</p></li>
+<li><p><strong>timeout</strong> (<em>float</em><em> | </em><em>None</em>) – Ignored</p></li>
+<li><p><strong>maxsize</strong> (<em>int</em><em> | </em><em>None</em>) – Ignored</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The received message.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket.recv_structured">
+<span class="sig-name descname"><span class="pre">recv_structured</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">StructuredMessage</span></span></span><a class="reference internal" href="_modules/simulaqron/sdk/socket.html#Socket.recv_structured"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.socket.Socket.recv_structured" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives a message from the remote node and parses it as a <code class="docutils literal notranslate"><span class="pre">StructuredMessage</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>block</strong> (<em>bool</em>) – Whether the underlying read operation should be blocking or not.</p></li>
+<li><p><strong>timeout</strong> (<em>float</em><em> | </em><em>None</em>) – Max time (in seconds) to wait for a message from the remote.</p></li>
+<li><p><strong>maxsize</strong> (<em>int</em><em> | </em><em>None</em>) – Maximum size of bytes to read from the remote.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The parsed message.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>StructuredMessage</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/socket.html#Socket.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.socket.Socket.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a message to the remote node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – The message to send.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket.send_silent">
+<span class="sig-name descname"><span class="pre">send_silent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/socket.html#Socket.send_silent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.socket.Socket.send_silent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a message to the remote node without logging it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – The message to send.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="simulaqron.sdk.socket.Socket.send_structured">
+<span class="sig-name descname"><span class="pre">send_structured</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructuredMessage</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/simulaqron/sdk/socket.html#Socket.send_structured"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#simulaqron.sdk.socket.Socket.send_structured" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a message to the remote node as a <code class="docutils literal notranslate"><span class="pre">StructuredMessage</span></code> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>StructuredMessage</em>) – The message to send.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-simulaqron.sdk">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-simulaqron.sdk" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">simulaqron.sdk package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-simulaqron.sdk.broadcast_channel">simulaqron.sdk.broadcast_channel module</a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.broadcast_channel.BroadcastChannel"><code class="docutils literal notranslate"><span class="pre">BroadcastChannel</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.sdk.connection">simulaqron.sdk.connection module</a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.GetQubitStateMessage"><code class="docutils literal notranslate"><span class="pre">GetQubitStateMessage</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.GetQubitStateMessage.TYPE"><code class="docutils literal notranslate"><span class="pre">GetQubitStateMessage.TYPE</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.GetQubitStateMessage.app_id"><code class="docutils literal notranslate"><span class="pre">GetQubitStateMessage.app_id</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.GetQubitStateMessage.qubit_id"><code class="docutils literal notranslate"><span class="pre">GetQubitStateMessage.qubit_id</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewMessageType"><code class="docutils literal notranslate"><span class="pre">NewMessageType</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewMessageType.GET_QUBIT_STATE"><code class="docutils literal notranslate"><span class="pre">NewMessageType.GET_QUBIT_STATE</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewMessageType.INIT_NEW_APP"><code class="docutils literal notranslate"><span class="pre">NewMessageType.INIT_NEW_APP</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewMessageType.OPEN_EPR_SOCKET"><code class="docutils literal notranslate"><span class="pre">NewMessageType.OPEN_EPR_SOCKET</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewMessageType.SIGNAL"><code class="docutils literal notranslate"><span class="pre">NewMessageType.SIGNAL</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewMessageType.STOP_APP"><code class="docutils literal notranslate"><span class="pre">NewMessageType.STOP_APP</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewMessageType.SUBROUTINE"><code class="docutils literal notranslate"><span class="pre">NewMessageType.SUBROUTINE</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewReturnMessageType"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewReturnMessageType.DONE"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.DONE</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewReturnMessageType.ERR"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.ERR</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewReturnMessageType.RET_ARR"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.RET_ARR</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewReturnMessageType.RET_QUBIT_STATE"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.RET_QUBIT_STATE</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.NewReturnMessageType.RET_REG"><code class="docutils literal notranslate"><span class="pre">NewReturnMessageType.RET_REG</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.ReturnQubitStateMessage"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.TYPE"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.TYPE</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.dim"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.dim</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.dimension"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.dimension</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.get_imag_part"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.get_imag_part()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.get_real_part"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.get_real_part()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.imag_part"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.imag_part</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.qubit_id"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.qubit_id</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.ReturnQubitStateMessage.real_part"><code class="docutils literal notranslate"><span class="pre">ReturnQubitStateMessage.real_part</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.RichErrorMessage"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.RichErrorMessage.TYPE"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.TYPE</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.RichErrorMessage.err_code"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.err_code</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.RichErrorMessage.err_msg"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.err_msg</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.RichErrorMessage.err_msg_len"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.err_msg_len</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.RichErrorMessage.get_err_msg"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.get_err_msg()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.RichErrorMessage.msg_id"><code class="docutils literal notranslate"><span class="pre">RichErrorMessage.msg_id</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronConnection"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronConnection.NON_STABILIZER_INSTR"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.NON_STABILIZER_INSTR</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronConnection.PROCESS_POOL"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.PROCESS_POOL</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronConnection.block"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.block()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronConnection.close"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.close()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronConnection.get_qubit_state"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.get_qubit_state()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronConnection.try_connection"><code class="docutils literal notranslate"><span class="pre">SimulaQronConnection.try_connection()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronNetworkInfo"><code class="docutils literal notranslate"><span class="pre">SimulaQronNetworkInfo</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_id_for_app"><code class="docutils literal notranslate"><span class="pre">SimulaQronNetworkInfo.get_node_id_for_app()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.connection.SimulaQronNetworkInfo.get_node_name_for_app"><code class="docutils literal notranslate"><span class="pre">SimulaQronNetworkInfo.get_node_name_for_app()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.sdk.socket">simulaqron.sdk.socket module</a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket"><code class="docutils literal notranslate"><span class="pre">Socket</span></code></a><ul>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket.MAX_RETRIES"><code class="docutils literal notranslate"><span class="pre">Socket.MAX_RETRIES</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket.RETRY_TIME"><code class="docutils literal notranslate"><span class="pre">Socket.RETRY_TIME</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket.close"><code class="docutils literal notranslate"><span class="pre">Socket.close()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket.recv"><code class="docutils literal notranslate"><span class="pre">Socket.recv()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket.recv_silent"><code class="docutils literal notranslate"><span class="pre">Socket.recv_silent()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket.recv_structured"><code class="docutils literal notranslate"><span class="pre">Socket.recv_structured()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket.send"><code class="docutils literal notranslate"><span class="pre">Socket.send()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket.send_silent"><code class="docutils literal notranslate"><span class="pre">Socket.send_silent()</span></code></a></li>
+<li><a class="reference internal" href="#simulaqron.sdk.socket.Socket.send_structured"><code class="docutils literal notranslate"><span class="pre">Socket.send_structured()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-simulaqron.sdk">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="simulaqron.run.html"
+                          title="previous chapter">simulaqron.run package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="simulaqron.settings.html"
+                          title="next chapter">simulaqron.settings package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/simulaqron.sdk.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.settings.html" title="simulaqron.settings package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simulaqron.run.html" title="simulaqron.run package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="simulaqron.html" >simulaqron package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">simulaqron.sdk package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

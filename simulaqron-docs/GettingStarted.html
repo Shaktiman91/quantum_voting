@@ -1,0 +1,412 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Getting started &#8212; SimulaQron 4.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The NetQASM interface" href="NetQASM.html" />
+    <link rel="prev" title="SimulaQron Documentation" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="NetQASM.html" title="The NetQASM interface"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="SimulaQron Documentation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Getting started</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h1>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading">¶</a></h2>
+<p>SimulaQron requires <a class="reference external" href="https://python.org/">Python 3.12</a> along with the packages <em>netqasm</em>, <em>twisted</em>, <em>numpy</em>, <em>scipy</em>,
+<em>networkx</em>, <em>click</em> and <em>daemons</em>. By following the installation instructions in the following sections, you will install
+SimulaQron with all the required packages.</p>
+<section id="installation-using-pip">
+<h3>Installation using pip<a class="headerlink" href="#installation-using-pip" title="Permalink to this heading">¶</a></h3>
+<p>The easiest way to install SimulaQron is using pip. SimulaQron has been tested working in Linux, and WSL (under windows).
+For installation on macOS, please use a Linux virtual machine to install SimulaQron.</p>
+<p>Before proceeding with the installation, you need to install Python 3.12. For Debian-based distributions (like Ubuntu)
+you can install the <em>deadsnakes</em> repository to gain access to some specific python versions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="o">-</span><span class="n">y</span> <span class="s2">&quot;ppa:deadsnakes/ppa&quot;</span>
+</pre></div>
+</div>
+<p>After adding the repository, you can install the <em>full</em> version of python, including the development package:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="mf">.12</span><span class="o">-</span><span class="n">full</span> <span class="n">python3</span><span class="mf">.12</span><span class="o">-</span><span class="n">dev</span>
+</pre></div>
+</div>
+<p>Additionally, you will need the <cite>build-essential</cite> package, to install tools used when building some SimulaQron dependencies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">cmake</span> <span class="n">vim</span> <span class="n">linux</span><span class="o">-</span><span class="n">headers</span><span class="o">-</span><span class="n">generic</span>
+</pre></div>
+</div>
+<p>To install SimulaQron, start by creating and activating a python virtual environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span><span class="mf">.12</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">simulaqron</span><span class="o">-</span><span class="n">venv</span>
+<span class="n">source</span> <span class="n">simulaqron</span><span class="o">-</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>Now, we can install SimulaQron by simply typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">simulaqron</span>
+</pre></div>
+</div>
+<p>It is also recommended that you also install optional dependencies to enable full support of qubit engines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">simulaqron</span>\<span class="p">[</span><span class="n">opt</span>\<span class="p">]</span>
+</pre></div>
+</div>
+<p>You can then make use of SimulaQron using the command <code class="docutils literal notranslate"><span class="pre">simulaqron</span></code> in the terminal. For more information on how
+to use this command see below or type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+<p>To make sure you have the version compatible with this documentation type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">version</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-a-simple-example">
+<h2>Testing a simple example<a class="headerlink" href="#testing-a-simple-example" title="Permalink to this heading">¶</a></h2>
+<p>Before delving into how to write any program yourself, let’s first simply run one of the existing examples.
+Remember from the <a class="reference internal" href="Overview.html"><span class="doc">Overview</span></a> that SimulaQron has two parts: the first are the virtual node servers
+that simulate the hardware at each node as well as the quantum communication between them in a transparent manner.
+The second are the applications themselves which can be written in two ways: the direct way is to use the native
+mode using the Python Twisted framework connecting to the virtual node servers (see <a class="reference internal" href="Examples.html#native-mode-examples"><span class="std std-ref">Native mode examples</span></a>),
+and the recommended way is to use the NetQASM library that calls the virtual nodes via the NetQASM interface.
+We will here illustrate how to use SimulaQron with the NetQASM library.</p>
+<section id="starting-the-simulaqron-backend">
+<h3>Starting the SimulaQron backend<a class="headerlink" href="#starting-the-simulaqron-backend" title="Permalink to this heading">¶</a></h3>
+<p>By default SimulaQron uses the five nodes Alice, Bob, Charlie, David and Eve on your local computers. In this example
+there will be three processes for each node listening to incoming messages on a certain port number. These make up
+the simulation backend, the NetQASM server and the classical communication server. To start the processes and thus
+the backend of SimulaQron simply type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">start</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Running <code class="docutils literal notranslate"><span class="pre">simulaqron</span> <span class="pre">start</span></code> will by default start up servers on localhost (i.e., your own computer),
+using port numbers between 8000 and 9000, to form the simulated quantum internet hardware. SimulaQron does not
+provide any access control to its simulated hardware, so you are responsible to securing access should this be
+relevant for you. You can also run the different simulated nodes on different computers. We do not take any
+responsibility for problems caused by SimulaQron.</p>
+</div>
+<p>For more information on what <code class="docutils literal notranslate"><span class="pre">simulaqron</span> <span class="pre">start</span></code> does, how to change the nodes and the ports of the network,
+the topology etc, see <a class="reference internal" href="ConfNodes.html"><span class="doc">Configuring the Network</span></a>.</p>
+<p>To stop the backend, simply type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">stop</span>
+</pre></div>
+</div>
+<p>If something went wrong (for example the process was killed before you stopped it) there might be leftover files which
+makes SimulaQron think that the network is still running. To reset this you can type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="n">reset</span>
+</pre></div>
+</div>
+<p>Note that this also kills any currently running network and resets any local settings or configurations.</p>
+</section>
+<section id="running-a-protocol">
+<h3>Running a protocol<a class="headerlink" href="#running-a-protocol" title="Permalink to this heading">¶</a></h3>
+<p>Having started the virtual quantum nodes as above, let us now run a simple test application, which already illustrates
+some of the aspects in realizing protocols. Before proceeding, please download the SimulaQron examples as shown in the
+<a class="reference internal" href="Examples.html#get-examples"><span class="std std-ref">How to get the examples</span></a> section.
+Our objective will be to realize the following protocol which will generate 1 shared random bit between Alice and Bob.
+Evidently, there would be classical means to achieve this trivial task chosen for illustration.</p>
+<ul class="simple">
+<li><p>Alice and Bob generates one EPR pair, that is, two maximally entangled qubits <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span> of the form
+<span class="math notranslate nohighlight">\(|\Psi\rangle_{AB} = \frac{1}{\sqrt{2}} \left(|0\rangle_A |0\rangle_B + |1\rangle_A |1\rangle_B\right)\)</span></p></li>
+<li><p>Both Alice and Bob measure their respective qubits to obtain a classical random number <span class="math notranslate nohighlight">\(x \in \{0,1\}\)</span>.</p></li>
+</ul>
+<p>We will follow the example located in <code class="docutils literal notranslate"><span class="pre">examples/new-sdk/corrRNG</span></code> (see <a class="reference internal" href="Examples.html#new-sdk-examples"><span class="std std-ref">New SDK Examples</span></a> for
+the full list). Before seeing how this works, let us simply run the code (assuming you’re already in the <code class="docutils literal notranslate"><span class="pre">SimulaQron</span></code>
+folder cloned from GitHub):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">examples</span><span class="o">/</span><span class="n">new</span><span class="o">-</span><span class="n">sdk</span><span class="o">/</span><span class="n">corrRNG</span>
+<span class="n">bash</span> <span class="n">run</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>You should be seeing the following two lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Alice</span><span class="p">:</span> <span class="n">My</span> <span class="n">Random</span> <span class="n">Number</span> <span class="ow">is</span> <span class="s1">&#39;0/1&#39;</span>
+<span class="n">Bob</span><span class="p">:</span> <span class="n">My</span> <span class="n">Random</span> <span class="n">Number</span> <span class="ow">is</span> <span class="s1">&#39;0/1&#39;</span>
+</pre></div>
+</div>
+<p>Note that the order of these two lines may differ, as it does not matter who measures first. So what is actually
+going on here? Let us first look at how we will realize the example by making an additional step (3) explicit:</p>
+<ul class="simple">
+<li><p>Alice and Bob generate one EPR pair, that is, two maximally entangled qubits <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span> of the form
+<span class="math notranslate nohighlight">\(|\Psi\rangle_{AB} = \frac{1}{\sqrt{2}} \left(|0\rangle_A |0\rangle_B + |1\rangle_A |1\rangle_B\right)\)</span></p></li>
+<li><p>Both Alice and Bob measure their respective qubits to obtain a classical random number <span class="math notranslate nohighlight">\(x \in \{0,1\}\)</span>.</p></li>
+</ul>
+<p>While the task we want to realize here is completely trivial, the addition of step 2 does however already highlight a
+range of choices on how to realize step 2 and the need to find good abstractions to allow easy application development.
+One way to realize step 2 would be to hardwire Alice’s and Bob’s measurements: if the hardware can identify the
+correct qubits from the entanglement generation, then we could instruct it to measure it immediately without asking
+for a notification from the entanglement generation process. It is clear that in a network that is a bit larger than
+our tiny two node setup, identifying the right setup requires a link between the underlying qubits and classical
+control information: this is the objective of the classical/quantum combiner.</p>
+<p>The script <code class="docutils literal notranslate"><span class="pre">run.sh</span></code> executes the following two python scripts:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="c1"># Some code to start SimulaQron backend</span>
+
+<span class="n">python3</span> <span class="n">aliceTest</span><span class="o">.</span><span class="n">py</span> <span class="o">&amp;</span>
+<span class="n">python3</span> <span class="n">bobTest</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Let us now look at the programs for Alice and Bob.</p>
+<p>We first create a <code class="docutils literal notranslate"><span class="pre">NetQASMConnection</span></code> which handles all communication with the local quantum backend.
+An <code class="docutils literal notranslate"><span class="pre">EPRSocket</span></code> is used to create or receive entangled qubit pairs with a remote node.
+The key pattern is: queue operations, call <code class="docutils literal notranslate"><span class="pre">flush()</span></code> to execute them, then read results with <code class="docutils literal notranslate"><span class="pre">int(m)</span></code>.</p>
+<p>The core of <code class="docutils literal notranslate"><span class="pre">aliceTest.py</span></code> is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">)</span>
+
+<span class="c1"># sim_conn is our connection to the quantum backend (SimulaQron), not to Bob.</span>
+<span class="n">sim_conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+
+<span class="c1"># Create an entangled qubit</span>
+<span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">create_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Measure it</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">epr</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+
+<span class="c1"># flush() executes all queued quantum operations and makes measurement</span>
+<span class="c1"># results available.  Before flush(), m1 is just a future/promise.</span>
+<span class="n">sim_conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+<span class="c1"># int(m) extracts the measurement outcome — only valid after flush().</span>
+<span class="n">m1_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span>
+<span class="n">sim_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Similarly the core of <code class="docutils literal notranslate"><span class="pre">bobTest.py</span></code> is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">epr_socket</span> <span class="o">=</span> <span class="n">EPRSocket</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>
+
+<span class="c1"># sim_conn is our connection to the quantum backend (SimulaQron), not to Alice.</span>
+<span class="n">sim_conn</span> <span class="o">=</span> <span class="n">NetQASMConnection</span><span class="p">(</span><span class="s2">&quot;Bob&quot;</span><span class="p">,</span> <span class="n">epr_sockets</span><span class="o">=</span><span class="p">[</span><span class="n">epr_socket</span><span class="p">])</span>
+
+<span class="c1"># Receive an entangled qubit</span>
+<span class="n">epr</span> <span class="o">=</span> <span class="n">epr_socket</span><span class="o">.</span><span class="n">recv_keep</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Measure it</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">epr</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+
+<span class="n">sim_conn</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+<span class="n">m1_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span>
+<span class="n">sim_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>For further examples, see <a class="reference internal" href="Examples.html"><span class="doc">Examples</span></a> and <a class="reference internal" href="NetQASM.html"><span class="doc">The NetQASM Interface</span></a> for the full SDK reference.</p>
+</section>
+</section>
+<section id="settings">
+<span id="id1"></span><h2>Settings<a class="headerlink" href="#settings" title="Permalink to this heading">¶</a></h2>
+<p>Settings are easily accessed through the command line interface (CLI). To see what settings can be set, type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="nb">set</span> <span class="o">-</span><span class="n">h</span>
+</pre></div>
+</div>
+<p>To set a setting, for example to use the projectQ backend, type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="nb">set</span> <span class="n">backend</span> <span class="n">projectq</span>
+</pre></div>
+</div>
+<p>This will create a file named <code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> in the current folder. This new file contains a full set of
+simulaqron configuration, including the setting that was just configured (using the <cite>projectq</cite> backend, in the example).</p>
+<p>It is also possible to manually create this <code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> file with any text editor:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;sim_backend&quot;</span><span class="p">:</span> <span class="s2">&quot;projectq&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;log_level&quot;</span><span class="p">:</span> <span class="mi">10</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>which would set the backend to use ProjectQ and the log-level to be debug (10).</p>
+<p>It is also possible to create a configuration file that contains all the default configurations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">simulaqron</span> <span class="nb">set</span> <span class="n">default</span>
+</pre></div>
+</div>
+<p>This command will create a file with the following configuration:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;max_qubits&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s2">&quot;max_registers&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s2">&quot;conn_retry_time&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;conn_max_retries&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s2">&quot;recv_timeout&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="s2">&quot;recv_retry_time&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;recv_max_retries&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s2">&quot;log_level&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s2">&quot;sim_backend&quot;</span><span class="p">:</span> <span class="s2">&quot;qutip&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;noisy_qubits&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;max_app_waiting_time&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="s2">&quot;t1&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The section <a class="reference internal" href="#id2">Settings Fields</a> below provides a description about each one of the configuration options in the file.</p>
+<p>Alternatively, you can place the <code class="docutils literal notranslate"><span class="pre">simulaqron_settings.json</span></code> file in the folder <code class="docutils literal notranslate"><span class="pre">~/.simulaqron</span></code> (i.e. a folder
+named <code class="docutils literal notranslate"><span class="pre">.simulaqron</span></code> in your home folder). Doing so will make your settings persist across different projects you
+implement using simulaqron.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Settings need to be set before starting the SimulaQron backend. If the backend is already running, stop
+it, set the settings and start it again.</p>
+</div>
+<p>It is also possible to create the default SimulaQron network configuration in the current folder. Check the
+<a class="reference internal" href="ConfNodes.html"><span class="doc">Configuring the Network</span></a> document to check how to achieve this.</p>
+<section id="settings-precedence">
+<h3>Settings precedence<a class="headerlink" href="#settings-precedence" title="Permalink to this heading">¶</a></h3>
+<p>Since the simulaqron configuration file can be placed in several places, SimulaQron will follow a priority for
+reading the settings:</p>
+<ul class="simple">
+<li><p>Settings file placed in the current working folder.</p></li>
+<li><p>Settings file placed in the <code class="docutils literal notranslate"><span class="pre">~/.simulaqron</span></code> folder.</p></li>
+<li><p>If none of the above is found, SimulaQron will create a settings file in the <code class="docutils literal notranslate"><span class="pre">~/.simulaqron</span></code> folder, then it
+will try to load it in that place.</p></li>
+</ul>
+</section>
+<section id="settings-fields">
+<span id="id2"></span><h3>Settings Fields<a class="headerlink" href="#settings-fields" title="Permalink to this heading">¶</a></h3>
+<p>The SimulaQron settings file contains a set of fields to control the configurations of the SimulaQron simulation:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">max_qubits</span></code>: Maximum number of qubits to simulate on the Virtual Node.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_registers</span></code>: Maximum number of registers to use in the Virtual Node.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conn_retry_time</span></code>: Number of seconds to wait between connection retries.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conn_max_retries</span></code>: Maximum number of times to retry a connection before failing the whole execution.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recv_timeout</span></code>: Maximum number of milliseconds to wait for the messages when trying to create EPR pairs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recv_retry_time</span></code>: Maximum number of milliseconds to wait between attempts to create EPR pairs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recv_max_retries</span></code>: Maximum number of tries to attempt when creating EPR pairs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_level</span></code>: The log level to use for SimulaQron. The integer value in this field must match the values exposed
+by the python <code class="docutils literal notranslate"><span class="pre">logging</span></code> package. For more information about the specific values for each logging level, please
+check the <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging-levels">official python documentation for the logging package</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sim_backend</span></code>: The backend qubit simulation that SimulaQron will use to emulate qubits. Currently, three backends
+are supported: “projectq”, “qutip” and “stabilizer”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noisy_qubits</span></code>: Whether to enable noisy qubits simulation or not. Setting this to <code class="docutils literal notranslate"><span class="pre">true</span></code> will randomly apply a
+Pauli gate after every operation, emulating noise on the qubit backend.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_app_waiting_time</span></code>: Maximum time (in seconds) to wait before considering the running application as stalled.
+A value of <code class="docutils literal notranslate"><span class="pre">-1.0</span></code> will disable the stalling waiting time, allowing SimulaQron to wait indefinitely.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t1</span></code>: T1 parameter to use when applying noise on the emulated qubits. This value is only used when the
+<code class="docutils literal notranslate"><span class="pre">noisy_qubits</span></code> option is set to <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p></li>
+</ul>
+<p>The default value of all these fields can be seen in the <a class="reference internal" href="#settings">Settings</a> section above.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An application can become “stalled” in certain configurations, leaving the application to look “hung”. This
+leads to a deadlock of the application. SimulaQron will wait for the configured time before considering the
+application as “stalled” and kill all the processes.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Please correctly configure the <code class="docutils literal notranslate"><span class="pre">max_app_waiting_time</span></code> to allow your application to wait for any
+potential “slow” peers. A low value on this field might lead SimulaQron to killing your application prematurely.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Getting started</a><ul>
+<li><a class="reference internal" href="#setup">Setup</a><ul>
+<li><a class="reference internal" href="#installation-using-pip">Installation using pip</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-a-simple-example">Testing a simple example</a><ul>
+<li><a class="reference internal" href="#starting-the-simulaqron-backend">Starting the SimulaQron backend</a></li>
+<li><a class="reference internal" href="#running-a-protocol">Running a protocol</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#settings">Settings</a><ul>
+<li><a class="reference internal" href="#settings-precedence">Settings precedence</a></li>
+<li><a class="reference internal" href="#settings-fields">Settings Fields</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">SimulaQron Documentation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="NetQASM.html"
+                          title="next chapter">The NetQASM interface</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/GettingStarted.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="NetQASM.html" title="The NetQASM interface"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="SimulaQron Documentation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SimulaQron 4.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Getting started</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2026, Stephanie Wehner, Axel Dahlberg and Diego Rivera.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>
