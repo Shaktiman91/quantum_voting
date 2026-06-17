@@ -1,63 +1,61 @@
 """
 models.py -- Data classes for the Quantum Voting Prototype.
 
-DISCLAIMER: This is a prototype demonstration of a quantum-inspired workflow.
-It does NOT guarantee real-world secrecy, prevent coercion or endpoint
-compromise, or replace audited cryptographic protocols. The quantum part is
-educational and architectural, not a proof of election security.
+PROTOTYPE NOTICE
+This is a research demo of a quantum-inspired voting workflow.
+It does not provide real-world ballot secrecy, coercion resistance,
+or cryptographic authentication.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional
-
-
-@dataclass
-class Candidate:
-    candidate_id: str
-    label: str
-    encoding: str  # bitstring e.g. '00', '01', '10'
-
-
-@dataclass
-class Voter:
-    voter_id: str
-    name: str
-    registered: bool = False
-    token_issued: bool = False
-    token_id: Optional[str] = None
+from typing import Optional, Any
+import asyncio
 
 
 @dataclass
 class Ballot:
     token_id: str
-    encoded_vote: str          # bitstring produced by quantum_core
-    decoded_vote: Optional[str] = None   # candidate label after decoding
-    status: str = "submitted"  # submitted | accepted | rejected | duplicate | tampered
-    measurement_result: Optional[str] = None
+    encoded_correction_bits: tuple
+    decoded_candidate: Optional[str] = None
+    status: str = "submitted"  # submitted | accepted | rejected | duplicate | invalid
     error_message: Optional[str] = None
 
 
 @dataclass
-class AuditReport:
-    registered_voter_count: int = 0
-    issued_token_count: int = 0
-    submitted_ballot_count: int = 0
-    accepted_ballot_count: int = 0
-    rejected_ballot_count: int = 0
-    duplicate_token_count: int = 0
-    invalid_ballot_count: int = 0
-    candidate_tallies: dict = field(default_factory=dict)
-    consistency_checks: dict = field(default_factory=dict)
+class Election:
+    title: str
+    candidates: list
+    registered_voters: list
+    issued_tokens: dict = field(default_factory=dict)     # voter_id -> token
+    submitted_ballots: list = field(default_factory=list)
+    results: Optional[dict] = None
 
 
 @dataclass
-class Election:
-    election_id: str
-    title: str
-    status: str = "created"   # created | open | closed | tallied
-    candidates: dict = field(default_factory=dict)       # candidate_id -> Candidate
-    registered_voters: dict = field(default_factory=dict)  # voter_id -> Voter
-    issued_tokens: dict = field(default_factory=dict)    # token_id -> voter_id
-    submitted_ballots: list = field(default_factory=list)  # list[Ballot]
-    results: dict = field(default_factory=dict)          # candidate_label -> count
-    audit_report: Optional[AuditReport] = None
+class AuditReport:
+    registered_voter_count: int
+    issued_token_count: int
+    submitted_ballot_count: int
+    accepted_ballot_count: int
+    rejected_ballot_count: int
+    duplicate_token_count: int
+    invalid_ballot_count: int
+    candidate_tallies: dict
+    winner: str
+    consistency_passed: bool
+    errors: list = field(default_factory=list)
+
+
+@dataclass
+class CommissionContext:
+    expected_voters: list
+    writers: dict = field(default_factory=dict)           # voter_id -> StreamWriter
+    tokens: dict = field(default_factory=dict)            # voter_id -> token
+    ballots: dict = field(default_factory=dict)           # voter_id -> ballot dict
+    current_round: Optional[int] = None
+    all_connected: asyncio.Event = field(default_factory=asyncio.Event)
+    all_ballots_in: asyncio.Event = field(default_factory=asyncio.Event)
+    done: asyncio.Event = field(default_factory=asyncio.Event)
+    result_ready: asyncio.Event = field(default_factory=asyncio.Event)
+    result_data: dict = field(default_factory=dict)
+    protocol_task: Any = None

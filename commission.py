@@ -1,74 +1,228 @@
 """
-commission.py -- Election Commission logic.
+commission.py -- Election Commission server (Referee role).
 
-DISCLAIMER: This is a prototype demonstration of a quantum-inspired workflow.
-It does NOT guarantee real-world secrecy or replace audited cryptographic
-protocols.
+PROTOTYPE NOTICE
+This is a research demo of a quantum-inspired voting workflow.
+It does not provide real-world ballot secrecy, coercion resistance,
+or cryptographic authentication. It is an architectural demonstration
+using SimulaQron for quantum channel simulation.
+
+Directly mirrors the referee.py pattern from Quantum_week8/step4_quantum_fingerprinting.
 """
 
+import asyncio
 import uuid
-from models import Election, Voter, Candidate
+from asyncio import StreamReader, StreamWriter
+from pathlib import Path
+
+from netqasm.runtime.settings import set_simulator
+set_simulator("simulaqron")
+
+from netqasm.sdk.external import NetQASMConnection  # noqa: E402
+from netqasm.sdk import EPRSocket                   # noqa: E402
+
+from simulaqron.general.host_config import SocketsConfig
+from simulaqron.sdk.protocol import SimulaQronClassicalServer
+from simulaqron.settings import network_config, simulaqron_settings
+from simulaqron.settings.network_config import NodeConfigType
+
+from models import CommissionContext
+from quantum_core import apply_ballot_corrections, decode_ballot
+from tally import run_tally, find_winner, generate_audit_report, print_audit
+from utils import VOTER_NAMES, MAX_QUBITS, BALLOT_QUBITS
 
 
-def create_election(title: str, election_id: str = None) -> Election:
-    """Create a new election and return it in 'created' status."""
-    eid = election_id or str(uuid.uuid4())[:8]
-    election = Election(election_id=eid, title=title)
-    print(f"[Commission] Election created: '{title}' (id={eid})")
-    return election
+def _parse_corrections(raw: str) -> list:
+    """Parse 'm1,m2,m1,m2,...' correction string into list of (int,int) pairs."""
+    bits = [int(x) for x in raw.split(",") if x != ""]
+    if len(bits) != BALLOT_QUBITS * 2:
+        raise ValueError(f"Expected {BALLOT_QUBITS * 2} correction bits, got {len(bits)}")
+    return [(bits[i], bits[i + 1]) for i in range(0, len(bits), 2)]
 
 
-def add_candidate(election: Election, candidate_id: str, label: str, encoding: str) -> None:
-    """Register a candidate with a fixed bitstring encoding."""
-    if election.status != "created":
-        raise ValueError("Candidates can only be added before the election opens.")
-    if candidate_id in election.candidates:
-        raise ValueError(f"Candidate '{candidate_id}' already registered.")
-    election.candidates[candidate_id] = Candidate(
-        candidate_id=candidate_id, label=label, encoding=encoding
-    )
-    print(f"[Commission] Candidate registered: {label} (encoding={encoding})")
+def make_handler(ctx: CommissionContext):
+    """Return the per-connection async handler, closing over shared CommissionContext."""
+
+    async def run_commission(reader: StreamReader, writer: StreamWriter) -> None:
+        voter_id = None
+        try:
+            # ---- HELLO ----
+            line = await reader.readline()
+            if not line:
+                return
+            msg = line.decode().strip()
+            if not msg.startswith("HELLO:"):
+                writer.write(b"REJECTED:unknown:bad hello\n")
+                await writer.drain()
+                return
+
+            voter_id = msg.split(":", 1)[1]
+            if voter_id not in ctx.expected_voters:
+                writer.write(f"REJECTED:{voter_id}:unknown voter\n".encode())
+                await writer.drain()
+                return
+            if voter_id in ctx.writers:
+                writer.write(f"REJECTED:{voter_id}:duplicate hello\n".encode())
+                await writer.drain()
+                return
+
+            # ---- REGISTERED ----
+            token = str(uuid.uuid4())
+            ctx.tokens[voter_id] = token
+            ctx.writers[voter_id] = writer
+            writer.write(f"REGISTERED:{voter_id}:{token}\n".encode())
+            await writer.drain()
+            print(f"Commission: {voter_id} registered (token={token[:8]}...)", flush=True)
+
+            if len(ctx.writers) == len(ctx.expected_voters):
+                ctx.all_connected.set()
+                if ctx.protocol_task is None:
+                    ctx.protocol_task = asyncio.create_task(_run_protocol(ctx))
+
+            # ---- Message loop: BALLOT ----
+            while True:
+                line = await reader.readline()
+                if not line:
+                    break
+                msg = line.decode().strip()
+
+                if msg.startswith("BALLOT:"):
+                    parts = msg.split(":", 3)
+                    if len(parts) != 4:
+                        writer.write(f"REJECTED:{voter_id}:malformed ballot\n".encode())
+                        await writer.drain()
+                        continue
+                    _, incoming_voter, round_str, correction_str = parts
+                    if incoming_voter != voter_id:
+                        writer.write(f"REJECTED:{voter_id}:identity mismatch\n".encode())
+                        await writer.drain()
+                        continue
+                    if voter_id in ctx.ballots:
+                        # Duplicate: mark existing record and reject
+                        ctx.ballots[voter_id]["status"] = "duplicate"
+                        writer.write(f"REJECTED:{voter_id}:duplicate ballot\n".encode())
+                        await writer.drain()
+                        print(f"Commission: duplicate ballot rejected from {voter_id}", flush=True)
+                        continue
+                    try:
+                        corrections = _parse_corrections(correction_str)
+                        ctx.ballots[voter_id] = {
+                            "token": ctx.tokens[voter_id],
+                            "corrections": corrections,
+                            "status": "pending",
+                        }
+                        print(f"Commission: ballot received from {voter_id}", flush=True)
+                    except Exception as exc:
+                        ctx.ballots[voter_id] = {
+                            "token": ctx.tokens.get(voter_id, ""),
+                            "status": "invalid",
+                            "decoded": "INVALID",
+                            "error": str(exc),
+                        }
+                        writer.write(f"REJECTED:{voter_id}:invalid encoding\n".encode())
+                        await writer.drain()
+
+                    if len(ctx.ballots) == len(ctx.expected_voters):
+                        ctx.all_ballots_in.set()
+                else:
+                    writer.write(f"REJECTED:{voter_id}:unexpected message\n".encode())
+                    await writer.drain()
+
+                if ctx.result_ready.is_set():
+                    break
+
+            # ---- RESULT ----
+            await ctx.result_ready.wait()
+            winner = ctx.result_data.get("winner", "none")
+            total = ctx.result_data.get("total_votes", 0)
+            writer.write(f"RESULT:{winner}:{total}\n".encode())
+            await writer.drain()
+            print(f"Commission: sent RESULT to {voter_id}", flush=True)
+
+        finally:
+            try:
+                writer.close()
+                await writer.wait_closed()
+            except Exception:
+                pass
+
+    return run_commission
 
 
-def register_voter(election: Election, voter_id: str, name: str) -> None:
-    """Register a voter. Must be done before the election opens."""
-    if election.status not in ("created", "open"):
-        raise ValueError("Voter registration is closed.")
-    if voter_id in election.registered_voters:
-        raise ValueError(f"Voter '{voter_id}' already registered.")
-    voter = Voter(voter_id=voter_id, name=name, registered=True)
-    election.registered_voters[voter_id] = voter
-    print(f"[Commission] Voter registered: {name} (id={voter_id})")
+async def _run_protocol(ctx: CommissionContext) -> None:
+    """Background task: broadcast START_ROUND, create EPR pairs, decode ballots, tally."""
+    await ctx.all_connected.wait()
+    ctx.current_round = 1
+    print("Commission: all voters connected — broadcasting START_ROUND:1", flush=True)
+
+    for writer in ctx.writers.values():
+        writer.write(b"START_ROUND:1\n")
+        await writer.drain()
+
+    # Give voters time to open their EPR sockets before commission creates pairs
+    await asyncio.sleep(1.0)
+
+    epr_sockets = {}
+    conns = {}
+    remote_qubits = {}
+    for voter_id in ctx.expected_voters:
+        try:
+            epr_socket = EPRSocket(voter_id)
+            conn = NetQASMConnection(
+                "Commission", epr_sockets=[epr_socket], max_qubits=MAX_QUBITS
+            )
+            epr_sockets[voter_id] = epr_socket
+            conns[voter_id] = conn
+            remote_qubits[voter_id] = epr_socket.create_keep(number=BALLOT_QUBITS)
+            print(f"Commission: EPR pairs created for {voter_id}", flush=True)
+        except Exception as exc:
+            print(f"Commission: EPR error for {voter_id}: {exc}", flush=True)
+
+    await ctx.all_ballots_in.wait()
+    print("Commission: all ballots received — decoding...", flush=True)
+
+    for voter_id in ctx.expected_voters:
+        ballot = ctx.ballots.get(voter_id)
+        if ballot is None or ballot.get("status") in ("invalid", "duplicate"):
+            continue
+        try:
+            apply_ballot_corrections(remote_qubits[voter_id], ballot["corrections"])
+            decoded = decode_ballot(conns[voter_id], remote_qubits[voter_id])
+            ballot["decoded"] = decoded
+            ballot["status"] = "accepted" if decoded != "INVALID" else "invalid"
+            print(f"Commission: {voter_id} decoded -> {decoded}", flush=True)
+        except Exception as exc:
+            ballot["decoded"] = "INVALID"
+            ballot["status"] = "invalid"
+            ballot["error"] = str(exc)
+            print(f"Commission: decode error for {voter_id}: {exc}", flush=True)
+
+    accepted = [b for b in ctx.ballots.values() if b.get("status") == "accepted"]
+    tally = run_tally(accepted)
+    winner = find_winner(tally)
+    report = generate_audit_report(ctx)
+    print_audit(report)
+
+    ctx.result_data = {"winner": winner, "total_votes": sum(tally.values()), "tally": tally}
+    ctx.result_ready.set()
+
+    for conn in conns.values():
+        try:
+            conn.close()
+        except Exception:
+            pass
+    ctx.done.set()
+    print("Commission: protocol complete.", flush=True)
 
 
-def issue_token(election: Election, voter_id: str) -> str:
-    """Issue a one-time anonymous ballot token to a registered voter."""
-    if voter_id not in election.registered_voters:
-        raise ValueError(f"Voter '{voter_id}' is not registered.")
-    voter = election.registered_voters[voter_id]
-    if voter.token_issued:
-        raise ValueError(f"Voter '{voter_id}' has already received a token.")
-    token_id = str(uuid.uuid4())
-    voter.token_issued = True
-    voter.token_id = token_id
-    election.issued_tokens[token_id] = voter_id  # identity layer
-    print(f"[Commission] Token issued to voter '{voter_id}'.")
-    return token_id
+if __name__ == "__main__":
+    here = Path(__file__).parent
+    simulaqron_settings.read_from_file(here / "simulaqron_settings.json")
+    network_config.read_from_file(here / "simulaqron_network.json")
+    sockets_config = SocketsConfig(network_config, "default", NodeConfigType.APP)
 
-
-def open_election(election: Election) -> None:
-    """Open the election to accept ballots."""
-    if election.status != "created":
-        raise ValueError("Election must be in 'created' status to open.")
-    if not election.candidates:
-        raise ValueError("No candidates registered.")
-    election.status = "open"
-    print(f"[Commission] Election '{election.title}' is now OPEN.")
-
-
-def close_election(election: Election) -> None:
-    """Close the election; no more ballot submissions allowed."""
-    if election.status != "open":
-        raise ValueError("Only an open election can be closed.")
-    election.status = "closed"
-    print(f"[Commission] Election '{election.title}' is now CLOSED.")
+    ctx = CommissionContext(expected_voters=list(VOTER_NAMES))
+    server = SimulaQronClassicalServer(sockets_config, "Commission")
+    server.register_client_handler(make_handler(ctx))
+    print("Commission: starting server...", flush=True)
+    server.start_serving()

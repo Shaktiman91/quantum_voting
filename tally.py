@@ -1,53 +1,88 @@
 """
-tally.py -- Ballot validation, duplicate detection, and vote counting.
-
-DISCLAIMER: This is a prototype demonstration of a quantum-inspired workflow.
-It does NOT guarantee real-world secrecy or replace audited cryptographic
-protocols.
+tally.py -- Tally and audit engine (runs classically after all ballots decoded).
 """
 
-from models import Election, Ballot
-from quantum_core import decode_ballot
+from models import AuditReport, CommissionContext
 
 
-def run_tally(election: Election) -> dict:
-    """
-    Validate and decode all submitted ballots, then count accepted votes.
-    Returns a dict {candidate_label: count}.
-    """
-    if election.status != "closed":
-        raise ValueError("Election must be closed before tallying.")
-
-    seen_tokens: set = set()
-    tally: dict = {c.label: 0 for c in election.candidates.values()}
-
-    for ballot in election.submitted_ballots:
-        # Skip ballots already marked rejected during submission
-        if ballot.status == "rejected":
-            continue
-
-        # Duplicate token detection
-        if ballot.token_id in seen_tokens:
-            ballot.status = "duplicate"
-            ballot.error_message = "Duplicate token submission."
-            print(f"[Tally] Duplicate ballot detected: token={ballot.token_id[:8]}...")
-            continue
-        seen_tokens.add(ballot.token_id)
-
-        # Decode via quantum layer
-        decoded = decode_ballot(ballot.encoded_vote, election.candidates)
-        ballot.decoded_vote = decoded
-
-        if decoded == "INVALID":
-            ballot.status = "rejected"
-            ballot.error_message = "Ballot decoded to INVALID state."
-            print(f"[Tally] Invalid ballot (bad encoding): token={ballot.token_id[:8]}...")
-        else:
-            ballot.status = "accepted"
+def run_tally(accepted_ballots: list) -> dict:
+    """Count decoded votes per candidate. Returns {candidate: count}."""
+    tally = {"A": 0, "B": 0, "C": 0}
+    for ballot in accepted_ballots:
+        decoded = ballot.get("decoded")
+        if decoded in tally:
             tally[decoded] += 1
-            print(f"[Tally] Ballot accepted. Decoded candidate: {decoded}")
-
-    election.results = tally
-    election.status = "tallied"
-    print(f"[Tally] Final tally: {tally}")
     return tally
+
+
+def find_winner(tally: dict) -> str:
+    """Return candidate with highest count, or 'TIE' on equal top scores."""
+    if not tally:
+        return "TIE"
+    max_votes = max(tally.values())
+    winners = [c for c, v in tally.items() if v == max_votes]
+    return winners[0] if len(winners) == 1 else "TIE"
+
+
+def generate_audit_report(ctx: CommissionContext) -> AuditReport:
+    """Validate all invariants and produce a structured audit report."""
+    submitted = len(ctx.ballots)
+    accepted_list = [b for b in ctx.ballots.values() if b.get("status") == "accepted"]
+    accepted = len(accepted_list)
+    rejected = sum(1 for b in ctx.ballots.values() if b.get("status") != "accepted")
+    duplicates = sum(1 for b in ctx.ballots.values() if b.get("status") == "duplicate")
+    invalid = sum(1 for b in ctx.ballots.values() if b.get("status") == "invalid")
+
+    tally = run_tally(accepted_list)
+    winner = find_winner(tally)
+
+    errors = []
+    if len(ctx.tokens) != len(ctx.expected_voters):
+        errors.append("issued_tokens != registered_voters")
+    if submitted > len(ctx.tokens):
+        errors.append("submitted_ballots > issued_tokens")
+    if accepted > submitted:
+        errors.append("accepted_ballots > submitted_ballots")
+    if sum(tally.values()) != accepted:
+        errors.append("sum(tally.values()) != accepted_ballot_count")
+    if duplicates + invalid != rejected:
+        errors.append("duplicate + invalid != rejected_ballot_count")
+
+    return AuditReport(
+        registered_voter_count=len(ctx.expected_voters),
+        issued_token_count=len(ctx.tokens),
+        submitted_ballot_count=submitted,
+        accepted_ballot_count=accepted,
+        rejected_ballot_count=rejected,
+        duplicate_token_count=duplicates,
+        invalid_ballot_count=invalid,
+        candidate_tallies=tally,
+        winner=winner,
+        consistency_passed=(len(errors) == 0),
+        errors=errors,
+    )
+
+
+def print_audit(report: AuditReport) -> None:
+    """Print a human-readable audit summary."""
+    print("\n" + "=" * 55)
+    print("           QUANTUM VOTING AUDIT REPORT")
+    print("=" * 55)
+    print(f"  Registered voters    : {report.registered_voter_count}")
+    print(f"  Issued tokens        : {report.issued_token_count}")
+    print(f"  Submitted ballots    : {report.submitted_ballot_count}")
+    print(f"  Accepted ballots     : {report.accepted_ballot_count}")
+    print(f"  Rejected ballots     : {report.rejected_ballot_count}")
+    print(f"  Duplicate attempts   : {report.duplicate_token_count}")
+    print(f"  Invalid ballots      : {report.invalid_ballot_count}")
+    print(f"  Winner               : {report.winner}")
+    print()
+    print("  --- Final Tally ---")
+    for candidate, count in report.candidate_tallies.items():
+        print(f"    {candidate}: {count} vote(s)")
+    print()
+    status = "PASS" if report.consistency_passed else "FAIL"
+    print(f"  [{status}] consistency checks")
+    for error in report.errors:
+        print(f"  [ERROR] {error}")
+    print("=" * 55)

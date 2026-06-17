@@ -1,4 +1,4 @@
-qiskit>=1.0
-qiskit-aer>=0.14
-pytest>=7.0
-numpy
+simulaqron
+netqasm
+pytest
+pytest-asyncio
