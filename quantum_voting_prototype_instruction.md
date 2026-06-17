@@ -1,547 +1,644 @@
-# Quantum Voting Prototype Implementation Instructions
+# Quantum Voting Prototype — Implementation Instructions
 
 ## Purpose
 
-This document specifies how an implementation agent should build a Python prototype for a **quantum-inspired voting system demo** based on the sketched concept: a central election commission coordinates voting, voters submit privacy-preserving encoded ballots, and the system produces only aggregate results. The goal is not to create a production-ready election platform or claim real cryptographic election security. The goal is to create a technically clean, testable, explainable demonstration of a quantum-inspired voting workflow.
+This document specifies how an implementation agent should build a Python prototype for a **quantum-inspired voting system demo**. The design is directly inspired by the multi-party communication architecture in [Shaktiman91/Quantum_week8](https://github.com/Shaktiman91/Quantum_week8), where `alice.py`, `bob.py`, and `referee.py` each run as independent network processes and exchange structured messages over classical TCP sockets, while sharing quantum state through EPR pairs via SimulaQron/NetQASM.
 
-The prototype should favor clarity, determinism, modularity, and reproducibility over theoretical novelty. Where the original concept is ambiguous, the implementation should choose the simplest architecture that preserves the intended ideas of privacy, aggregation, encoding, and tally verification.
+The voting prototype follows the same architectural pattern. Each participant — voter or election commission — runs as a separate Python process. Processes communicate using an asynchronous message protocol. The quantum layer handles ballot encoding through EPR-based operations and is simulated using SimulaQron and NetQASM.
 
-## Project Goal
+***
 
-Build a runnable Python demo that:
-- Registers voters and candidates.
-- Issues one voting credential per voter.
-- Lets each voter cast one anonymous encoded ballot.
-- Separates voter identity from ballot content.
-- Uses a quantum simulation layer for ballot encoding and decoding.
-- Produces deterministic final tallies.
-- Detects duplicate, invalid, or tampered ballots.
-- Generates an audit log and testable outputs.
+## Overview of the Communication Architecture
 
-## Scope Boundaries
+Directly following the pattern in `step4_quantum_fingerprinting`, this prototype replaces the Alice/Bob/Referee fingerprinting scenario with a voting scenario:
+
+| Quantum_week8 role | Voting prototype role | Process file |
+|---|---|---|
+| Alice | Voter (one per registered voter) | `voter_N.py` |
+| Bob | Second voter or abstain (optional) | `voter_N.py` (same template) |
+| Referee | Election Commission | `commission.py` |
+
+Each voter process connects to the commission server over a classical TCP socket. The commission acts as the server, coordinates rounds, distributes EPR pairs, collects encoded ballots, and tallies results.
+
+There is one additional process:
+
+| Role | Process file | Responsibility |
+|---|---|---|
+| Tally and Audit | `tally.py` | Called by commission after all ballots are in; verifies and counts. |
+
+***
+
+## Scope
 
 ### In scope
-- Local Python execution.
-- Quantum circuit simulation using Qiskit or Cirq.
-- Command-line demo.
-- Toy election sizes such as 3 to 20 voters.
-- Classical audit and verification logic.
-- Anonymous ballot storage.
-- Unit-testable components.
+- Local multi-process Python execution.
+- Async TCP sockets using `asyncio` StreamReader and StreamWriter.
+- SimulaQron quantum network simulation.
+- NetQASM SDK for EPR socket creation and qubit operations.
+- Deterministic ballot encoding and decoding.
+- Anonymous ballot protocol with separated identity and ballot storage.
+- Duplicate and invalid vote detection.
+- Audit report generation.
 
 ### Out of scope
-- Real-world cryptographic guarantees.
-- Networked voting.
-- Multi-device secure transport.
+- Production security guarantees.
+- Networked deployment over real infrastructure.
+- Cryptographic authentication systems.
 - Formal anonymity proofs.
-- Real election deployment.
-- Blockchain integration.
-- Authentication beyond simple prototype credentials.
-
-## Core Design Decision
-
-Do **not** implement the prototype by assigning arbitrary numeric values like candidate A = -15, B = 0, C = 100 and deciding a winner directly from probability distribution weights. That makes tally semantics harder to verify and explain.
-
-Instead, implement a **deterministic ballot model**:
-- Each candidate maps to a compact bitstring or basis-state label.
-- Each voter creates one encoded ballot.
-- The ballot is processed through a quantum simulation layer.
-- The decoded outcome maps back to exactly one candidate.
-- Final election results are classical counts over decoded ballots.
-
-This preserves the original idea of quantum encoding while keeping the tally process clear and testable.
-
-## Recommended Protocol Model
-
-Use a **quantum-inspired encoded ballot protocol** instead of a fully shared GHZ-state protocol for version 1.
-
-### Why this model
-- Easier to implement in Python.
-- Easier to debug.
-- Easier to explain to reviewers.
-- Keeps privacy and tally separation explicit.
-- Scales better than a single shared entangled state in a toy demo.
-
-### Optional extension
-After the first version works, a second experimental module may simulate GHZ-based parity voting for research comparison. That GHZ module should be optional and isolated from the main deterministic prototype.
-
-## Functional Requirements
-
-The prototype must support the following flow:
-
-1. Election setup.
-2. Voter registration.
-3. Candidate registration.
-4. Ballot token issuance.
-5. Vote selection.
-6. Ballot encoding.
-7. Anonymous ballot submission.
-8. Ballot validation.
-9. Quantum decode or measurement simulation.
-10. Deterministic tally.
-11. Audit report generation.
-12. Duplicate and invalid vote detection.
-
-## System Roles
-
-### 1. Election Commission
-Responsibilities:
-- Define election metadata.
-- Register candidates.
-- Register voters.
-- Issue one-time ballot tokens.
-- Close the election.
-- Trigger tally and audit.
-
-Constraints:
-- Must not store final ballot content together with voter identity.
-- May store a token issuance ledger.
-- Must not allow the same token to be used twice.
-
-### 2. Voter
-Responsibilities:
-- Receive a one-time token.
-- Select exactly one candidate.
-- Encode and submit a ballot.
-
-Constraints:
-- May cast only one ballot.
-- Must not see other ballots.
-- Must not modify the tally.
-
-### 3. Tally Engine
-Responsibilities:
-- Accept anonymous ballots.
-- Validate structure.
-- Decode ballot state.
-- Count results.
-- Report invalid ballots.
-
-Constraints:
-- Must not know voter identity.
-- Must operate only on tokenized ballots.
-
-### 4. Audit Module
-Responsibilities:
-- Verify token uniqueness.
-- Verify one ballot per used token.
-- Verify that each accepted ballot maps to exactly one candidate.
-- Verify counts are internally consistent.
-- Produce a readable audit summary.
-
-## Conceptual Architecture
-
-Use this layered design:
-
-- **Identity layer**: voter registration and token issuance.
-- **Ballot layer**: anonymous ballots keyed only by token.
-- **Quantum layer**: ballot encoding and simulated decoding.
-- **Tally layer**: final candidate counts.
-- **Audit layer**: integrity checks and reporting.
-
-The identity layer and ballot layer must be separated in code and data structures.
-
-## Candidate Encoding
-
-For version 1, use fixed candidate encodings.
-
-### Three-candidate example
-- A -> `00`
-- B -> `01`
-- C -> `10`
-- `11` reserved as invalid or unused
-
-### Notes
-- This supports deterministic decoding.
-- It keeps the mapping human-readable.
-- It simplifies testing.
-- It allows explicit invalid-state handling.
-
-If the implementation supports more candidates later, use the smallest number of qubits that can represent all candidates.
-
-## Quantum Encoding Strategy
-
-Use a simple and explainable quantum encoding layer.
-
-### Recommended approach
-For each ballot:
-- Prepare a small quantum circuit with enough qubits to represent candidate states.
-- Initialize qubits in a known state such as `|00>`.
-- Apply gate operations based on the selected candidate.
-- Simulate measurement.
-- Decode the most probable or deterministic measurement output back into a candidate label.
-
-### Example mapping
-For a 2-qubit ballot:
-- Candidate A: no gate or identity.
-- Candidate B: apply `X` to qubit 0.
-- Candidate C: apply `X` to qubit 1.
-- Invalid state: any unrecognized or malformed output.
-
-### Important rule
-Avoid a design where the winner emerges from a noisy probability distribution unless the code also includes a deterministic decision rule. Elections in the prototype must yield reproducible final counts.
-
-## Privacy Model
-
-This prototype should simulate privacy through architecture, not claim true quantum anonymity.
-
-### Privacy rules
-- Voter identity is stored only in the registration ledger.
-- Token issuance is stored separately.
-- Submitted ballots contain token plus encoded content, but no voter name.
-- Tally engine receives only tokenized anonymous ballots.
-- Final published results include only aggregate counts and audit metadata.
-
-### Required disclaimer in code or README
-State clearly that this is a **prototype demonstration of a quantum-inspired workflow**, not a secure production voting system.
-
-## Data Model
-
-Implement the following core entities.
-
-### Election
-Suggested fields:
-- `election_id`
-- `title`
-- `status` (`created`, `open`, `closed`, `tallied`)
-- `candidates`
-- `registered_voters`
-- `issued_tokens`
-- `submitted_ballots`
-- `results`
-- `audit_report`
-
-### Voter
-Suggested fields:
-- `voter_id`
-- `name` or alias
-- `registered` boolean
-- `token_issued` boolean
-- `token_id` optional
-
-### Candidate
-Suggested fields:
-- `candidate_id`
-- `label`
-- `encoding`
-
-### Ballot
-Suggested fields:
-- `token_id`
-- `encoded_vote`
-- `decoded_vote`
-- `status` (`submitted`, `accepted`, `rejected`, `tampered`, `duplicate`)
-- `measurement_result`
-- `error_message`
-
-### AuditReport
-Suggested fields:
-- `registered_voter_count`
-- `issued_token_count`
-- `submitted_ballot_count`
-- `accepted_ballot_count`
-- `rejected_ballot_count`
-- `duplicate_token_count`
-- `invalid_ballot_count`
-- `candidate_tallies`
-- `consistency_checks`
-
-## Required Modules
-
-Implement the codebase with clear module separation.
-
-### `main.py`
-Responsibilities:
-- Run a full demo election.
-- Print or save outputs.
-- Call setup, vote casting, tally, and audit functions.
-
-### `models.py`
-Responsibilities:
-- Define data classes for Election, Voter, Candidate, Ballot, and AuditReport.
-
-### `commission.py`
-Responsibilities:
-- Register voters.
-- Register candidates.
-- Issue tokens.
-- Open and close election.
-
-### `ballot.py`
-Responsibilities:
-- Build ballot objects.
-- Validate vote choices.
-- Convert candidate choices into encodings.
-
-### `quantum_core.py`
-Responsibilities:
-- Create quantum circuits.
-- Encode candidate choices.
-- Run simulator backend.
-- Decode measurement outputs.
-
-### `tally.py`
-Responsibilities:
-- Accept ballots.
-- Check token reuse.
-- Mark duplicates.
-- Count accepted votes.
-- Produce final result dictionary.
-
-### `audit.py`
-Responsibilities:
-- Validate invariants.
-- Generate summary report.
-- Expose machine-readable and human-readable outputs.
-
-### `tests/`
-Responsibilities:
-- Verify normal and failure cases.
-- Test deterministic behavior.
-- Test duplicate detection.
-- Test invalid candidate handling.
-- Test consistency between accepted ballots and final counts.
-
-## Implementation Sequence
-
-The implementation agent should follow this order.
-
-### Phase 1: Classical skeleton
-Build a fully working classical prototype before adding any quantum simulation.
-
-Tasks:
-1. Define all models.
-2. Implement election setup.
-3. Implement voter and candidate registration.
-4. Implement token issuance.
-5. Implement anonymous ballot submission.
-6. Implement deterministic tally and audit.
-7. Add tests.
-
-Deliverable:
-- A complete classical version that already demonstrates one-voter-one-ballot and separated identity versus ballot storage.
-
-### Phase 2: Quantum simulation layer
-Add quantum simulation only after the classical skeleton is stable.
-
-Tasks:
-1. Add candidate-to-gate mapping.
-2. Add circuit generation.
-3. Simulate measurement.
-4. Decode measurement to candidate label.
-5. Plug decoded result into tally logic.
-6. Preserve deterministic behavior for standard valid ballots.
-
-Deliverable:
-- A working hybrid demo where ballots are encoded or validated through a quantum circuit simulator.
-
-### Phase 3: Audit and adversarial cases
-Tasks:
-1. Add duplicate-token attempts.
-2. Add invalid candidate encoding.
-3. Add malformed ballot payloads.
-4. Add tampering simulation.
-5. Confirm audit catches all failures.
-
-Deliverable:
-- A demonstrable trust and integrity layer.
-
-### Phase 4: Optional GHZ research module
-Tasks:
-1. Create a separate experimental file or package.
-2. Simulate a shared GHZ-state style vote aggregation.
-3. Keep this isolated from the main deterministic prototype.
-4. Document clearly that it is exploratory.
-
-## Required Invariants
-
-The implementation must enforce these invariants:
-
-- Each registered voter receives at most one token.
-- Each token may be used at most once.
-- Each accepted ballot maps to exactly one valid candidate.
-- Final tally equals the number of accepted ballots.
-- Identity records and ballot records are stored separately.
-- Closing the election prevents further submissions.
-- Invalid ballots must not affect final counts.
-
-## Suggested CLI Demo Flow
-
-The command-line demo should support a scripted run like this:
-
-1. Create election.
-2. Add candidates A, B, C.
-3. Register voters V1 to V5.
-4. Issue tokens.
-5. Simulate each voter casting one vote.
-6. Attempt one duplicate submission.
-7. Attempt one invalid ballot.
-8. Close election.
-9. Run tally.
-10. Print results and audit report.
-
-### Example narrative output
-The output should show:
-- Election created.
-- Tokens issued.
-- Ballots submitted anonymously.
-- Duplicate ballot rejected.
-- Invalid ballot rejected.
-- Accepted ballots decoded.
-- Final tally displayed.
-- Audit checks passed or failed.
-
-## Suggested Internal APIs
-
-The following signatures are illustrative; equivalent designs are acceptable.
-
-```python
-create_election(title: str) -> Election
-register_voter(election: Election, voter_id: str, name: str) -> None
-add_candidate(election: Election, candidate_id: str, label: str, encoding: str) -> None
-issue_token(election: Election, voter_id: str) -> str
-create_ballot(token_id: str, candidate_label: str) -> Ballot
-encode_vote(candidate_encoding: str) -> object
-submit_ballot(election: Election, ballot: Ballot) -> None
-close_election(election: Election) -> None
-decode_ballot(ballot: Ballot) -> str
-run_tally(election: Election) -> dict
-generate_audit_report(election: Election) -> AuditReport
+- GUI or web interface for version 1.
+
+***
+
+## Technology Stack
+
+| Component | Library |
+|---|---|
+| Quantum simulation | SimulaQron + NetQASM SDK |
+| Network communication | `asyncio` StreamReader/StreamWriter |
+| Classical protocol | Custom message strings over TCP |
+| Data models | Python `dataclasses` |
+| Testing | `pytest` + `pytest-asyncio` |
+| Configuration | JSON files (matching repo pattern) |
+
+Install requirements:
+```
+pip install simulaqron netqasm pytest pytest-asyncio
 ```
 
-## Simulator Recommendation
+***
 
-Preferred stack:
-- Python 3.11+
-- Qiskit for quantum simulation
-- `dataclasses` for models
-- `pytest` for tests
+## SimulaQron Network Configuration
 
-Alternative:
-- Cirq instead of Qiskit if the implementation agent prefers a lighter conceptual model
+Follow the exact pattern from `simulaqron_network.json` in your repository. Create a `simulaqron_network.json` file in the project root with nodes for each process.
 
-### If using Qiskit
-Recommended usage:
-- Small circuits only
-- Statevector or qasm simulator
-- Explicit measurement handling
-- Clear mapping between measurement bitstrings and candidate labels
+For a demo with 3 voters and 1 commission:
 
-## Determinism Requirement
+```json
+[
+  {
+    "name": "default",
+    "nodes": [
+      {
+        "Commission": {
+          "app_socket": ["localhost", 8851],
+          "qnodeos_socket": ["localhost", 8852],
+          "vnode_socket": ["localhost", 8853]
+        }
+      },
+      {
+        "Voter1": {
+          "app_socket": ["localhost", 8821],
+          "qnodeos_socket": ["localhost", 8822],
+          "vnode_socket": ["localhost", 8823]
+        }
+      },
+      {
+        "Voter2": {
+          "app_socket": ["localhost", 8831],
+          "qnodeos_socket": ["localhost", 8832],
+          "vnode_socket": ["localhost", 8833]
+        }
+      },
+      {
+        "Voter3": {
+          "app_socket": ["localhost", 8841],
+          "qnodeos_socket": ["localhost", 8842],
+          "vnode_socket": ["localhost", 8843]
+        }
+      }
+    ],
+    "topology": null
+  }
+]
+```
 
-The demo must be reproducible.
+Also create `simulaqron_settings.json` matching the repo's pattern to configure timeouts and backend options.
 
-### Acceptable methods
-- Use deterministic candidate-to-gate mappings.
-- Use simulator seeds where randomness exists.
-- For valid ballots, decode results unambiguously.
-- Keep probabilistic behavior only in optional experimental modules.
+***
 
-### Unacceptable behavior
-- Same inputs produce different winners across runs without explanation.
-- Vote counts depend on unstable measurement sampling for ordinary valid ballots.
+## Project File Structure
 
-## Testing Requirements
+```
+quantum_voting/
+├── commission.py               # Election commission server (Referee role)
+├── voter.py                    # Voter client template (Alice/Bob role)
+├── voter1.py                   # Voter 1 instance (wraps voter.py with identity V1)
+├── voter2.py                   # Voter 2 instance
+├── voter3.py                   # Voter 3 instance
+├── tally.py                    # Tally and audit engine
+├── models.py                   # Dataclasses: Ballot, Election, AuditReport
+├── quantum_core.py             # Quantum encoding helpers (circuit builders)
+├── simulaqron_network.json     # Network topology config
+├── simulaqron_settings.json    # SimulaQron settings
+├── main.py                     # Orchestration script to launch all processes
+├── tests/
+│   ├── test_models.py
+│   ├── test_tally.py
+│   ├── test_quantum_core.py
+│   └── test_protocol.py
+└── README.md
+```
 
-At minimum, implement these tests.
+***
 
-### Normal operation
-- Election setup succeeds.
-- Voter registration works.
-- Candidate registration works.
-- Tokens are unique.
-- Ballots are accepted before election closes.
-- Tally matches expected votes.
+## Message Protocol
 
-### Failure handling
-- Duplicate token submission is rejected.
-- Invalid candidate is rejected.
-- Malformed ballot is rejected.
-- Submission after close is rejected.
-- Unregistered voter cannot receive token.
+Define a structured classical message format matching the style from the repository. All messages are UTF-8 strings passed over TCP.
 
-### Integrity checks
-- Accepted ballot count equals total tally count.
-- Duplicate ballots do not change result.
-- Rejected ballots appear in audit report.
-- Identity and ballot records remain separated.
+### Voter to Commission
 
-### Quantum layer tests
-- Candidate encoding creates expected circuit behavior.
-- Measurement decode matches intended candidate.
-- Reserved invalid state is handled properly.
+| Message | Format | Meaning |
+|---|---|---|
+| HELLO | `HELLO:<voter_id>` | Voter identifies itself to commission |
+| BALLOT | `BALLOT:<voter_id>:<round>:<enc0>:<enc1>:...<encN>` | Voter sends encoded ballot bits |
 
-## Logging and Audit Output
+### Commission to Voter
 
-The implementation should generate two forms of output.
+| Message | Format | Meaning |
+|---|---|---|
+| REGISTERED | `REGISTERED:<voter_id>:<token>` | Commission acknowledges voter, issues token |
+| START_ROUND | `START_ROUND:<round_index>` | Commission starts a voting round |
+| RESULT | `RESULT:<winner>:<total_votes>` | Commission broadcasts final result |
+| REJECTED | `REJECTED:<voter_id>:<reason>` | Commission rejects a ballot |
 
-### Human-readable audit summary
-Include:
-- Election title.
-- Number of registered voters.
-- Number of issued tokens.
-- Number of submitted ballots.
-- Number of accepted ballots.
-- Number of rejected ballots.
-- Duplicate attempts.
-- Invalid ballots.
-- Final tally per candidate.
-- Result of consistency checks.
+***
 
-### Machine-readable audit artifact
-Save JSON or CSV with:
-- token usage status
-- ballot status list
-- tally summary
-- consistency check booleans
-- error events
+## State Machine
+
+Each process runs an async state machine, identical in spirit to the `STATE_WAIT_INPUT`, `STATE_START`, `STATE_WAIT_FOR_MESSAGE`, `STATE_DONE` pattern in `alice.py`.
+
+### Voter state machine
+
+```
+WAIT_INPUT
+    -> get candidate choice from env var or stdin
+    -> transition to START
+
+START
+    -> send HELLO:<voter_id> to commission
+    -> transition to WAIT_FOR_MESSAGE
+
+WAIT_FOR_MESSAGE
+    -> on REGISTERED: store token, confirm identity
+    -> on START_ROUND: encode ballot, prepare quantum circuit,
+         send BALLOT message with corrections, stay in WAIT_FOR_MESSAGE
+    -> on RESULT: print result, transition to DONE
+    -> on REJECTED: log rejection, transition to DONE
+
+DONE
+    -> exit
+```
+
+### Commission state machine
+
+The commission is an async server (like `referee.py`) that manages a shared context object. It accepts connections from multiple voters.
+
+```
+INIT
+    -> load election config
+    -> start server
+    -> wait for all voters to connect
+
+WAIT_CONNECTIONS
+    -> on HELLO from each voter: register, issue token, acknowledge
+    -> when all voters connected: start protocol
+
+RUNNING_ROUNDS
+    -> for each round:
+         broadcast START_ROUND
+         create EPR pairs for each voter via SimulaQron
+         wait for BALLOT from all voters
+         validate each ballot
+         decode ballot via quantum measurement
+         after all received: continue to next round or tally
+
+TALLY
+    -> collect accepted ballot list
+    -> run tally engine
+    -> broadcast RESULT to all voters
+    -> generate audit report
+    -> transition to DONE
+
+DONE
+    -> print audit, exit
+```
+
+***
+
+## Commission Process: `commission.py`
+
+Model this directly after `referee.py` from your repository.
+
+### Key structural elements to replicate
+
+1. Use an async context dataclass (like `RefereeContext`) to hold shared state:
+
+```python
+@dataclass
+class CommissionContext:
+    writers: dict[str, StreamWriter] = field(default_factory=dict)
+    tokens: dict[str, str] = field(default_factory=dict)
+    ballots: dict[str, object] = field(default_factory=dict)
+    current_round: Optional[int] = None
+    all_connected: asyncio.Event = field(default_factory=asyncio.Event)
+    all_ballots_in: asyncio.Event = field(default_factory=asyncio.Event)
+    done: asyncio.Event = field(default_factory=asyncio.Event)
+    protocol_task: Optional[asyncio.Task] = None
+    expected_voters: list[str] = field(default_factory=list)
+```
+
+2. Use `SimulaQronClassicalServer` and register a client handler, same as `referee.py`.
+
+3. In `run_protocol`, loop over voting rounds:
+   - For each round, open EPR sockets to every voter.
+   - Create EPR pairs using `epr_socket.create_keep(number=BALLOT_QUBITS)`.
+   - Broadcast `START_ROUND:<round_index>` to all voters.
+   - Wait for `all_ballots_in` event.
+   - Apply corrections to each voter's EPR qubits.
+   - Run quantum measurement or swap test on decoded ballots.
+   - Decode to candidate label.
+   - Aggregate results.
+
+4. In `handle_client`, parse incoming messages:
+   - `HELLO` -> register voter, issue token, set writer, check if all voters connected.
+   - `BALLOT` -> parse correction bits, store in `ctx.ballots`, set event when all received.
+
+5. At boot:
+
+```python
+if __name__ == "__main__":
+    _here = Path(__file__).parent
+    simulaqron_settings.read_from_file(_here / "simulaqron_settings.json")
+    network_config.read_from_file(_here / "simulaqron_network.json")
+
+    run_commission.ctx = CommissionContext(expected_voters=["Voter1", "Voter2", "Voter3"])
+    sockets_config = SocketsConfig(network_config, "default", NodeConfigType.APP)
+    server = SimulaQronClassicalServer(sockets_config, "Commission")
+    server.register_client_handler(run_commission)
+    print("Commission: starting server...", flush=True)
+    server.start_serving()
+```
+
+***
+
+## Voter Process: `voter.py`
+
+Model this directly after `alice.py` from your repository.
+
+### Key structural elements to replicate
+
+1. Use environment variables to pass vote choice, voter ID, and node name:
+
+```python
+VOTER_ID = os.environ.get("VOTER_ID", "Voter1")
+VOTE_CHOICE = os.environ.get("VOTE_CHOICE", "A")
+NODE_NAME = os.environ.get("NODE_NAME", "Voter1")
+```
+
+This mirrors the `ALICE_INPUT_BITS` env var pattern in `alice.py`.
+
+2. Implement an `encode_ballot` function analogous to `prepare_hadamard_fingerprint`:
+
+```python
+def encode_ballot(conn: NetQASMConnection, candidate: str) -> list[Qubit]:
+    """
+    Encode the voter's choice into a quantum state.
+    A -> |00>, B -> X on qubit 0 -> |10>, C -> X on qubit 1 -> |01>
+    """
+    qubits = [Qubit(conn) for _ in range(BALLOT_QUBITS)]
+    if candidate == "B":
+        qubits[0].X()
+    elif candidate == "C":
+        qubits[1].X()
+    return qubits
+```
+
+3. Implement `teleport_ballot` analogous to `teleport_fingerprint`:
+
+```python
+def teleport_ballot(ballot: list[Qubit], epr_qubits: list[Qubit]) -> list:
+    measurements = []
+    for q, epr in zip(ballot, epr_qubits):
+        q.cnot(epr)
+        q.H()
+        measurements.append(q.measure())
+        measurements.append(epr.measure())
+    return measurements
+```
+
+4. In `run_voter`, implement the state machine. On `START_ROUND`:
+   - Open `EPRSocket("Commission")`.
+   - Open `NetQASMConnection(NODE_NAME, epr_sockets=[epr_socket], max_qubits=MAX_QUBITS)`.
+   - Receive EPR halves with `epr_socket.recv_keep(number=BALLOT_QUBITS)`.
+   - Encode ballot and teleport.
+   - Send `BALLOT` message with correction bits, matching the `CORRECTIONS` message format in `alice.py`.
+
+5. At boot, use `SimulaQronClassicalClient` to connect to Commission:
+
+```python
+if __name__ == "__main__":
+    _here = Path(__file__).parent
+    simulaqron_settings.read_from_file(_here / "simulaqron_settings.json")
+    network_config.read_from_file(_here / "simulaqron_network.json")
+
+    sockets_config = SocketsConfig(network_config, "default", NodeConfigType.APP)
+    client = SimulaQronClassicalClient(sockets_config)
+    print(f"{NODE_NAME}: connecting to Commission...", flush=True)
+    client.run_client("Commission", run_voter)
+```
+
+***
+
+## Voter Instance Files
+
+Create one thin wrapper file per voter, exactly as you would spin up separate alice/bob instances. These simply set environment variables and import the shared voter logic:
+
+### `voter1.py`
+```python
+import os
+os.environ["VOTER_ID"] = "Voter1"
+os.environ["VOTE_CHOICE"] = "A"
+os.environ["NODE_NAME"] = "Voter1"
+from voter import *
+```
+
+### `voter2.py`
+```python
+import os
+os.environ["VOTER_ID"] = "Voter2"
+os.environ["VOTE_CHOICE"] = "B"
+os.environ["NODE_NAME"] = "Voter2"
+from voter import *
+```
+
+### `voter3.py`
+```python
+import os
+os.environ["VOTER_ID"] = "Voter3"
+os.environ["VOTE_CHOICE"] = "A"
+os.environ["NODE_NAME"] = "Voter3"
+from voter import *
+```
+
+Alternatively, let vote choices come from stdin, matching the interactive input flow in `alice.py` where `get_input_bits()` supports both terminal and env var modes.
+
+***
+
+## Quantum Core: `quantum_core.py`
+
+This module contains reusable quantum helpers used by both commission and voter processes.
+
+### Candidate encoding table
+
+```python
+CANDIDATE_ENCODINGS = {
+    "A": "00",
+    "B": "01",
+    "C": "10",
+}
+INVALID_ENCODING = "11"
+BALLOT_QUBITS = 2
+```
+
+### Functions to implement
+
+```python
+def encode_ballot(conn, candidate: str) -> list
+    # Prepare qubits in the state corresponding to candidate
+
+def teleport_ballot(ballot: list, epr_qubits: list) -> list
+    # Teleport ballot qubits through EPR channel, return correction measurements
+
+def apply_ballot_corrections(qubits: list, corrections: tuple) -> None
+    # Apply X and Z corrections to received qubits, same as apply_teleportation_corrections in referee.py
+
+def decode_ballot(conn, qubits: list) -> str
+    # Measure qubits and return candidate label string or "INVALID"
+
+def is_valid_encoding(bits: str) -> bool
+    # Return True if bits map to a known candidate
+```
+
+***
+
+## Tally Engine: `tally.py`
+
+The tally engine is called by the commission after all ballots are collected and decoded. It runs classically.
+
+### Functions to implement
+
+```python
+def run_tally(accepted_ballots: list[Ballot]) -> dict[str, int]
+    # Count decoded votes per candidate; return {"A": 2, "B": 1, "C": 0}
+
+def find_winner(tally: dict[str, int]) -> str
+    # Return candidate label with highest count
+
+def generate_audit_report(ctx: CommissionContext) -> AuditReport
+    # Verify invariants, count anomalies, return structured report
+
+def print_audit(report: AuditReport) -> None
+    # Human-readable summary
+```
+
+### Invariants to verify in audit
+
+- `issued_tokens == registered_voters`
+- `submitted_ballots <= issued_tokens`
+- `accepted_ballots <= submitted_ballots`
+- `sum(tally.values()) == accepted_ballot_count`
+- `duplicate_token_count + invalid_ballot_count == rejected_ballot_count`
+- No voter ID appears in both the ballot register and the result summary.
+
+***
+
+## Data Models: `models.py`
+
+```python
+from dataclasses import dataclass, field
+from typing import Optional
+
+@dataclass
+class Ballot:
+    token_id: str
+    encoded_correction_bits: tuple
+    decoded_candidate: Optional[str] = None
+    status: str = "submitted"   # submitted | accepted | rejected | duplicate | invalid
+    error_message: Optional[str] = None
+
+@dataclass
+class Election:
+    title: str
+    candidates: list[str]
+    registered_voters: list[str]
+    issued_tokens: dict[str, str]   # voter_id -> token
+    submitted_ballots: list[Ballot]
+    results: Optional[dict[str, int]] = None
+
+@dataclass
+class AuditReport:
+    registered_voter_count: int
+    issued_token_count: int
+    submitted_ballot_count: int
+    accepted_ballot_count: int
+    rejected_ballot_count: int
+    duplicate_token_count: int
+    invalid_ballot_count: int
+    candidate_tallies: dict[str, int]
+    winner: str
+    consistency_passed: bool
+    errors: list[str]
+```
+
+***
+
+## Orchestration: `main.py`
+
+Implement a script that launches all processes using `subprocess` or `asyncio.create_subprocess_exec`, mirroring how the Alice/Bob/Referee triple is started in the repo's demo flows.
+
+Suggested sequence:
+1. Start SimulaQron network backend.
+2. Start `commission.py`.
+3. Start each voter process (`voter1.py`, `voter2.py`, `voter3.py`).
+4. Wait for all processes to complete.
+5. Print combined output.
+
+Alternatively, provide a shell script `run_demo.sh`:
+
+```bash
+#!/bin/bash
+simulaqron start --nrnodes 4 --nodes "Commission,Voter1,Voter2,Voter3" &
+sleep 2
+python commission.py &
+sleep 1
+python voter1.py &
+python voter2.py &
+python voter3.py &
+wait
+```
+
+***
+
+## Running the Demo
+
+Step-by-step startup order (same as running alice/bob/referee separately in your repository):
+
+1. Start the SimulaQron network for all 4 nodes.
+2. Start `commission.py` — it begins listening for voter connections.
+3. Start `voter1.py`, `voter2.py`, `voter3.py` — each connects to commission.
+4. Commission issues tokens, starts voting round, creates EPR pairs.
+5. Each voter encodes ballot, teleports, sends correction bits.
+6. Commission applies corrections, decodes, tallies.
+7. Commission broadcasts `RESULT` to all voters.
+8. Commission generates and prints audit report.
+
+***
+
+## Implementation Invariants
+
+- Each voter sends exactly one `HELLO` per session.
+- Each voter sends exactly one `BALLOT` per round.
+- Commission rejects any voter that sends a second `BALLOT` in the same round.
+- Token is bound to one voter ID and never reissued.
+- Identity records (`voter_id -> token`) are held only in CommissionContext.
+- Ballot storage (`token -> decoded_candidate`) never contains voter names.
+- All quantum operations complete before corrections are sent.
+- All corrections are applied before tally decoding begins.
+
+***
 
 ## Security and Honesty Requirements
 
-The implementation agent must not overclaim.
+The implementation must include a clear disclaimer in the README and at the top of `commission.py`:
 
-The code comments and documentation must explicitly state:
-- This is a prototype.
-- This does not guarantee real-world secrecy.
-- This does not prevent coercion or endpoint compromise.
-- This does not replace audited cryptographic protocols.
-- The quantum part is educational and architectural, not a proof of election security.
+```
+# PROTOTYPE NOTICE
+# This is a research demo of a quantum-inspired voting workflow.
+# It does not provide real-world ballot secrecy, coercion resistance,
+# or cryptographic authentication. It is an architectural demonstration
+# using SimulaQron for quantum channel simulation.
+```
 
-## Optional Enhancements
+***
 
-After the core prototype works, the implementation may add:
-- A simple text menu CLI.
-- Configurable number of candidates.
-- Configurable voter count.
-- Export of result and audit files.
-- Visualization of the circuit for each ballot.
-- Experimental GHZ parity mode.
-- A small web UI as a separate layer.
+## Testing Requirements
 
-## Non-Goals for Version 1
+### Unit tests
 
-Do not spend time on:
-- GUI-first development.
-- Real cryptographic credential systems.
-- Complex distributed state sharing.
-- Continuous network services.
-- Production-grade authentication.
-- Fancy optimization.
+- `test_quantum_core.py`: Test `encode_ballot`, `decode_ballot`, `apply_ballot_corrections` with all valid candidates and the invalid `11` state.
+- `test_tally.py`: Test `run_tally` with known ballot lists. Test `generate_audit_report` with normal and anomalous inputs. Test winner determination with ties.
+- `test_models.py`: Test dataclass construction and field defaults.
 
-Version 1 succeeds if it is understandable, modular, testable, and demonstrable.
+### Integration tests
+
+- `test_protocol.py`: Simulate a full 3-voter election using mock TCP streams. Verify messages flow correctly through each state. Verify REJECTED message is sent on duplicate ballot. Verify audit report consistency flags.
+
+### Adversarial cases to test
+
+- Voter sends `BALLOT` twice with the same token.
+- Voter sends an encoding not in `CANDIDATE_ENCODINGS`.
+- Voter sends wrong number of correction bits.
+- Commission receives ballot after election close.
+- All voters vote for the same candidate.
+- Votes split equally among all candidates.
+
+***
+
+## Implementation Sequence
+
+### Phase 1: Classical skeleton
+Build without quantum layer first.
+
+1. Define `models.py`.
+2. Implement `commission.py` server with message protocol and state machine.
+3. Implement `voter.py` client with state machine.
+4. Implement `tally.py`.
+5. Run a test election where ballots are plain text candidate labels, no encoding.
+6. Write unit tests.
+
+Deliverable: A complete classical multi-process voting demo that runs end-to-end with separate commission and voter processes communicating over TCP.
+
+### Phase 2: Quantum encoding layer
+Add SimulaQron and NetQASM.
+
+1. Implement `quantum_core.py` functions.
+2. Replace plain-text ballot submission with EPR-based teleportation in `voter.py`.
+3. Add EPR pair creation and correction application in `commission.py`.
+4. Add ballot decoding via measurement in commission tally step.
+5. Verify deterministic decoding of all three candidate states.
+
+Deliverable: A working quantum-layer demo where ballot content is encoded, teleported, and decoded through simulated quantum channels.
+
+### Phase 3: Audit and adversarial cases
+1. Add duplicate ballot detection.
+2. Add invalid encoding detection.
+3. Add audit report generation.
+4. Test all adversarial scenarios.
+
+Deliverable: Full demo with trust and integrity layer.
+
+### Phase 4: Optional GHZ extension
+Isolated experimental module. See Phase 4 in the original spec. Keep entirely separate from the main deterministic protocol.
+
+***
 
 ## Definition of Done
 
-The prototype is complete when all of the following are true:
-- A full demo election runs from start to finish locally.
-- Voters, candidates, tokens, ballots, tally, and audit are implemented.
-- Ballot identities are separated from voter records.
-- The quantum layer is integrated for encoding and decoding.
-- Duplicate and invalid ballots are handled correctly.
-- Unit tests pass.
-- Output is readable and reproducible.
-- Documentation clearly explains limitations.
+The prototype is complete when:
 
-## Final Guidance for the Implementation Agent
+- `commission.py`, `voter1.py`, `voter2.py`, `voter3.py` each run as independent processes.
+- They communicate using the defined classical TCP message protocol.
+- Quantum ballot encoding and teleportation use SimulaQron EPR pairs.
+- Ballot identity is separated from voter identity in all data structures.
+- Duplicate and invalid ballots are rejected and logged.
+- Final tally is deterministic and consistent with accepted ballots.
+- Audit report passes all invariant checks.
+- All unit tests pass.
+- Demo runs to completion from a single `main.py` or `run_demo.sh` invocation.
+- README explains the architecture, startup sequence, and prototype limitations.
 
-Prioritize clean architecture over ambitious theory. Build the classical election workflow first, then insert the quantum simulation layer as a deterministic encoding component. Treat privacy as a structural separation problem inside the prototype, not as a solved security theorem. Keep the code small, readable, and easy to demonstrate in a single local run.
+***
+
+## Reference
+
+The `alice.py`, `bob.py`, and `referee.py` patterns from [Shaktiman91/Quantum_week8/materials/step4_quantum_fingerprinting](https://github.com/Shaktiman91/Quantum_week8/tree/main/materials/step4_quantum_fingerprinting) are the direct structural reference for this prototype. The voter processes follow the `alice.py`/`bob.py` client pattern. The commission process follows the `referee.py` server pattern. The network config follows `simulaqron_network.json`. The message format follows the `HELLO`, `START_ROUND`, `CORRECTIONS`, `RESULT` protocol defined in those files.
