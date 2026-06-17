@@ -7,12 +7,11 @@ It does not provide real-world ballot secrecy, coercion resistance,
 or cryptographic authentication. It is an architectural demonstration
 using SimulaQron for quantum channel simulation.
 
-Directly mirrors the referee.py pattern from Quantum_week8/step4_quantum_fingerprinting.
-
-FIX: NetQASMConnection is now used as a context manager (`with` block) so that
-the connection is properly opened and all buffered instructions (including EPR
-create_keep) are flushed automatically on exit. Without this the EPR handshake
-never completes and the process hangs after START_ROUND.
+FIX (round 2): Keep all EPR qubits alive inside a single long-lived
+NetQASMConnection context for the whole round (create -> wait for ballots ->
+correct -> decode). Splitting create and decode across two separate connection
+contexts caused "Qubit 0 is not active" because qubits become inactive once
+their owning connection context exits.
 """
 
 import asyncio
@@ -155,71 +154,73 @@ def make_handler(ctx: CommissionContext):
 
 async def _run_protocol(ctx: CommissionContext) -> None:
     """
-    Background task: broadcast START_ROUND, create EPR pairs per voter,
-    wait for all ballots, then decode, tally and broadcast result.
-
-    Each voter gets its own NetQASMConnection context so the connection is
-    properly opened and flushed (fixing the post-START_ROUND hang).
-    Measurement results are collected *inside* the `with` block so they are
-    resolved before the connection is closed.
+    Background task: broadcast START_ROUND, create EPR pairs for all voters
+    inside ONE long-lived NetQASMConnection, wait for all BALLOT messages,
+    then apply corrections and decode -- all within the same connection scope
+    so qubits remain active throughout.
     """
     await ctx.all_connected.wait()
     ctx.current_round = 1
-    print("Commission: all voters connected — broadcasting START_ROUND:1", flush=True)
+    print("Commission: all voters connected \u2014 broadcasting START_ROUND:1", flush=True)
 
     for writer in ctx.writers.values():
         writer.write(b"START_ROUND:1\n")
         await writer.drain()
 
-    # Allow voters time to open their recv_keep EPR sockets before we create.
+    # Give voters time to open their recv_keep EPR sockets before we create.
     await asyncio.sleep(1.0)
 
-    # --- EPR: create_keep (one connection per voter, context-managed) ---
-    # Correction bits are stored in ctx.epr_corrections[voter_id] as plain int lists.
-    ctx.epr_corrections = {}  # voter_id -> list[(m1, m2)] resolved ints
+    # Build one EPRSocket per voter.
+    epr_sockets = {voter_id: EPRSocket(voter_id) for voter_id in ctx.expected_voters}
 
-    for voter_id in ctx.expected_voters:
-        try:
-            epr_socket = EPRSocket(voter_id)
-            # `with` block opens the connection, submits create_keep, and flushes
-            # on exit so measurement futures are resolved before we leave.
-            with NetQASMConnection(
-                "Commission", epr_sockets=[epr_socket], max_qubits=MAX_QUBITS
-            ) as conn:
-                remote_qubits = epr_socket.create_keep(number=BALLOT_QUBITS)
-                # Store qubits for correction step; conn stays open until `with` exits
-                ctx.epr_corrections[voter_id] = remote_qubits  # still Qubit objects here
-            print(f"Commission: EPR pairs created for {voter_id}", flush=True)
-        except Exception as exc:
-            print(f"Commission: EPR error for {voter_id}: {exc}", flush=True)
-            ctx.epr_corrections[voter_id] = None
+    # FIX: one single NetQASMConnection context for the entire round.
+    # Qubits returned by create_keep() belong to this connection and stay
+    # active until the `with` block exits -- so corrections and decode
+    # must also happen inside this same block.
+    with NetQASMConnection(
+        "Commission",
+        epr_sockets=list(epr_sockets.values()),
+        max_qubits=MAX_QUBITS,
+    ) as conn:
 
-    # --- Wait for all BALLOT messages to arrive ---
-    await ctx.all_ballots_in.wait()
-    print("Commission: all ballots received — decoding...", flush=True)
+        # --- Phase 1: create EPR pairs, flush after each voter ---
+        remote_qubits = {}
+        for voter_id in ctx.expected_voters:
+            try:
+                remote_qubits[voter_id] = epr_sockets[voter_id].create_keep(
+                    number=BALLOT_QUBITS
+                )
+                conn.flush()  # flush per voter so pairs are created in order
+                print(f"Commission: EPR pairs created for {voter_id}", flush=True)
+            except Exception as exc:
+                print(f"Commission: EPR error for {voter_id}: {exc}", flush=True)
+                remote_qubits[voter_id] = None
 
-    # --- Decode: apply corrections + measure (each in its own connection context) ---
-    for voter_id in ctx.expected_voters:
-        ballot = ctx.ballots.get(voter_id)
-        qubits = ctx.epr_corrections.get(voter_id)
-        if ballot is None or qubits is None or ballot.get("status") in ("invalid", "duplicate"):
-            continue
-        try:
-            epr_socket = EPRSocket(voter_id)
-            with NetQASMConnection(
-                "Commission", epr_sockets=[epr_socket], max_qubits=MAX_QUBITS
-            ) as conn:
+        # --- Phase 2: wait for all BALLOT messages (classical, non-blocking) ---
+        await ctx.all_ballots_in.wait()
+        print("Commission: all ballots received \u2014 decoding...", flush=True)
+
+        # --- Phase 3: apply corrections + decode (still inside same connection) ---
+        for voter_id in ctx.expected_voters:
+            ballot = ctx.ballots.get(voter_id)
+            qubits = remote_qubits.get(voter_id)
+            if ballot is None or qubits is None or ballot.get("status") in ("invalid", "duplicate"):
+                continue
+            try:
                 apply_ballot_corrections(qubits, ballot["corrections"])
+                conn.flush()  # apply X/Z corrections before measuring
                 decoded = decode_ballot(conn, qubits)
-            ballot["decoded"] = decoded
-            ballot["status"] = "accepted" if decoded != "INVALID" else "invalid"
-            print(f"Commission: {voter_id} decoded -> {decoded}", flush=True)
-        except Exception as exc:
-            ballot["decoded"] = "INVALID"
-            ballot["status"] = "invalid"
-            ballot["error"] = str(exc)
-            print(f"Commission: decode error for {voter_id}: {exc}", flush=True)
+                conn.flush()  # execute the measurements
+                ballot["decoded"] = decoded
+                ballot["status"] = "accepted" if decoded != "INVALID" else "invalid"
+                print(f"Commission: {voter_id} decoded -> {decoded}", flush=True)
+            except Exception as exc:
+                ballot["decoded"] = "INVALID"
+                ballot["status"] = "invalid"
+                ballot["error"] = str(exc)
+                print(f"Commission: decode error for {voter_id}: {exc}", flush=True)
 
+    # --- Phase 4: tally, audit and broadcast result (outside connection scope) ---
     accepted = [b for b in ctx.ballots.values() if b.get("status") == "accepted"]
     tally = run_tally(accepted)
     winner = find_winner(tally)

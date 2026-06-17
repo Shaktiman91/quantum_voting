@@ -2,6 +2,12 @@
 quantum_core.py -- Quantum helpers for ballot encoding and decoding.
 
 Uses NetQASM Qubit primitives for EPR-based ballot teleportation.
+
+NOTE on measurement conversion:
+  teleport_ballot returns raw Future objects from q.measure() / epr.measure().
+  These are only resolved after the enclosing NetQASMConnection context flushes.
+  Callers must convert to int AFTER the `with` block exits -- never inside it.
+  decode_ballot calls conn.flush() before reading measurement results.
 """
 
 from netqasm.sdk import Qubit
@@ -35,14 +41,15 @@ def encode_ballot(conn, candidate: str) -> list:
 def teleport_ballot(ballot: list, epr_qubits: list) -> list:
     """
     Teleport ballot qubits through EPR channel.
-    Returns a list of (m1, m2) integer correction pairs.
+    Returns a list of (Future, Future) pairs -- callers must convert to int
+    AFTER the enclosing connection context has flushed.
     """
     corrections = []
     for q, epr in zip(ballot, epr_qubits):
         q.cnot(epr)
         q.H()
-        m1 = _to_int(q.measure())
-        m2 = _to_int(epr.measure())
+        m1 = q.measure()    # returns a Future; do NOT call int() here
+        m2 = epr.measure()  # returns a Future; do NOT call int() here
         corrections.append((m1, m2))
     return corrections
 
@@ -50,7 +57,11 @@ def teleport_ballot(ballot: list, epr_qubits: list) -> list:
 def apply_ballot_corrections(qubits: list, corrections: list) -> None:
     """
     Apply X/Z corrections to EPR qubits held by the commission.
-    Mirrors apply_teleportation_corrections from referee.py.
+    corrections must be a list of (int, int) pairs (already resolved).
+    Must be called inside an active NetQASMConnection context.
+    Mirrors apply_teleportation_corrections from referee.py:
+      X when m2 (epr_measure) == 1
+      Z when m1 (q_measure)   == 1
     """
     for qubit, (m1, m2) in zip(qubits, corrections):
         if m2 == 1:
@@ -62,9 +73,13 @@ def apply_ballot_corrections(qubits: list, corrections: list) -> None:
 def decode_ballot(conn, qubits: list) -> str:
     """
     Measure commission-side EPR qubits and decode to a candidate label.
-    Returns 'INVALID' if the bitstring does not match any known candidate.
+    Must be called inside the same NetQASMConnection context in which
+    the qubits were created. Returns 'INVALID' if bitstring is unknown.
+    Caller should call conn.flush() after this to resolve the measurements.
     """
-    bits = "".join(str(_to_int(q.measure())) for q in qubits)
+    measurements = [q.measure() for q in qubits]
+    conn.flush()  # resolve measurement futures immediately
+    bits = "".join(str(_to_int(m)) for m in measurements)
     for candidate, encoding in CANDIDATE_ENCODINGS.items():
         if encoding == bits:
             return candidate

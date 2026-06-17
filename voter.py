@@ -10,10 +10,9 @@ Directly mirrors the alice.py pattern from Quantum_week8/step4_quantum_fingerpri
 Voter identity, vote choice, and SimulaQron node name are read from environment
 variables, mirroring the ALICE_INPUT_BITS env-var pattern in alice.py.
 
-FIX: NetQASMConnection is now used as a context manager (`with` block) so that
-the connection is properly opened, all buffered instructions (recv_keep, encode,
-teleport) are flushed, and measurement futures are resolved before the connection
-closes. Without this the process would hang after START_ROUND.
+FIX (round 2): After the `with` block exits and futures are resolved, explicitly
+convert each correction pair to plain Python ints before serialising to the
+BALLOT message, so the wire format never contains Future repr strings.
 """
 
 import os
@@ -56,7 +55,7 @@ async def run_voter(
         if msg.startswith("REGISTERED:"):
             parts = msg.split(":", 2)
             token = parts[2] if len(parts) > 2 else ""
-            print(f"{name}: registered — token={token[:8]}...", flush=True)
+            print(f"{name}: registered \u2014 token={token[:8]}...", flush=True)
 
         elif msg.startswith("START_ROUND:"):
             round_index = msg.split(":", 1)[1]
@@ -64,23 +63,24 @@ async def run_voter(
 
             try:
                 epr_socket = EPRSocket("Commission")
-                # FIX: use `with` block so the connection is opened and all
-                # quantum instructions (recv_keep, X gates, CNOT, H, measure)
-                # are flushed before we try to read correction bit values.
                 with NetQASMConnection(
                     name, epr_sockets=[epr_socket], max_qubits=MAX_QUBITS
                 ) as conn:
                     # Receive EPR half from Commission
                     epr_qubits = epr_socket.recv_keep(number=BALLOT_QUBITS)
 
-                    # Encode ballot qubit state
+                    # Encode ballot qubit state for chosen candidate
                     ballot_qubits = encode_ballot(conn, vote)
 
-                    # Teleport: CNOT + H + measure both qubits
-                    # corrections are resolved int pairs AFTER the `with` block flushes
+                    # Teleport: CNOT + H + measure; returns list of Future pairs
                     corrections = teleport_ballot(ballot_qubits, epr_qubits)
 
-                # corrections are now resolved plain Python ints (flush happened on exit)
+                # --- `with` block has exited: connection flushed, futures resolved ---
+                # FIX: convert every correction value to a plain Python int NOW,
+                # before serialising, so the BALLOT wire message never contains
+                # Future repr strings like "<class 'netqasm.sdk.futures.Future'>".
+                corrections = [(int(m1), int(m2)) for m1, m2 in corrections]
+
                 flat = ",".join(str(bit) for pair in corrections for bit in pair)
                 writer.write(f"BALLOT:{name}:{round_index}:{flat}\n".encode())
                 await writer.drain()
