@@ -2,23 +2,34 @@
 # run_demo.sh -- Start SimulaQron network and all voting processes.
 #
 # PROTOTYPE NOTICE: research demo only; not for real elections.
+#
+# Correct simulaqron start command taken from Quantum_week8 README:
+#   simulaqron start --nodes=Commission,Voter1,Voter2,Voter3 \
+#     --network-config-file simulaqron_network.json \
+#     --simulaqron-config-file simulaqron_settings.json
 
 set -e
 
-echo "[demo] Starting SimulaQron network..."
-simulaqron start --nrnodes 4 --nodes "Commission,Voter1,Voter2,Voter3" &
-SQRON_PID=$!
-sleep 2
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-echo "[demo] Starting Commission..."
-python commission.py &
+echo "[demo] Starting SimulaQron network..."
+simulaqron start \
+  --nodes=Commission,Voter1,Voter2,Voter3 \
+  --network-config-file simulaqron_network.json \
+  --simulaqron-config-file simulaqron_settings.json &
+SQRON_PID=$!
+sleep 3
+
+echo "[demo] Starting Commission (Referee)..."
+python3 commission.py &
 COM_PID=$!
 sleep 1
 
 echo "[demo] Starting voters..."
-python voter1.py &
-python voter2.py &
-python voter3.py &
+python3 voter3.py &
+python3 voter2.py &
+python3 voter1.py &
 
 wait $COM_PID
 echo "[demo] Commission done."
